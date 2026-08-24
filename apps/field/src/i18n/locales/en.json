@@ -121,5 +121,15 @@
     "rechazadas_other": "{{count}} rejected changes",
     "guardadoLocal": "Saved on the device. It will be sent when coverage returns.",
     "desdeCache": "Showing the last downloaded data."
+  },
+  "foto": {
+    "hacer": "Take photo",
+    "procesando": "Processing…",
+    "subida": "Photo uploaded ({{kb}} KB)",
+    "guardada": "Photo saved. It will upload when coverage returns.",
+    "cuenta_one": "{{count}} photo",
+    "cuenta_other": "{{count}} photos",
+    "pendientes_one": "{{count}} photo not uploaded",
+    "pendientes_other": "{{count}} photos not uploaded"
   }
 }

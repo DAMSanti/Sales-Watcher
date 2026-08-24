@@ -36,6 +36,8 @@ export type SolicitudSubida = {
   incidenciaId?: string | undefined;
   tipoMime: string;
   tamanoBytes: number;
+  anchoPx?: number | undefined;
+  altoPx?: number | undefined;
   capturadaEn: Date;
   ubicacion?: { lat: number; lon: number; precisionM: number; capturadoEn: string };
   /** Identificador generado en el dispositivo, para idempotencia offline. */
@@ -121,6 +123,8 @@ export class FotosService {
         claveAlmacenamiento: clave,
         tipoMime: solicitud.tipoMime,
         tamanoBytes: solicitud.tamanoBytes,
+        anchoPx: solicitud.anchoPx ?? null,
+        altoPx: solicitud.altoPx ?? null,
         capturadaEn: solicitud.capturadaEn,
         ubicacion: solicitud.ubicacion ?? null,
         expiraEn: this.calcularExpiracion(),

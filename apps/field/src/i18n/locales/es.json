@@ -121,5 +121,15 @@
     "rechazadas_other": "{{count}} cambios rechazados",
     "guardadoLocal": "Guardado en el dispositivo. Se enviará al recuperar cobertura.",
     "desdeCache": "Mostrando los últimos datos descargados."
+  },
+  "foto": {
+    "hacer": "Hacer foto",
+    "procesando": "Procesando…",
+    "subida": "Foto subida ({{kb}} KB)",
+    "guardada": "Foto guardada. Se subirá al recuperar cobertura.",
+    "cuenta_one": "{{count}} foto",
+    "cuenta_other": "{{count}} fotos",
+    "pendientes_one": "{{count}} foto sin subir",
+    "pendientes_other": "{{count}} fotos sin subir"
   }
 }

@@ -33,6 +33,31 @@ export type OperacionEncolada = {
   descripcion?: string;
 };
 
+/**
+ * Fotografía capturada sin cobertura.
+ *
+ * El binario se guarda aquí porque la subida es un flujo de tres pasos que
+ * necesita red desde el primero: reservar, subir al almacenamiento y
+ * confirmar. Encolar solo la intención no bastaría — sin el fichero no habría
+ * nada que subir cuando volviera la señal, y la foto se habría perdido.
+ */
+export type FotoPendiente = {
+  fotoLocalId: string;
+  visitaId: string;
+  ambito: "visita" | "checklist" | "incidencia";
+  resultadoChecklistId?: string;
+  incidenciaId?: string;
+  blob: Blob;
+  tipoMime: string;
+  tamanoBytes: number;
+  anchoPx?: number;
+  altoPx?: number;
+  capturadaEn: string;
+  ubicacion?: { lat: number; lon: number; precisionM: number; capturadoEn: string };
+  intentos: number;
+  error?: string;
+};
+
 type EsquemaSw = DBSchema & {
   cola: {
     key: string;
@@ -43,21 +68,32 @@ type EsquemaSw = DBSchema & {
     key: string;
     value: { clave: string; datos: unknown; guardadoEn: number };
   };
+  fotos: {
+    key: string;
+    value: FotoPendiente;
+    indexes: { "por-visita": string };
+  };
 };
 
 const NOMBRE_BD = "sales-watcher";
-const VERSION = 1;
+const VERSION = 2;
 
 let promesaBd: Promise<IDBPDatabase<EsquemaSw>> | null = null;
 
 function bd() {
   promesaBd ??= openDB<EsquemaSw>(NOMBRE_BD, VERSION, {
-    upgrade(base) {
-      const cola = base.createObjectStore("cola", { keyPath: "opId" });
-      /** El orden de encolado ES el orden de aplicación: comenzar antes que
-       *  finalizar, crear antes que marcar. */
-      cola.createIndex("por-creacion", "creadaEn");
-      base.createObjectStore("cache", { keyPath: "clave" });
+    upgrade(base, versionAnterior) {
+      if (versionAnterior < 1) {
+        const cola = base.createObjectStore("cola", { keyPath: "opId" });
+        /** El orden de encolado ES el orden de aplicación: comenzar antes que
+         *  finalizar, crear antes que marcar. */
+        cola.createIndex("por-creacion", "creadaEn");
+        base.createObjectStore("cache", { keyPath: "clave" });
+      }
+      if (versionAnterior < 2) {
+        const fotos = base.createObjectStore("fotos", { keyPath: "fotoLocalId" });
+        fotos.createIndex("por-visita", "visitaId");
+      }
     },
   });
   return promesaBd;
@@ -128,6 +164,32 @@ export async function descartar(opId: string) {
   await eliminar(opId);
 }
 
+// ── Fotos pendientes de subir ────────────────────────────────────────
+
+export async function guardarFotoPendiente(foto: FotoPendiente) {
+  await (await bd()).put("fotos", foto);
+}
+
+export async function fotosPendientes(): Promise<FotoPendiente[]> {
+  return (await bd()).getAll("fotos");
+}
+
+/** Fotos pendientes de una visita, para poder contarlas en su checklist. */
+export async function fotosPendientesDe(visitaId: string): Promise<FotoPendiente[]> {
+  return (await bd()).getAllFromIndex("fotos", "por-visita", visitaId);
+}
+
+export async function eliminarFotoPendiente(fotoLocalId: string) {
+  await (await bd()).delete("fotos", fotoLocalId);
+}
+
+export async function anotarFalloFoto(fotoLocalId: string, error: string) {
+  const base = await bd();
+  const foto = await base.get("fotos", fotoLocalId);
+  if (!foto) return;
+  await base.put("fotos", { ...foto, intentos: foto.intentos + 1, error });
+}
+
 // ── Caché de lectura ─────────────────────────────────────────────────
 
 export async function guardarCache(clave: string, datos: unknown) {
@@ -151,4 +213,5 @@ export async function limpiar() {
   const base = await bd();
   await base.clear("cola");
   await base.clear("cache");
+  await base.clear("fotos");
 }

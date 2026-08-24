@@ -1,0 +1,31 @@
+.foto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  margin-top: var(--e2);
+  margin-left: calc(26px + var(--e3));
+}
+
+.foto__boton {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0 var(--e4);
+  font-size: var(--txt-sm);
+  gap: var(--e2);
+}
+
+.foto__aviso {
+  font-size: var(--txt-xs);
+  color: var(--estado-fin-texto);
+}
+
+.foto__error {
+  font-size: var(--txt-xs);
+  color: var(--error);
+}
+
+/* Recuento de fotos ya asociadas al ítem. */
+.foto__cuenta {
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+}

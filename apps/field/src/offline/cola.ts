@@ -1,5 +1,6 @@
 import { MAX_OPERACIONES_LOTE, type RespuestaLote, type TipoOperacion } from "@sw/shared";
 import { ErrorApi, pedir } from "../api/cliente";
+import { subirPendientes } from "../fotos/subida";
 import {
   anotarIntento,
   eliminar,
@@ -199,7 +200,16 @@ export async function sincronizar(): Promise<{
  */
 export function iniciarSincronizacionAutomatica(intervaloMs = 30_000) {
   const intentar = () => {
-    if (navigator.onLine) void sincronizar();
+    if (!navigator.onLine) return;
+    void sincronizar();
+    /**
+     * Las fotos van por su cuenta y DESPUÉS de las operaciones.
+     *
+     * Una foto de ítem de checklist necesita que su fila de resultado exista
+     * en el servidor; si se subiera antes de sincronizar la cola, el destino
+     * al que se asocia podría no haberse creado todavía.
+     */
+    void subirPendientes();
   };
 
   const alVolverAlFrente = () => {

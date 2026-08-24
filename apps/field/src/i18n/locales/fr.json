@@ -121,5 +121,15 @@
     "rechazadas_other": "{{count}} modifications rejetées",
     "guardadoLocal": "Enregistré sur l'appareil. Sera envoyé au retour du réseau.",
     "desdeCache": "Affichage des dernières données téléchargées."
+  },
+  "foto": {
+    "hacer": "Prendre une photo",
+    "procesando": "Traitement…",
+    "subida": "Photo envoyée ({{kb}} Ko)",
+    "guardada": "Photo enregistrée. Elle sera envoyée au retour du réseau.",
+    "cuenta_one": "{{count}} photo",
+    "cuenta_other": "{{count}} photos",
+    "pendientes_one": "{{count}} photo non envoyée",
+    "pendientes_other": "{{count}} photos non envoyées"
   }
 }

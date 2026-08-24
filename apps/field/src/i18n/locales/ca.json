@@ -121,5 +121,15 @@
     "rechazadas_other": "{{count}} canvis rebutjats",
     "guardadoLocal": "Desat al dispositiu. S'enviarà en recuperar cobertura.",
     "desdeCache": "Mostrant les últimes dades descarregades."
+  },
+  "foto": {
+    "hacer": "Fes una foto",
+    "procesando": "Processant…",
+    "subida": "Foto pujada ({{kb}} KB)",
+    "guardada": "Foto desada. Es pujarà en recuperar cobertura.",
+    "cuenta_one": "{{count}} foto",
+    "cuenta_other": "{{count}} fotos",
+    "pendientes_one": "{{count}} foto sense pujar",
+    "pendientes_other": "{{count}} fotos sense pujar"
   }
 }

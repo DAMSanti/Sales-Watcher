@@ -90,10 +90,10 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Flujo "No he podido visitarla": motivo + comentario
 - [ ] Aviso de cierre de jornada con visitas sin justificar, con antelación suficiente (no en el último minuto)
 - [x] Modo solo lectura en visita finalizada y en no realizada
-- [~] Sección checklist *(marcar y desmarcar; falta adjuntar la foto)*
+- [x] Sección checklist con ítems que exigen foto
 - [x] Formulario de incidencias/oportunidades con categorías del catálogo
-- [ ] Captura de fotos desde cámara con metadatos
-- [ ] Compresión y redimensionado en dispositivo
+- [x] Captura de fotos desde cámara con metadatos de fecha y ubicación
+- [x] Compresión y redimensionado en dispositivo *(4 MB → 267 KB)*
 - [x] Notas libres
 - [ ] Contexto de la visita anterior
 - [x] Caché local de ruta y catálogos, con precarga de la jornada al entrar

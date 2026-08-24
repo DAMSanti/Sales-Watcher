@@ -200,6 +200,20 @@ La contrapartida es que hay dos caminos y pueden divergir. Por eso el cuerpo dir
 
 **El indicador solo aparece cuando hay algo que decir.** Un distintivo verde permanente se vuelve invisible por costumbre y deja de comunicar cuando importa.
 
+## Fotografías en el cliente
+
+**Se comprime antes de subir, siempre.** Lado mayor 1600 px y JPEG al 0,8: una foto de móvil pasa de ~4 MB a ~270 KB sin que deje de leerse un precio en el lineal. Sin esto se consumen los datos móviles del comercial —que suelen ser su tarifa— y el almacenamiento crece a razón de cientos de visitas al día.
+
+**`createImageBitmap` con `imageOrientation: "from-image"`.** Sin ello, las fotos verticales de algunos móviles se suben giradas 90° y el supervisor ve el lineal de lado.
+
+**Fondo blanco antes de dibujar en el lienzo.** Un PNG con transparencia convertido a JPEG mostraría esas zonas en negro, y una foto de lineal con manchas negras parece un fallo de cámara.
+
+**El binario se guarda en IndexedDB cuando no hay cobertura.** La subida son tres pasos y el primero ya necesita red, así que encolar solo la intención no bastaría: sin el fichero no habría nada que subir al volver la señal.
+
+**Las fotos se suben DESPUÉS de sincronizar la cola.** Una foto de ítem de checklist necesita que su fila de resultado exista en el servidor; al revés, el destino al que asociarla podría no haberse creado todavía.
+
+**Una foto rechazada de forma definitiva se descarta tras unos intentos.** Un binario que nunca va a entrar ocuparía el almacenamiento del móvil sin límite.
+
 ## Sincronización offline
 
 Hay **dos identificadores distintos** y confundirlos rompe cosas:

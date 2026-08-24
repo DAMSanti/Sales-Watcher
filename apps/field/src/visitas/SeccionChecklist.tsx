@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorApi } from "../api/cliente";
 import { ejecutar } from "../offline/cola";
+import { BotonFoto } from "../fotos/BotonFoto";
 import type { Checklist, ItemChecklist } from "../api/tipos";
 
 /**
@@ -149,6 +150,23 @@ export function SeccionChecklist({
                   explicación es lo que genera llamadas al supervisor. */}
               {bloqueado && editable && (
                 <p className="checklist__motivo">{t("checklist.faltaFoto")}</p>
+              )}
+
+              {/*
+                El botón aparece en cuanto el ítem exige foto, no solo cuando
+                está bloqueado: el comercial puede querer añadir una segunda
+                imagen a algo que ya marcó.
+              */}
+              {item.requiereFoto && editable && item.resultadoId && (
+                <BotonFoto
+                  destino={{
+                    visitaId,
+                    ambito: "checklist",
+                    resultadoChecklistId: item.resultadoId,
+                  }}
+                  onSubida={alCambiar}
+                  etiqueta={item.fotos > 0 ? t("foto.hacer") : undefined}
+                />
               )}
             </li>
           );

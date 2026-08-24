@@ -121,5 +121,15 @@
     "rechazadas_other": "Baztertutako {{count}} aldaketa",
     "guardadoLocal": "Gailuan gordeta. Estaldura berreskuratzean bidaliko da.",
     "desdeCache": "Deskargatutako azken datuak erakusten."
+  },
+  "foto": {
+    "hacer": "Argazkia atera",
+    "procesando": "Prozesatzen…",
+    "subida": "Argazkia igota ({{kb}} KB)",
+    "guardada": "Argazkia gordeta. Estaldura berreskuratzean igoko da.",
+    "cuenta_one": "Argazki {{count}}",
+    "cuenta_other": "{{count}} argazki",
+    "pendientes_one": "Igo gabeko argazki {{count}}",
+    "pendientes_other": "Igo gabeko {{count}} argazki"
   }
 }

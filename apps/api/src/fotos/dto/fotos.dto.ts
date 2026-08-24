@@ -18,6 +18,14 @@ export const solicitarSubidaSchema = z
     tipoMime: z.string().min(1),
     tamanoBytes: z.number().int().positive(),
     /**
+     * Dimensiones tras comprimir en el dispositivo.
+     *
+     * Permiten al backoffice reservar el hueco de la imagen antes de
+     * descargarla, sin saltos de maquetado al cargar una galería de visita.
+     */
+    anchoPx: z.number().int().positive().optional(),
+    altoPx: z.number().int().positive().optional(),
+    /**
      * Momento de la captura en el dispositivo, no de la subida. Con modo
      * offline pueden separarse horas, y es la captura lo que documenta cuándo
      * ocurrió la visita.

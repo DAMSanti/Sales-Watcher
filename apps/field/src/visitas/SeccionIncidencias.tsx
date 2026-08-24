@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ErrorApi, pedir } from "../api/cliente";
 import type { Categoria, IncidenciaVisita } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
+import { BotonFoto } from "../fotos/BotonFoto";
 
 type Prioridad = "baja" | "media" | "alta" | "critica";
 const PRIORIDADES: Prioridad[] = ["baja", "media", "alta", "critica"];
@@ -109,6 +110,21 @@ export function SeccionIncidencias({
             </div>
             {i.descripcion && (
               <p className="incidencia__descripcion">{i.descripcion}</p>
+            )}
+
+            {i.fotos > 0 && (
+              <p className="foto__cuenta">{t("foto.cuenta", { count: i.fotos })}</p>
+            )}
+
+            {/*
+              La foto se adjunta a una incidencia YA creada: el servidor la
+              asocia por identificador, que no existe hasta guardarla.
+            */}
+            {editable && (
+              <BotonFoto
+                destino={{ visitaId, ambito: "incidencia", incidenciaId: i.id }}
+                onSubida={alCambiar}
+              />
             )}
           </li>
         ))}
