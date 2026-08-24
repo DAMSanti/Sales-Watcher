@@ -380,3 +380,59 @@ select.campo__control {
   color: var(--texto-suave);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Contexto de la visita anterior ─────────────────────────────────── */
+
+.seccion--contexto {
+  /* Fondo distinto: es información de referencia, no algo que rellenar. */
+  background: var(--azul-50);
+  border-color: var(--azul-200);
+}
+
+.contexto__resumen {
+  font-size: var(--txt-sm);
+  color: var(--gris-700);
+}
+
+.contexto__notas {
+  margin-top: var(--e2);
+  font-size: var(--txt-sm);
+  font-style: italic;
+  color: var(--gris-600);
+}
+
+.contexto__subtitulo {
+  margin-top: var(--e3);
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--estado-nojust-texto);
+}
+
+.contexto__lista {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--e2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.contexto__item {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  font-size: var(--txt-sm);
+}
+
+.contexto__categoria {
+  flex: 1;
+  min-width: 0;
+}
+
+.contexto__fecha {
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+  white-space: nowrap;
+}

@@ -47,6 +47,8 @@ export type TarjetaVisita = {
 export type VistaDelDia = {
   fecha: string;
   zonaHoraria: string;
+  /** Hora local de cierre, para el aviso con antelación. */
+  horaCierre: string;
   resumen: {
     total: number;
     finalizadas: number;

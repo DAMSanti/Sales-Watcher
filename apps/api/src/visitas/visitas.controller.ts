@@ -175,4 +175,27 @@ export class VisitasController {
       dto.capturadaEn,
     );
   }
+
+  /**
+   * Contexto de la visita anterior a la misma tienda.
+   *
+   * Se pide aparte de la visita para que la pantalla se pinte sin esperarlo:
+   * es información útil, no imprescindible para empezar a trabajar.
+   */
+  @Roles("comercial")
+  @Get(":id/contexto")
+  async contexto(
+    @Param("id", ParseUUIDPipe) id: string,
+    @UsuarioActual() usuario: PayloadToken,
+    @IdiomaActual() idioma: Idioma,
+  ) {
+    const contexto = await this.visitas.contextoAnterior(id, usuario);
+    return {
+      ...contexto,
+      incidenciasAbiertas: contexto.incidenciasAbiertas.map((i) => ({
+        ...i,
+        categoria: resolver(i.categoria, idioma),
+      })),
+    };
+  }
 }

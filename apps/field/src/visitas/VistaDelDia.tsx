@@ -9,6 +9,7 @@ import { guardarCache, leerCache } from "../offline/almacen";
 import { IndicadorSincronizacion } from "../offline/IndicadorSincronizacion";
 import { useSincronizacion } from "../offline/ContextoSincronizacion";
 import { precargarJornada } from "../offline/precarga";
+import { AvisoCierre } from "./AvisoCierre";
 import { TarjetaVisita } from "./TarjetaVisita";
 import "./dia.css";
 
@@ -159,6 +160,22 @@ export function VistaDelDia() {
             {t("comun.reintentar")}
           </button>
         </div>
+      )}
+
+      {datos && (
+        <AvisoCierre
+          fecha={datos.fecha}
+          zonaHoraria={datos.zonaHoraria}
+          horaCierre={datos.horaCierre}
+          /**
+           * Solo las planificadas cuentan: una visita extra que no se haga no
+           * es un incumplimiento, nadie la asignó.
+           */
+          pendientes={
+            datos.visitas.filter((v) => v.planificada && v.estado === "pendiente")
+              .length
+          }
+        />
       )}
 
       {resumen && resumen.sinJustificar > 0 && (

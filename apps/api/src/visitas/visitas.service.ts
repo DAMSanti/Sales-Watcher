@@ -9,6 +9,8 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import {
+  categorias,
+  incidencias,
   itemsChecklist,
   plantillasChecklist,
   resultadosChecklist,
@@ -99,6 +101,15 @@ export class VisitasService {
     return {
       fecha,
       zonaHoraria,
+      /**
+       * Hora local a la que cierra la jornada.
+       *
+       * Viaja con la vista del día para que la app pueda avisar con antelación
+       * de las visitas sin justificar. Calcularla en el cliente a partir de una
+       * constante propia haría que un cambio de configuración en el servidor
+       * dejara al comercial con un aviso a destiempo.
+       */
+      horaCierre: this.config.get("CIERRE_JORNADA_HORA", { infer: true }),
       resumen: {
         total: tarjetas.length,
         finalizadas,
@@ -112,6 +123,73 @@ export class VisitasService {
       },
       visitas: tarjetas,
     };
+  }
+
+  /**
+   * Resumen de la última visita a la misma tienda (SPECS §5.4).
+   *
+   * Da continuidad: el comercial ve al entrar qué se encontró la vez anterior
+   * y qué quedó abierto, y evita reportar por tercera vez una rotura de stock
+   * que ya está en la bandeja del supervisor sin resolver.
+   *
+   * Busca en TODO el histórico de la tienda, no solo en las visitas del
+   * comercial actual: una tienda puede cambiar de mano entre zonas o cubrirse
+   * por otro compañero, y lo que importa es el estado del punto de venta.
+   */
+  async contextoAnterior(visitaId: string, usuario: PayloadToken) {
+    const { visita } = await this.visitaPropia(visitaId, usuario);
+
+    const [anterior] = await this.db
+      .select({
+        id: visitas.id,
+        fecha: visitas.fecha,
+        estado: visitas.estado,
+        incompleta: visitas.incompleta,
+        notasLibres: visitas.notasLibres,
+        comercial: usuarios.nombre,
+      })
+      .from(visitas)
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .where(
+        and(
+          eq(visitas.tiendaId, visita.tiendaId),
+          sql`${visitas.id} <> ${visitaId}`,
+          sql`${visitas.fecha} < ${visita.fecha}`,
+          eq(visitas.estado, "finalizada"),
+        ),
+      )
+      .orderBy(sql`${visitas.fecha} desc`)
+      .limit(1);
+
+    /**
+     * Las incidencias abiertas se buscan en TODAS las visitas anteriores, no
+     * solo en la última. Una rotura de stock reportada hace tres semanas y sin
+     * resolver sigue siendo lo primero que el comercial debe comprobar.
+     */
+    const abiertas = await this.db
+      .select({
+        id: incidencias.id,
+        prioridad: incidencias.prioridad,
+        estado: incidencias.estado,
+        descripcion: incidencias.descripcion,
+        fecha: visitas.fecha,
+        categoria: categorias.nombre,
+        tipo: categorias.tipo,
+      })
+      .from(incidencias)
+      .innerJoin(visitas, eq(visitas.id, incidencias.visitaId))
+      .innerJoin(categorias, eq(categorias.id, incidencias.categoriaId))
+      .where(
+        and(
+          eq(visitas.tiendaId, visita.tiendaId),
+          sql`${visitas.id} <> ${visitaId}`,
+          sql`${incidencias.estado} in ('abierta', 'en_revision')`,
+        ),
+      )
+      .orderBy(sql`${incidencias.prioridad} desc`, sql`${visitas.fecha} desc`)
+      .limit(10);
+
+    return { anterior: anterior ?? null, incidenciasAbiertas: abiertas };
   }
 
   /**

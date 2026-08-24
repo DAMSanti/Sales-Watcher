@@ -249,3 +249,12 @@
   transform: scale(0.99);
   box-shadow: none;
 }
+
+/* Aviso de cierre: ámbar, no rojo. Todavía da tiempo a hacer algo. */
+.dia__alerta--cierre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+}

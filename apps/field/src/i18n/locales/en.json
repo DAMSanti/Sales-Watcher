@@ -131,5 +131,17 @@
     "cuenta_other": "{{count}} photos",
     "pendientes_one": "{{count}} photo not uploaded",
     "pendientes_other": "{{count}} photos not uploaded"
+  },
+  "cierre": {
+    "titulo": "The working day closes in {{minutos}} min",
+    "explicacion_one": "You have {{count}} visit neither done nor justified.",
+    "explicacion_other": "You have {{count}} visits neither done nor justified."
+  },
+  "contexto": {
+    "titulo": "Last time here",
+    "ultimaVisita": "Visited on {{fecha}} by {{comercial}}",
+    "primeraVisita": "First recorded visit to this store.",
+    "abiertas_one": "{{count}} open issue",
+    "abiertas_other": "{{count}} open issues"
   }
 }

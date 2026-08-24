@@ -131,5 +131,17 @@
     "cuenta_other": "{{count}} argazki",
     "pendientes_one": "Igo gabeko argazki {{count}}",
     "pendientes_other": "Igo gabeko {{count}} argazki"
+  },
+  "cierre": {
+    "titulo": "Lanaldia {{minutos}} minutu barru itxiko da",
+    "explicacion_one": "Bisita {{count}} duzu egin gabe eta justifikatu gabe.",
+    "explicacion_other": "{{count}} bisita dituzu egin gabe eta justifikatu gabe."
+  },
+  "contexto": {
+    "titulo": "Azken aldian hemen",
+    "ultimaVisita": "{{fecha}}(e)an bisitatua, {{comercial}}(e)k",
+    "primeraVisita": "Denda honetako lehen bisita erregistratua.",
+    "abiertas_one": "Intzidentzia {{count}} irekita",
+    "abiertas_other": "{{count}} intzidentzia irekita"
   }
 }

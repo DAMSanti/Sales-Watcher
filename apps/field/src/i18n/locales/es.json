@@ -131,5 +131,17 @@
     "cuenta_other": "{{count}} fotos",
     "pendientes_one": "{{count}} foto sin subir",
     "pendientes_other": "{{count}} fotos sin subir"
+  },
+  "cierre": {
+    "titulo": "La jornada cierra en {{minutos}} min",
+    "explicacion_one": "Te queda {{count}} visita sin hacer ni justificar.",
+    "explicacion_other": "Te quedan {{count}} visitas sin hacer ni justificar."
+  },
+  "contexto": {
+    "titulo": "La última vez aquí",
+    "ultimaVisita": "Visitada el {{fecha}} por {{comercial}}",
+    "primeraVisita": "Primera visita registrada a esta tienda.",
+    "abiertas_one": "{{count}} incidencia abierta",
+    "abiertas_other": "{{count}} incidencias abiertas"
   }
 }

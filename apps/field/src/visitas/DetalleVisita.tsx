@@ -13,6 +13,7 @@ import { obtenerUbicacion } from "../comun/ubicacion";
 import { guardarCache, leerCache } from "../offline/almacen";
 import { ejecutar } from "../offline/cola";
 import { IndicadorSincronizacion } from "../offline/IndicadorSincronizacion";
+import { ContextoAnterior } from "./ContextoAnterior";
 import { DialogoJustificar } from "./DialogoJustificar";
 import { SeccionChecklist } from "./SeccionChecklist";
 import { SeccionIncidencias } from "./SeccionIncidencias";
@@ -241,6 +242,8 @@ export function DetalleVisita() {
             {visita.incompleta && <span>{t("visita.incompletaAviso")}</span>}
           </div>
         )}
+
+        <ContextoAnterior visitaId={id!} idioma={idioma} />
 
         <SeccionChecklist
           checklist={checklist}

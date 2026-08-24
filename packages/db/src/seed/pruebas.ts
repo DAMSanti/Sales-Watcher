@@ -4,6 +4,7 @@ import { cargarEnv } from "../cargar-env";
 import { crearCliente } from "../index";
 import {
   categorias,
+  fotos,
   incidencias,
   itemsChecklist,
   justificaciones,
@@ -160,6 +161,15 @@ async function principal() {
 
   // ── Limpieza de lo generado previamente ────────────────────────────
   console.log("  Limpiando actividad anterior...");
+  /**
+   * El orden lo dictan las claves foráneas, de dentro hacia fuera.
+   *
+   * Las FOTOS van primero: referencian tanto resultados de checklist como
+   * incidencias, y borrar cualquiera de las dos antes revienta con una
+   * violación de integridad. No es hipotético — el generador falló así en
+   * cuanto hubo fotos reales en la base.
+   */
+  await db.delete(fotos);
   await db.delete(justificaciones);
   await db.delete(incidencias);
   await db.delete(resultadosChecklist);

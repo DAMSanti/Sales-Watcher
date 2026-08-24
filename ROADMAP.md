@@ -88,14 +88,14 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Comenzar visita (hora + geolocalización, con aviso de desviación)
 - [x] Finalizar visita (hora + geolocalización, marca incompleta)
 - [x] Flujo "No he podido visitarla": motivo + comentario
-- [ ] Aviso de cierre de jornada con visitas sin justificar, con antelación suficiente (no en el último minuto)
+- [x] Aviso de cierre de jornada con una hora de antelación
 - [x] Modo solo lectura en visita finalizada y en no realizada
 - [x] Sección checklist con ítems que exigen foto
 - [x] Formulario de incidencias/oportunidades con categorías del catálogo
 - [x] Captura de fotos desde cámara con metadatos de fecha y ubicación
 - [x] Compresión y redimensionado en dispositivo *(4 MB → 267 KB)*
 - [x] Notas libres
-- [ ] Contexto de la visita anterior
+- [x] Contexto de la visita anterior, con incidencias abiertas de la tienda
 - [x] Caché local de ruta y catálogos, con precarga de la jornada al entrar
 - [x] Cola de sincronización con reintentos e idempotencia por `opId`
 - [x] Indicador visible de "pendiente de sincronizar" / "sincronizado"

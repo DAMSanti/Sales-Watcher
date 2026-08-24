@@ -131,5 +131,17 @@
     "cuenta_other": "{{count}} fotos",
     "pendientes_one": "{{count}} foto sense pujar",
     "pendientes_other": "{{count}} fotos sense pujar"
+  },
+  "cierre": {
+    "titulo": "La jornada tanca d'aquí a {{minutos}} min",
+    "explicacion_one": "Et queda {{count}} visita sense fer ni justificar.",
+    "explicacion_other": "Et queden {{count}} visites sense fer ni justificar."
+  },
+  "contexto": {
+    "titulo": "L'última vegada aquí",
+    "ultimaVisita": "Visitada el {{fecha}} per {{comercial}}",
+    "primeraVisita": "Primera visita registrada a aquesta botiga.",
+    "abiertas_one": "{{count}} incidència oberta",
+    "abiertas_other": "{{count}} incidències obertes"
   }
 }

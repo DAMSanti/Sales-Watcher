@@ -131,5 +131,17 @@
     "cuenta_other": "{{count}} photos",
     "pendientes_one": "{{count}} photo non envoyée",
     "pendientes_other": "{{count}} photos non envoyées"
+  },
+  "cierre": {
+    "titulo": "La journée se clôture dans {{minutos}} min",
+    "explicacion_one": "Il vous reste {{count}} visite ni faite ni justifiée.",
+    "explicacion_other": "Il vous reste {{count}} visites ni faites ni justifiées."
+  },
+  "contexto": {
+    "titulo": "La dernière fois ici",
+    "ultimaVisita": "Visitée le {{fecha}} par {{comercial}}",
+    "primeraVisita": "Première visite enregistrée dans ce magasin.",
+    "abiertas_one": "{{count}} incident ouvert",
+    "abiertas_other": "{{count}} incidents ouverts"
   }
 }
