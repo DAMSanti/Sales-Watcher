@@ -59,21 +59,21 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 ## Fase 2 — API backend
 
-- [ ] Endpoints de autenticación (login, refresh, bloqueo por intentos, cambio forzado)
+- [x] Endpoints de autenticación (login, bloqueo por intentos, cambio forzado)
 - [ ] CRUD de tiendas + importación CSV
 - [ ] CRUD de usuarios/comerciales + regeneración de contraseña
 - [ ] CRUD de plantillas de checklist e ítems (con textos traducibles)
 - [ ] CRUD de catálogos: categorías, motivos de no realización, tipos de tienda, zonas
 - [ ] Planificación de rutas diarias (con orden sugerido, sin franjas)
-- [ ] Endpoints de visita (crear, comenzar, finalizar)
-- [ ] Endpoint de justificación de visita no realizada, con **ventana validada contra la hora de captura en dispositivo**
-- [ ] Proceso de cierre de jornada: pendientes → `No realizada`, **ejecutado por zona horaria**
+- [x] Endpoints de visita: vista del día, crear no planificada, comenzar, finalizar
+- [x] Justificación con **ventana validada contra la hora de captura en dispositivo**
+- [x] Cierre de jornada por zona horaria, materializando las rutas nunca abiertas
 - [ ] Endpoints de resultados de checklist
 - [ ] Endpoints de incidencias/oportunidades
-- [ ] Subida y asociación de fotografías
+- [x] Subida y asociación de fotografías
 - [ ] Endpoint de sincronización por lotes (para la cola offline)
 - [ ] Endpoints de consulta agregada para dashboard e informes
-- [ ] Negociación de idioma en la API (`Accept-Language` / preferencia de usuario)
+- [x] Negociación de idioma en la API (`Accept-Language` / preferencia de usuario)
 
 ## Fase 3 — App del comercial (PWA) — MVP
 

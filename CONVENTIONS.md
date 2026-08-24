@@ -74,6 +74,30 @@ Todo endpoint exige autenticación por defecto. `@Publico()` es la única forma 
 
 **El login verifica un hash aunque el usuario no exista.** Si no, la respuesta sería mucho más rápida para un número de trabajador inexistente, y esa diferencia de tiempo permite enumerar cuáles son válidos. Los números de trabajador son correlativos, así que la enumeración es barata.
 
+## Visitas
+
+**La visita se materializa, no aparece sola.** Una ruta asignada es solo una fila en `rutas_diarias`; sin fila en `visitas` no hay `visitaId` que enviar, y el comercial no podría justificar una tienda a la que no ha ido — que es justo el caso que la justificación existe para cubrir.
+
+Se materializa en dos sitios, ambos idempotentes por `NOT EXISTS`: al cargar la vista del día, y en el cierre de jornada. Lo segundo importa más de lo que parece: **quien no visita una tienda normalmente tampoco abre la app**, así que el incumplimiento más frecuente es precisamente el que no deja fila. Sin materializar en el cierre, la bandeja del supervisor mostraría cero.
+
+**Los estados terminales son terminales.** `finalizada` y `no_realizada` no admiten fotos, ni justificación, ni reapertura. Las transiciones devuelven 409 en lugar de aceptar en silencio.
+
+**Todas las operaciones aceptan `capturadaEn` del dispositivo.** Con modo offline pueden separarse horas de la llegada al servidor, y lo que documenta la visita es cuándo ocurrió.
+
+### Geolocalización: tres resultados, no dos
+
+`evaluarDesviacion` vive en `@sw/shared` y devuelve `evaluable`, no solo un booleano. Un "no se pudo evaluar" honesto es más útil al supervisor que un falso positivo.
+
+No se evalúa cuando falta alguna ubicación, o cuando la precisión del GPS supera 200 m — dentro de un centro comercial las lecturas se van cientos de metros y marcar eso como sospechoso sería culpar al comercial del edificio. Y la incertidumbre declarada **se suma a la tolerancia**: 330 m medidos con 150 m de error podrían ser 180 reales, así que no se marcan.
+
+Nada de esto bloquea la visita. Es una señal para el supervisor.
+
+### Cierre de jornada: por zona, cada hora
+
+El cron corre **cada hora**, no una vez al día, y comprueba zona por zona si su hora local ya pasó el cierre. Un único disparo diario obligaría a elegir la zona de quién: cuando en la Península son las 21:00, en Canarias son las 20:00 y allí todavía se trabaja.
+
+Las visitas cerradas así quedan con `justificada: false`, que es un desenlace distinto y peor que una justificada. El backoffice los separa.
+
 ## Fotografías
 
 **El fichero nunca pasa por la API.** El dispositivo sube directo al almacenamiento con una URL firmada. Con cientos de visitas al día y varias fotos por visita, proxiar las subidas convertiría la API en un cuello de botella.

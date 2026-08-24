@@ -12,6 +12,7 @@ import { RolesGuard } from "./auth/guards/roles.guard";
 import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
 import { FotosModule } from "./fotos/fotos.module";
+import { VisitasModule } from "./visitas/visitas.module";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FotosModule } from "./fotos/fotos.module";
     AlmacenamientoModule,
     AuthModule,
     FotosModule,
+    VisitasModule,
   ],
   providers: [
     // El ORDEN importa: se ejecutan de arriba a abajo.
