@@ -36,7 +36,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 ## Fase 1 — Fundaciones técnicas
 
-- [x] Repositorio, estructura de proyecto y convenciones *(pnpm workspaces + Turborepo; ver [CONVENTIONS.md](CONVENTIONS.md))*
+- [x] Estructura de proyecto y convenciones *(pnpm workspaces + Turborepo; ver [CONVENTIONS.md](CONVENTIONS.md))*
+- [x] Repositorio git inicializado con `.gitattributes` y primer commit
 - [x] Entorno de desarrollo *(docker-compose: Postgres + MinIO)*
 - [ ] Entornos de staging y producción *(a la espera del proveedor)*
 - [x] Esquema de base de datos *(15 tablas, catálogos configurables, JSONB traducible)*
@@ -51,7 +52,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Flag `requiere_cambio_password` y forzado real en toda la API, no solo en login
 - [ ] Almacenamiento de objetos con URLs firmadas
 - [ ] Mecanismo de retención de fotos (fecha de expiración + purga), con plazo configurable
-- [ ] CI/CD básico
+- [x] CI: build, tipos y tests + job con Postgres real que valida migraciones y seed
+- [ ] CD *(a la espera del proveedor)*
 - [~] Registro de auditoría: servicio operativo y cableado en auth; falta extenderlo a visitas e incidencias
 - [ ] Backups automáticos de BD y ficheros
 
