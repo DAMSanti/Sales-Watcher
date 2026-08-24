@@ -1,0 +1,49 @@
+{
+  "app": { "nombre": "Sales Watcher" },
+  "login": {
+    "titulo": "Iniciar sesión",
+    "numeroTrabajador": "Número de trabajador",
+    "password": "Contraseña",
+    "entrar": "Entrar",
+    "entrando": "Entrando…",
+    "idioma": "Idioma"
+  },
+  "password": {
+    "titulo": "Cambia tu contraseña",
+    "explicacion": "Tu contraseña es temporal. Elige una nueva para continuar.",
+    "actual": "Contraseña actual",
+    "nueva": "Contraseña nueva",
+    "repetir": "Repite la contraseña nueva",
+    "minimo": "Al menos 10 caracteres",
+    "noCoinciden": "Las contraseñas no coinciden",
+    "guardar": "Guardar y continuar"
+  },
+  "dia": {
+    "titulo": "Mi día",
+    "vacio": "No tienes visitas asignadas para hoy.",
+    "vacioAyuda": "Puedes añadir una visita con el botón de abajo.",
+    "progreso": "{{hechas}} de {{total}} visitas completadas",
+    "anadirVisita": "Añadir visita",
+    "sinJustificar_one": "{{count}} visita sin justificar",
+    "sinJustificar_other": "{{count}} visitas sin justificar"
+  },
+  "estado": {
+    "pendiente": "Pendiente",
+    "en_curso": "En curso",
+    "finalizada": "Finalizada",
+    "no_realizada": "No realizada",
+    "incompleta": "Incompleta",
+    "sinJustificar": "Sin justificar",
+    "noPlanificada": "No planificada"
+  },
+  "comun": {
+    "reintentar": "Reintentar",
+    "cancelar": "Cancelar",
+    "cerrar": "Cerrar",
+    "buscar": "Buscar",
+    "cargando": "Cargando…",
+    "salir": "Cerrar sesión",
+    "sinConexion": "Sin conexión",
+    "sinConexionAyuda": "Tu trabajo se guarda y se enviará al recuperar cobertura."
+  }
+}

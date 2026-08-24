@@ -1,0 +1,51 @@
+{
+  "login": {
+    "titulo": "Saioa hasi",
+    "numeroTrabajador": "Langile-zenbakia",
+    "password": "Pasahitza",
+    "entrar": "Sartu",
+    "entrando": "Sartzen…",
+    "idioma": "Hizkuntza"
+  },
+  "password": {
+    "titulo": "Aldatu zure pasahitza",
+    "explicacion": "Zure pasahitza aldi baterakoa da. Aukeratu berri bat jarraitzeko.",
+    "actual": "Uneko pasahitza",
+    "nueva": "Pasahitz berria",
+    "repetir": "Errepikatu pasahitz berria",
+    "minimo": "Gutxienez 10 karaktere",
+    "noCoinciden": "Pasahitzak ez datoz bat",
+    "guardar": "Gorde eta jarraitu"
+  },
+  "dia": {
+    "titulo": "Nire eguna",
+    "vacio": "Ez duzu bisitarik esleituta gaurko.",
+    "vacioAyuda": "Beheko botoiarekin bisita bat gehi dezakezu.",
+    "progreso": "{{total}}(e)tik {{hechas}} bisita eginda",
+    "anadirVisita": "Gehitu bisita",
+    "sinJustificar_one": "Bisita {{count}} justifikatu gabe",
+    "sinJustificar_other": "{{count}} bisita justifikatu gabe"
+  },
+  "estado": {
+    "pendiente": "Egiteke",
+    "en_curso": "Abian",
+    "finalizada": "Amaituta",
+    "no_realizada": "Egin gabe",
+    "incompleta": "Osatu gabe",
+    "sinJustificar": "Justifikatu gabe",
+    "noPlanificada": "Planifikatu gabea"
+  },
+  "comun": {
+    "reintentar": "Saiatu berriro",
+    "cancelar": "Utzi",
+    "cerrar": "Itxi",
+    "buscar": "Bilatu",
+    "cargando": "Kargatzen…",
+    "salir": "Saioa itxi",
+    "sinConexion": "Konexiorik ez",
+    "sinConexionAyuda": "Zure lana gorde egiten da eta estaldura berreskuratzean bidaliko da."
+  },
+  "app": {
+    "nombre": "Sales Watcher"
+  }
+}

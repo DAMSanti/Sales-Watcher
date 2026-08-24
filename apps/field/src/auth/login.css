@@ -1,0 +1,75 @@
+.login {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--e5) var(--e4);
+  /* Degradado sutil del azul corporativo: identidad sin logotipo. */
+  background: linear-gradient(160deg, var(--azul-800) 0%, var(--azul-600) 100%);
+}
+
+.login__caja {
+  width: 100%;
+  max-width: 400px;
+  background: var(--superficie);
+  border-radius: var(--radio);
+  padding: var(--e6) var(--e5);
+  box-shadow: var(--sombra-lg);
+}
+
+.login__cabecera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  margin-bottom: var(--e6);
+}
+
+.login__titulo {
+  font-size: var(--txt-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+}
+
+.login__error {
+  padding: var(--e3);
+  border-radius: var(--radio-sm);
+  background: var(--error-fondo);
+  color: var(--estado-nosinjust-texto);
+  font-size: var(--txt-sm);
+}
+
+.login__idiomas {
+  margin-top: var(--e6);
+  padding-top: var(--e4);
+  border-top: 1px solid var(--borde);
+}
+
+.login__idiomas-etiqueta {
+  display: block;
+  margin-bottom: var(--e2);
+  font-size: var(--txt-xs);
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.login__idiomas-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+.login__explicacion {
+  margin-bottom: var(--e5);
+  font-size: var(--txt-sm);
+  color: var(--texto-suave);
+  text-align: center;
+}

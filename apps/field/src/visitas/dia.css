@@ -1,0 +1,239 @@
+.dia {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dia__cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: var(--e4) var(--e4) var(--e3);
+  padding-top: calc(var(--e4) + env(safe-area-inset-top, 0px));
+  background: var(--azul-700);
+  color: var(--texto-inverso);
+}
+
+.dia__cabecera-fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+
+.dia__titulo {
+  font-size: var(--txt-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dia__fecha {
+  font-size: var(--txt-sm);
+  color: var(--azul-100);
+}
+
+/*
+  Solo la inicial. `text-transform: capitalize` ponía mayúscula en cada
+  palabra y producía "Lunes, 24 De Agosto": en castellano, catalán y francés
+  los meses y las preposiciones van en minúscula.
+*/
+.dia__fecha::first-letter {
+  text-transform: uppercase;
+}
+
+.dia__salir {
+  color: var(--azul-100);
+  min-height: 40px;
+  padding: 0 var(--e2);
+  font-size: var(--txt-sm);
+}
+
+.dia__progreso {
+  margin-top: var(--e4);
+}
+
+.dia__barra {
+  height: 6px;
+  border-radius: var(--radio-pill);
+  background: rgb(255 255 255 / 0.25);
+  overflow: hidden;
+}
+
+.dia__barra-relleno {
+  height: 100%;
+  border-radius: var(--radio-pill);
+  background: var(--gris-0);
+  transition: width 0.3s ease;
+}
+
+.dia__progreso-texto {
+  margin-top: var(--e2);
+  font-size: var(--txt-sm);
+  color: var(--azul-100);
+}
+
+.dia__aviso {
+  margin: var(--e3) var(--e4) 0;
+  flex-direction: column;
+  gap: var(--e1);
+}
+
+.dia__alerta {
+  margin: var(--e3) var(--e4) 0;
+  padding: var(--e3) var(--e4);
+  border-radius: var(--radio-sm);
+  background: var(--estado-nosinjust-fondo);
+  color: var(--estado-nosinjust-texto);
+  font-size: var(--txt-sm);
+  font-weight: 600;
+}
+
+.dia__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  padding: var(--e4);
+  /*
+    Reserva bajo la última tarjeta para la barra de acción fija: el botón
+    (48px) más su relleno (12px arriba y abajo) más un respiro.
+
+    Va DESPUÉS del `padding` abreviado a propósito. Declararlo antes lo anula
+    el shorthand, y el resultado es que la última tienda de la ruta queda
+    tapada por el botón — justo la que el comercial busca al llegar al final
+    del día.
+  */
+  padding-bottom: calc(
+    var(--tactil-min) + var(--e3) * 2 + var(--e4) + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+.dia__vacio {
+  padding: var(--e8) var(--e4);
+  text-align: center;
+}
+
+.dia__vacio-titulo {
+  font-size: var(--txt-lg);
+  font-weight: 600;
+  color: var(--gris-700);
+}
+
+.dia__vacio-ayuda {
+  margin-top: var(--e2);
+  color: var(--texto-suave);
+  font-size: var(--txt-sm);
+}
+
+/*
+  El botón de añadir visita queda fijo abajo: tras desplazarse por una ruta
+  larga tiene que seguir alcanzable con el pulgar sin volver arriba.
+*/
+.dia__accion {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--e3) var(--e4);
+  padding-bottom: calc(var(--e3) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    to top,
+    var(--fondo) 55%,
+    color-mix(in srgb, var(--fondo) 0%, transparent)
+  );
+}
+
+/* ── Tarjeta ────────────────────────────────────────────────────────── */
+
+.tarjeta {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  /* Franja de color a la izquierda: es lo que se lee de un vistazo. */
+  border-left: 5px solid var(--gris-300);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-sm);
+  overflow: hidden;
+}
+
+.tarjeta--pendiente {
+  border-left-color: var(--estado-pendiente-borde);
+}
+.tarjeta--en_curso {
+  border-left-color: var(--estado-curso-borde);
+  background: var(--estado-curso-fondo);
+}
+.tarjeta--finalizada {
+  border-left-color: var(--estado-fin-borde);
+}
+.tarjeta--no_realizada {
+  border-left-color: var(--estado-nojust-borde);
+}
+.tarjeta--sin-justificar {
+  border-left-color: var(--estado-nosinjust-borde);
+  background: var(--estado-nosinjust-fondo);
+}
+
+.tarjeta__cuerpo {
+  flex: 1;
+  min-width: 0;
+  padding: var(--e4);
+}
+
+.tarjeta__superior {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+
+.tarjeta__nombre {
+  font-size: var(--txt-lg);
+  font-weight: 650;
+  line-height: 1.3;
+  /* Los nombres largos parten en dos líneas antes que truncarse: el
+     comercial necesita distinguir "Super Gràcia" de "Super Gràcia II". */
+  overflow-wrap: anywhere;
+}
+
+.tarjeta__referencia {
+  margin-top: var(--e1);
+  font-size: var(--txt-sm);
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.tarjeta__direccion {
+  margin-top: var(--e1);
+  font-size: var(--txt-sm);
+  color: var(--gris-600);
+}
+
+.tarjeta__marcas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e2);
+  margin-top: var(--e3);
+}
+
+.tarjeta__horario {
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Número de orden sugerido. Orientativo: no hay franjas horarias. */
+.tarjeta__orden {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  background: var(--superficie-alt);
+  color: var(--texto-suave);
+  font-size: var(--txt-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

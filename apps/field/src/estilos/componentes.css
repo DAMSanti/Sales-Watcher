@@ -1,0 +1,195 @@
+/* Componentes compartidos: botones, campos, chips y distintivos de estado. */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  min-height: var(--tactil-min);
+  padding: 0 var(--e5);
+  border-radius: var(--radio);
+  font-size: var(--txt-base);
+  font-weight: 600;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.boton:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.boton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.boton--principal {
+  background: var(--azul-600);
+  color: var(--texto-inverso);
+}
+.boton--principal:hover:not(:disabled) {
+  background: var(--azul-700);
+}
+
+.boton--secundario {
+  background: var(--superficie);
+  color: var(--azul-700);
+  border: 1.5px solid var(--azul-200);
+}
+.boton--secundario:hover:not(:disabled) {
+  background: var(--azul-50);
+}
+
+.boton--sutil {
+  background: transparent;
+  color: var(--texto-suave);
+  font-weight: 500;
+}
+
+/* Acción destructiva o de excepción, como justificar una no realizada. */
+.boton--aviso {
+  background: var(--superficie);
+  color: var(--estado-nojust-texto);
+  border: 1.5px solid var(--estado-nojust-borde);
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+/* ── Campos ─────────────────────────────────────────────────────────── */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.campo__etiqueta {
+  font-size: var(--txt-sm);
+  font-weight: 600;
+  color: var(--gris-700);
+}
+
+.campo__control {
+  min-height: var(--tactil-min);
+  padding: 0 var(--e4);
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  /*
+    16px exactos: por debajo de ese tamaño, iOS hace zoom automático al
+    enfocar el campo y descoloca toda la pantalla.
+  */
+  font-size: 16px;
+}
+
+.campo__control:focus {
+  border-color: var(--azul-600);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--azul-100);
+}
+
+.campo__ayuda {
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+}
+
+textarea.campo__control {
+  min-height: 96px;
+  padding: var(--e3) var(--e4);
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ── Chips ──────────────────────────────────────────────────────────── */
+
+.chip {
+  min-height: 40px;
+  padding: 0 var(--e4);
+  border-radius: var(--radio-pill);
+  border: 1.5px solid var(--borde);
+  background: var(--superficie);
+  font-size: var(--txt-sm);
+  font-weight: 500;
+  color: var(--gris-600);
+}
+
+.chip--activo {
+  background: var(--azul-600);
+  border-color: var(--azul-600);
+  color: var(--texto-inverso);
+}
+
+/* ── Distintivos de estado ──────────────────────────────────────────── */
+
+.distintivo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: var(--e1) var(--e3);
+  border-radius: var(--radio-pill);
+  font-size: var(--txt-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.distintivo--pendiente {
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+}
+/*
+  Azul sólido, no el fondo claro: la tarjeta en curso YA usa ese fondo claro,
+  y el distintivo quedaba invisible sobre ella. Es además la visita en la que
+  el comercial está ahora mismo, así que conviene que destaque.
+*/
+.distintivo--en_curso {
+  background: var(--azul-600);
+  color: var(--texto-inverso);
+}
+.distintivo--finalizada {
+  background: var(--estado-fin-fondo);
+  color: var(--estado-fin-texto);
+}
+.distintivo--no_realizada {
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+}
+/* Sin justificar: el desenlace peor, visualmente separado del anterior. */
+.distintivo--sin-justificar {
+  background: var(--estado-nosinjust-fondo);
+  color: var(--estado-nosinjust-texto);
+}
+.distintivo--incompleta {
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+}
+.distintivo--neutro {
+  background: var(--superficie-alt);
+  color: var(--texto-suave);
+}
+
+/* ── Avisos ─────────────────────────────────────────────────────────── */
+
+.aviso {
+  display: flex;
+  gap: var(--e3);
+  padding: var(--e3) var(--e4);
+  border-radius: var(--radio-sm);
+  font-size: var(--txt-sm);
+}
+
+.aviso--error {
+  background: var(--error-fondo);
+  color: var(--estado-nosinjust-texto);
+}
+
+.aviso--sinconexion {
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+}
+
+.cargando {
+  padding: var(--e8) var(--e4);
+  text-align: center;
+  color: var(--texto-suave);
+}

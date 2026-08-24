@@ -1,0 +1,51 @@
+{
+  "login": {
+    "titulo": "Se connecter",
+    "numeroTrabajador": "Numéro de collaborateur",
+    "password": "Mot de passe",
+    "entrar": "Entrer",
+    "entrando": "Connexion…",
+    "idioma": "Langue"
+  },
+  "password": {
+    "titulo": "Changez votre mot de passe",
+    "explicacion": "Votre mot de passe est temporaire. Choisissez-en un nouveau pour continuer.",
+    "actual": "Mot de passe actuel",
+    "nueva": "Nouveau mot de passe",
+    "repetir": "Répétez le nouveau mot de passe",
+    "minimo": "Au moins 10 caractères",
+    "noCoinciden": "Les mots de passe ne correspondent pas",
+    "guardar": "Enregistrer et continuer"
+  },
+  "dia": {
+    "titulo": "Ma journée",
+    "vacio": "Aucune visite ne vous est assignée aujourd'hui.",
+    "vacioAyuda": "Vous pouvez ajouter une visite avec le bouton ci-dessous.",
+    "progreso": "{{hechas}} visites sur {{total}} terminées",
+    "anadirVisita": "Ajouter une visite",
+    "sinJustificar_one": "{{count}} visite non justifiée",
+    "sinJustificar_other": "{{count}} visites non justifiées"
+  },
+  "estado": {
+    "pendiente": "À faire",
+    "en_curso": "En cours",
+    "finalizada": "Terminée",
+    "no_realizada": "Non réalisée",
+    "incompleta": "Incomplète",
+    "sinJustificar": "Non justifiée",
+    "noPlanificada": "Non planifiée"
+  },
+  "comun": {
+    "reintentar": "Réessayer",
+    "cancelar": "Annuler",
+    "cerrar": "Fermer",
+    "buscar": "Rechercher",
+    "cargando": "Chargement…",
+    "salir": "Se déconnecter",
+    "sinConexion": "Hors connexion",
+    "sinConexionAyuda": "Votre travail est enregistré et sera envoyé dès le retour du réseau."
+  },
+  "app": {
+    "nombre": "Sales Watcher"
+  }
+}

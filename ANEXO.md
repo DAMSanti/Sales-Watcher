@@ -354,6 +354,23 @@ Detalles de implementación, hallazgos y consideraciones que surjan durante el d
 - **Presupuestar la expansión de texto.** Al maquetar, probar con las cadenas más largas de euskera y francés, no con las de castellano. Un botón que encaja justo en castellano se rompe en los otros dos.
 - Separar el idioma del formato: un usuario puede querer la interfaz en inglés pero fechas en formato europeo. Formatos de fecha, hora y número por *locale*, no por idioma de interfaz.
 
+### Limitación de los navegadores con el euskera
+
+Chromium no incluye `eu-ES` en sus datos de internacionalización:
+`Intl.DateTimeFormat.supportedLocalesOf(["eu-ES"])` devuelve una lista vacía y
+el navegador cae al idioma por defecto sin avisar. Un comercial vasco ve la
+interfaz traducida pero **las fechas en castellano**. Catalán y francés sí
+funcionan.
+
+Se acepta la limitación: coincide con la cadena de respaldo declarada
+(`eu → es`), y las alternativas —traducir los meses a mano o empaquetar datos
+de ICU adicionales— añaden peso y superficie de error para arreglar una línea
+de texto. Queda anotado para que nadie lo persiga como un fallo propio.
+
+Conviene mencionarlo al hablante nativo que revise las traducciones al euskera
+(P15): puede que para el usuario final sea más molesto de lo que parece desde
+fuera.
+
 ### Husos horarios
 
 - Todas las marcas de tiempo en **UTC** en base de datos; conversión a zona del usuario solo en presentación.

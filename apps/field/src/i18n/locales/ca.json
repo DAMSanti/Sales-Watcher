@@ -1,0 +1,51 @@
+{
+  "login": {
+    "titulo": "Inicia la sessió",
+    "numeroTrabajador": "Número de treballador",
+    "password": "Contrasenya",
+    "entrar": "Entra",
+    "entrando": "Entrant…",
+    "idioma": "Idioma"
+  },
+  "password": {
+    "titulo": "Canvia la contrasenya",
+    "explicacion": "La teva contrasenya és temporal. Tria'n una de nova per continuar.",
+    "actual": "Contrasenya actual",
+    "nueva": "Contrasenya nova",
+    "repetir": "Repeteix la contrasenya nova",
+    "minimo": "Com a mínim 10 caràcters",
+    "noCoinciden": "Les contrasenyes no coincideixen",
+    "guardar": "Desa i continua"
+  },
+  "dia": {
+    "titulo": "El meu dia",
+    "vacio": "No tens visites assignades per avui.",
+    "vacioAyuda": "Pots afegir una visita amb el botó de sota.",
+    "progreso": "{{hechas}} de {{total}} visites completades",
+    "anadirVisita": "Afegeix visita",
+    "sinJustificar_one": "{{count}} visita sense justificar",
+    "sinJustificar_other": "{{count}} visites sense justificar"
+  },
+  "estado": {
+    "pendiente": "Pendent",
+    "en_curso": "En curs",
+    "finalizada": "Finalitzada",
+    "no_realizada": "No realitzada",
+    "incompleta": "Incompleta",
+    "sinJustificar": "Sense justificar",
+    "noPlanificada": "No planificada"
+  },
+  "comun": {
+    "reintentar": "Torna-ho a provar",
+    "cancelar": "Cancel·la",
+    "cerrar": "Tanca",
+    "buscar": "Cerca",
+    "cargando": "Carregant…",
+    "salir": "Tanca la sessió",
+    "sinConexion": "Sense connexió",
+    "sinConexionAyuda": "La teva feina es desa i s'enviarà en recuperar cobertura."
+  },
+  "app": {
+    "nombre": "Sales Watcher"
+  }
+}

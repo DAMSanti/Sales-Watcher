@@ -1,0 +1,51 @@
+{
+  "login": {
+    "titulo": "Sign in",
+    "numeroTrabajador": "Employee number",
+    "password": "Password",
+    "entrar": "Sign in",
+    "entrando": "Signing in…",
+    "idioma": "Language"
+  },
+  "password": {
+    "titulo": "Change your password",
+    "explicacion": "Your password is temporary. Choose a new one to continue.",
+    "actual": "Current password",
+    "nueva": "New password",
+    "repetir": "Repeat new password",
+    "minimo": "At least 10 characters",
+    "noCoinciden": "Passwords do not match",
+    "guardar": "Save and continue"
+  },
+  "dia": {
+    "titulo": "My day",
+    "vacio": "You have no visits assigned for today.",
+    "vacioAyuda": "You can add a visit using the button below.",
+    "progreso": "{{hechas}} of {{total}} visits completed",
+    "anadirVisita": "Add visit",
+    "sinJustificar_one": "{{count}} unjustified visit",
+    "sinJustificar_other": "{{count}} unjustified visits"
+  },
+  "estado": {
+    "pendiente": "To do",
+    "en_curso": "In progress",
+    "finalizada": "Completed",
+    "no_realizada": "Not done",
+    "incompleta": "Incomplete",
+    "sinJustificar": "Unjustified",
+    "noPlanificada": "Unplanned"
+  },
+  "comun": {
+    "reintentar": "Try again",
+    "cancelar": "Cancel",
+    "cerrar": "Close",
+    "buscar": "Search",
+    "cargando": "Loading…",
+    "salir": "Sign out",
+    "sinConexion": "Offline",
+    "sinConexionAyuda": "Your work is saved and will be sent when coverage returns."
+  },
+  "app": {
+    "nombre": "Sales Watcher"
+  }
+}

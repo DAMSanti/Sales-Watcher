@@ -77,11 +77,11 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 ## Fase 3 — App del comercial (PWA) — MVP
 
-- [ ] Esqueleto PWA: manifest, service worker, instalable
-- [ ] Bundle de traducciones de interfaz en 5 idiomas y selector (disponible ya en login)
-- [ ] Componentes tolerantes a expansión de texto (euskera y francés)
-- [ ] Pantalla de login + cambio de contraseña forzado
-- [ ] Vista del día con cards y resumen de progreso
+- [~] Esqueleto de la app de campo *(Vite + React; falta manifest y service worker)*
+- [x] Traducciones de interfaz en 5 idiomas y selector, disponible ya en login
+- [x] Componentes tolerantes a expansión de texto *(verificado con euskera real)*
+- [x] Pantalla de login + cambio de contraseña forzado
+- [x] Vista del día con cards y resumen de progreso
 - [ ] Buscador de tiendas y "Añadir visita" con etiqueta *no planificada*
 - [ ] Detalle de visita: cabecera y los cuatro estados
 - [ ] Comenzar visita (hora + geolocalización)
@@ -159,5 +159,4 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [ ] **Integración con ERP** para el catálogo de tiendas
 - [ ] App nativa (React Native/Flutter) si la PWA se queda corta
 - [ ] Optimización automática de rutas
-- [ ] Portal para encargados de tienda
 - [ ] Firma digital del encargado
