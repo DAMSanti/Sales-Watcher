@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Un push nuevo sobre la misma rama cancela la ejecución anterior: sin esto,
+# varios commits seguidos encolan builds que ya no interesan.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  # ── Verificación estática y pruebas unitarias ────────────────────────
+  calidad:
+    name: Tipos, tests y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # --frozen-lockfile falla si el lockfile no cuadra con los package.json.
+      # Es lo que impide que un despliegue instale versiones distintas de las
+      # que se probaron en local.
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # El build va primero porque `typecheck` de la API resuelve @sw/db y
+      # @sw/shared contra sus dist/, que aún no existen en un clon limpio.
+      - name: Construir paquetes
+        run: pnpm build
+
+      - name: Comprobar tipos
+        run: pnpm typecheck
+
+      - name: Pruebas unitarias
+        run: pnpm test
+
+  # ── Migraciones y datos semilla contra Postgres real ────────────────
+  #
+  # Este job es el que más veces va a salvar el proyecto. Comprueba que las
+  # migraciones aplican sobre una base vacía y que el seed es idempotente,
+  # que es exactamente el fallo que se coló al principio: `zonas` no tenía
+  # clave única y duplicaba filas en cada ejecución, algo invisible si solo
+  # se ejecuta el seed una vez.
+  base-de-datos:
+    name: Migraciones y seed
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sw
+          POSTGRES_PASSWORD: sw_ci_password
+          POSTGRES_DB: sales_watcher_ci
+          TZ: UTC
+          PGTZ: UTC
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sw -d sales_watcher_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://sw:sw_ci_password@localhost:5432/sales_watcher_ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Construir paquetes
+        run: pnpm build
+
+      # Los scripts leen el .env de la raíz; en CI las variables ya vienen del
+      # entorno, pero el fichero debe existir para que no avise.
+      - name: Preparar entorno
+        run: |
+          cp .env.example .env
+          sed -i "s|^DATABASE_URL=.*|DATABASE_URL=${DATABASE_URL}|" .env
+
+      - name: Aplicar migraciones
+        run: pnpm db:migrate
+
+      # Si el esquema y las migraciones se han desincronizado, drizzle-kit
+      # generaría una migración nueva aquí. Que el árbol quede sucio significa
+      # que alguien tocó el esquema sin generar la migración correspondiente.
+      - name: Comprobar que no faltan migraciones por generar
+        run: |
+          pnpm db:generate
+          if [ -n "$(git status --porcelain packages/db/migrations)" ]; then
+            echo "::error::El esquema tiene cambios sin migración generada."
+            echo "Ejecuta 'pnpm db:generate' y commitea el resultado."
+            git status --porcelain packages/db/migrations
+            exit 1
+          fi
+
+      - name: Cargar datos semilla
+        run: pnpm db:seed
+
+      - name: Verificar que el seed es idempotente
+        run: |
+          pnpm db:seed
+          pnpm db:seed
+          node scripts/verificar-seed.mjs
