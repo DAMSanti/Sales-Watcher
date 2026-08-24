@@ -54,7 +54,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Mecanismo de retención y purga de fotos, con plazo configurable *(el plazo sigue sin decidir; el mecanismo ya funciona)*
 - [x] CI: build, tipos y tests + job con Postgres real que valida migraciones y seed
 - [ ] CD *(a la espera del proveedor)*
-- [~] Registro de auditoría: servicio operativo y cableado en auth; falta extenderlo a visitas e incidencias
+- [x] Registro de auditoría cableado en auth, visitas, incidencias, checklist y backoffice
 - [ ] Backups automáticos de BD y ficheros
 
 ## Fase 2 — API backend
@@ -72,7 +72,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Endpoints de incidencias/oportunidades *(alta en campo + bandeja de backoffice por zona)*
 - [x] Subida y asociación de fotografías
 - [x] Endpoint de sincronización por lotes, con clave de idempotencia por operación
-- [ ] Endpoints de consulta agregada para dashboard e informes
+- [x] Endpoints de consulta agregada para dashboard e informes
+- [x] Exportación CSV *(compatible con Excel; PDF pendiente)*
 - [x] Negociación de idioma en la API (`Accept-Language` / preferencia de usuario)
 
 ## Fase 3 — App del comercial (PWA) — MVP

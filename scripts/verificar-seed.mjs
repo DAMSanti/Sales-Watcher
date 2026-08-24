@@ -49,6 +49,17 @@ const CONTEOS = {
   items_checklist: 16,
   usuarios: 8,
   tiendas: 16,
+};
+
+/**
+ * Tablas cuyo conteo es un MÍNIMO, no una igualdad.
+ *
+ * `db:pruebas` borra las rutas del seed y genera un mes de actividad en su
+ * lugar. En CI no se ejecuta, así que el conteo es el del seed; en local, tras
+ * generar datos de prueba, es mucho mayor. Exigir igualdad haría fallar la
+ * verificación por un uso legítimo.
+ */
+const MINIMOS = {
   rutas_diarias: 16,
 };
 
@@ -80,6 +91,11 @@ try {
       total === esperado,
       ` ${total} (esperado ${esperado})`,
     );
+  }
+
+  for (const [tabla, minimo] of Object.entries(MINIMOS)) {
+    const [{ total }] = await sql`SELECT count(*)::int AS total FROM ${sql(tabla)}`;
+    comprobar(tabla.padEnd(24), total >= minimo, ` ${total} (mínimo ${minimo})`);
   }
 
   console.log("\nTraducciones completas en los cinco idiomas");

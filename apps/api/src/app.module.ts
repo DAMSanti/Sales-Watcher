@@ -13,6 +13,7 @@ import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
 import { FotosModule } from "./fotos/fotos.module";
 import { IncidenciasModule } from "./incidencias/incidencias.module";
+import { InformesModule } from "./informes/informes.module";
 import { CatalogosModule } from "./catalogos/catalogos.module";
 import { ChecklistsModule } from "./checklists/checklists.module";
 import { RutasModule } from "./rutas/rutas.module";
@@ -45,6 +46,7 @@ import { VisitasModule } from "./visitas/visitas.module";
     UsuariosModule,
     ChecklistsModule,
     RutasModule,
+    InformesModule,
   ],
   providers: [
     // El ORDEN importa: se ejecutan de arriba a abajo.

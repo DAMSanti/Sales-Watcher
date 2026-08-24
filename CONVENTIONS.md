@@ -142,6 +142,22 @@ El planificador inserta la fila de `visitas` junto a la de `rutas_diarias`. La m
 
 **Replanificar sustituye la ruta completa**, pero se bloquea si alguna visita de ese día ya empezó: borrarla destruiría un registro de actividad real.
 
+## Informes
+
+**El denominador de la cobertura sale de `rutas_diarias`, no de `visitas`.** Es la diferencia entre "qué se planificó" y "qué llegó a existir": si una ruta no se materializó, contar sobre visitas inflaría la cobertura al hacer desaparecer del denominador justo lo que no se hizo.
+
+**Las no realizadas sin justificar se cuentan aparte, siempre.** Son el desenlace peor y lo que el supervisor tiene que reclamar; mezclarlas con las justificadas escondería exactamente lo que hay que mirar.
+
+**La bandeja de justificaciones se construye sobre `visitas`, no sobre `justificaciones`.** Una visita no realizada sin justificar no tiene fila en esa tabla y desaparecería del listado — y son precisamente las que exigen acción. Van primero en el orden.
+
+**El informe de no realización devuelve un indicador de concentración.** Si un solo motivo se lleva más de la mitad, marca `revisarCatalogo: true`: el catálogo estaría funcionando como trámite y no como medida, que es el riesgo identificado en el ANEXO.
+
+**La duración media descarta las visitas de más de ocho horas.** Son un check-out olvidado, no una visita larga, y una sola arrastraría la media del equipo entero. Se devuelve también la mediana, que aguanta mejor los valores extremos.
+
+**El ámbito por zona se aplica sobre la zona del COMERCIAL, no la de la tienda.** Una visita fuera de ruta a una tienda de otra zona sigue siendo actividad de su equipo, y es a su equipo a quien el supervisor supervisa.
+
+**El CSV lleva BOM y saltos CRLF.** Sin ellos, Excel en Windows abre el fichero con los acentos rotos y el informe llega ilegible a quien lo pidió.
+
 ## Fotografías
 
 **El fichero nunca pasa por la API.** El dispositivo sube directo al almacenamiento con una URL firmada. Con cientos de visitas al día y varias fotos por visita, proxiar las subidas convertiría la API en un cuello de botella.
