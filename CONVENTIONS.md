@@ -10,8 +10,8 @@ Decisiones de código y cómo trabajar en este repositorio. Las decisiones de **
 sales-watcher/
 ├── apps/
 │   ├── api/          API REST (NestJS) — lógica de negocio, cron, sincronización
-│   ├── field/        PWA offline-first del comercial (Vite + React)
-│   └── backoffice/   Panel de gestión (Vite + React)
+│   ├── field/        PWA offline-first del comercial (Vite + React, puerto 5173)
+│   └── backoffice/   Panel de gestión (Vite + React, puerto 5174)
 ├── packages/
 │   ├── shared/       Tipos, validación Zod, i18n y reglas de jornada
 │   └── db/           Esquema Drizzle, migraciones y datos semilla
@@ -141,6 +141,22 @@ El parseo respeta comillas porque las direcciones españolas traen comas con fre
 El planificador inserta la fila de `visitas` junto a la de `rutas_diarias`. La materialización perezosa de la vista del día pasa así a ser una red de seguridad para rutas cargadas por otras vías, no el mecanismo principal.
 
 **Replanificar sustituye la ruta completa**, pero se bloquea si alguna visita de ese día ya empezó: borrarla destruiría un registro de actividad real.
+
+## Backoffice como aplicación
+
+**Sin service worker ni caché offline**, a diferencia de la app de campo. Lo dice la especificación (SPECS §4) y tiene razón: se usa desde un escritorio con conexión estable, y una caché de informes mostraría cifras viejas al supervisor sin que él lo supiera.
+
+**Cliente de API y sesión son ficheros propios, no compartidos con `field`.** Comparten forma, y esa duplicación es deliberada: allí `esFalloDeRed` decide si una operación se encola, aquí solo decide qué mensaje se enseña. Unificarlos arrastraría la semántica offline a una app que no la tiene. Si divergen en algo que no sea eso, conviene revisarlo.
+
+**Claves de almacenamiento distintas** (`sw.bo.*` frente a `sw.*`). Los dos front pueden convivir en el mismo navegador, y compartirlas haría que entrar como supervisor cerrara la sesión del comercial.
+
+**El "hoy" del panel es el del usuario, no el del servidor.** Se resuelve con la zona horaria de su zona comercial. Usar la fecha UTC haría que a las 00:30 en Madrid el panel mostrara el estado de ayer bajo el título "Estado de hoy".
+
+**Las incidencias abiertas del panel son el pendiente TOTAL, no las de hoy.** Es una cifra de acumulación: mostrar cero porque hoy no se ha reportado ninguna, teniendo sesenta sin resolver, le diría al supervisor que no tiene nada que hacer.
+
+**Los filtros de periodo se aplican con un botón, no al escribir.** Cambiar la fecha carácter a carácter dispararía una consulta agregada por pulsación, y esas consultas recorren la actividad de un mes.
+
+**Las descargas de CSV van por `fetch` y blob, no por `<a href>`.** El endpoint exige cabecera de autorización y un enlace directo llegaría sin ella.
 
 ## Informes
 

@@ -1,0 +1,125 @@
+{
+  "comun": {
+    "cargando": "Loading…",
+    "reintentar": "Try again",
+    "salir": "Sign out",
+    "cancelar": "Cancel",
+    "guardar": "Save",
+    "guardando": "Saving…",
+    "sinConexion": "No connection to the server",
+    "desde": "From",
+    "hasta": "To",
+    "aplicar": "Apply",
+    "exportar": "Export CSV",
+    "vacio": "Nothing to show with these filters.",
+    "todos": "All"
+  },
+  "nav": {
+    "supervision": "Supervision",
+    "dashboard": "Today",
+    "incidencias": "Issues",
+    "justificaciones": "Justifications",
+    "informes": "Reports",
+    "cobertura": "Coverage",
+    "noRealizacion": "Non-completion",
+    "ejecucion": "Execution"
+  },
+  "login": {
+    "titulo": "Acceso de gestión",
+    "numero": "Número de trabajador",
+    "password": "Contraseña",
+    "entrar": "Entrar",
+    "entrando": "Entrando…",
+    "soloGestion": "Esta pantalla es para supervisores y administradores. Los comerciales usan la app de campo."
+  },
+  "dashboard": {
+    "titulo": "Estado de hoy",
+    "visitas": "Visitas",
+    "hechas": "Completadas",
+    "enCurso": "En curso",
+    "pendientes": "Pendientes",
+    "noRealizadas": "No realizadas",
+    "sinJustificar": "Sin justificar",
+    "incompletas": "Incompletas",
+    "extra": "Fuera de ruta",
+    "comerciales": "Comerciales activos",
+    "deTotal": "de {{total}} con ruta",
+    "abiertas": "Incidencias abiertas",
+    "criticas": "{{n}} críticas"
+  },
+  "incidencias": {
+    "titulo": "Incidencias y oportunidades",
+    "subtitulo": "Reportadas por los comerciales en punto de venta",
+    "estado": "Estado",
+    "prioridad": "Prioridad",
+    "tipo": "Tipo",
+    "categoria": "Categoría",
+    "tienda": "Tienda",
+    "comercial": "Comercial",
+    "fecha": "Fecha",
+    "acciones": "Acciones",
+    "revisar": "Revisar",
+    "resolver": "Resolver",
+    "descartar": "Descartar"
+  },
+  "justificaciones": {
+    "titulo": "Justificaciones",
+    "subtitulo": "Visitas planificadas que no se realizaron",
+    "soloPendientes": "Solo pendientes de revisar",
+    "motivo": "Motivo",
+    "comentario": "Comentario",
+    "revision": "Revisión",
+    "aceptar": "Aceptar",
+    "cuestionar": "Cuestionar",
+    "sinJustificar": "Sin justificar",
+    "sinJustificarAyuda": "El comercial dejó pasar el plazo sin explicar por qué."
+  },
+  "cobertura": {
+    "titulo": "Cobertura",
+    "subtitulo": "Visitas realizadas frente a las asignadas",
+    "zona": "Zona",
+    "planificadas": "Planificadas",
+    "realizadas": "Realizadas",
+    "tasa": "Cobertura",
+    "porZona": "Por zona",
+    "porComercial": "Por comercial",
+    "fueraDeRuta": "{{n}} visitas fuera de ruta en el periodo"
+  },
+  "noRealizacion": {
+    "titulo": "No realización",
+    "subtitulo": "Por qué no se hicieron las visitas",
+    "tasa": "Tasa de no realización",
+    "motivo": "Motivo",
+    "total": "Total",
+    "porcentaje": "%",
+    "aceptadas": "Aceptadas",
+    "pendientes": "Pendientes",
+    "avisoCatalogo": "Un solo motivo concentra el {{pct}}% de las justificaciones. El catálogo puede estar funcionando como trámite: conviene desglosarlo o acortarlo."
+  },
+  "ejecucion": {
+    "titulo": "Ejecución",
+    "subtitulo": "Cumplimiento de checklist y duración de visita",
+    "cumplimiento": "Checklist completado",
+    "obligatorios": "Obligatorios completados",
+    "duracionMedia": "Duración media",
+    "mediana": "mediana {{n}} min",
+    "incompletas": "Visitas incompletas",
+    "minutos": "{{n}} min"
+  },
+  "estadoInc": {
+    "abierta": "Abierta",
+    "en_revision": "En revisión",
+    "resuelta": "Resuelta",
+    "descartada": "Descartada"
+  },
+  "prioridad": {
+    "baja": "Baja",
+    "media": "Media",
+    "alta": "Alta",
+    "critica": "Crítica"
+  },
+  "tipoInc": {
+    "incidencia": "Incidencia",
+    "oportunidad": "Oportunidad"
+  }
+}

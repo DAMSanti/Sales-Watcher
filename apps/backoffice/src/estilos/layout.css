@@ -1,0 +1,145 @@
+/* Disposición general: navegación lateral fija más área de contenido. */
+
+.marco {
+  display: grid;
+  grid-template-columns: var(--lateral-ancho) 1fr;
+  min-height: 100dvh;
+}
+
+.lateral {
+  display: flex;
+  flex-direction: column;
+  background: var(--azul-800);
+  color: var(--texto-inverso);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+
+.lateral__marca {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e5) var(--e4);
+  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.lateral__nombre {
+  font-size: var(--txt-base);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.lateral__rol {
+  font-size: var(--txt-xs);
+  color: var(--azul-200);
+}
+
+.lateral__nav {
+  flex: 1;
+  padding: var(--e3) var(--e2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.lateral__grupo {
+  margin: var(--e4) var(--e3) var(--e1);
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--azul-300);
+}
+
+.lateral__enlace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e2);
+  padding: var(--e2) var(--e3);
+  border-radius: var(--radio-sm);
+  color: var(--azul-100);
+  text-decoration: none;
+  font-size: var(--txt-sm);
+  font-weight: 500;
+}
+
+.lateral__enlace:hover {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--texto-inverso);
+}
+
+.lateral__enlace--activo {
+  background: var(--azul-600);
+  color: var(--texto-inverso);
+  font-weight: 650;
+}
+
+/* Contador de pendientes junto al enlace: lo que reclama atención. */
+.lateral__cuenta {
+  min-width: 22px;
+  padding: 0 var(--e2);
+  border-radius: var(--radio-pill);
+  background: var(--error);
+  color: var(--texto-inverso);
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  text-align: center;
+}
+
+.lateral__pie {
+  padding: var(--e4);
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.contenido {
+  min-width: 0;
+  padding: var(--e5) var(--e6);
+  background: var(--fondo);
+}
+
+.pagina__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e4);
+  flex-wrap: wrap;
+  margin-bottom: var(--e5);
+}
+
+.pagina__titulo {
+  font-size: var(--txt-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.pagina__subtitulo {
+  margin-top: var(--e1);
+  color: var(--texto-suave);
+  font-size: var(--txt-sm);
+}
+
+/* En pantallas estrechas la navegación pasa arriba: un supervisor puede
+   abrir esto en una tablet aunque no sea el uso previsto. */
+@media (max-width: 900px) {
+  .marco {
+    grid-template-columns: 1fr;
+  }
+  .lateral {
+    position: static;
+    height: auto;
+  }
+  .lateral__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-x: auto;
+  }
+  .lateral__grupo {
+    display: none;
+  }
+  .contenido {
+    padding: var(--e4);
+  }
+}

@@ -1,0 +1,148 @@
+/**
+ * Sistema de color y espaciado del backoffice.
+ *
+ * Comparte la paleta con la app de campo —es el mismo producto— pero no la
+ * escala: aquí se lee sentado, en un monitor y con luz de oficina, así que la
+ * tipografía es más contenida y los objetivos táctiles no necesitan 48 px.
+ *
+ * La paleta gira en torno a un azul corporativo profundo, tomado de la
+ * identidad visual del cliente. NO aparece el nombre ni el logotipo de la
+ * empresa en ninguna parte de la interfaz: la app se identifica como Sales
+ * Watcher y el azul es lo único que la vincula visualmente.
+ *
+ * Nota: los valores son una aproximación de la gama corporativa, no un
+ * muestreo de su manual de marca. Si existe uno, conviene sustituir
+ * --azul-600 y --azul-700 por los hexadecimales oficiales; el resto de la
+ * escala está derivada de ellos y seguirá encajando.
+ */
+
+:root {
+  /* ── Azul corporativo ─────────────────────────────────────────────
+     600 es el color de acción principal; 700, el de estados presionados.  */
+  --azul-50: #eff6ff;
+  --azul-100: #dbeafe;
+  --azul-200: #bfdbfe;
+  --azul-300: #8ab4f0;
+  --azul-400: #4a8ee0;
+  --azul-500: #1a6fd4;
+  --azul-600: #0057b8;
+  --azul-700: #00458f;
+  --azul-800: #003872;
+  --azul-900: #002a56;
+
+  /* ── Neutros ──────────────────────────────────────────────────────
+     Ligeramente azulados para que no chirríen junto al azul de marca.     */
+  --gris-0: #ffffff;
+  --gris-50: #f7f9fc;
+  --gris-100: #eef2f7;
+  --gris-200: #dde4ed;
+  --gris-300: #c3cedb;
+  --gris-400: #94a3b8;
+  --gris-500: #64748b;
+  --gris-600: #475569;
+  --gris-700: #334155;
+  --gris-800: #1e293b;
+  --gris-900: #0f172a;
+
+  /* ── Estados de visita ────────────────────────────────────────────
+     Cada estado tiene color propio porque la vista del día se lee de un
+     vistazo, muchas veces con el móvil en una mano y a contraluz en la
+     calle. El color hace el trabajo que el texto solo no alcanza.         */
+
+  /* Pendiente: neutro. No es ni bueno ni malo, es lo que queda por hacer. */
+  --estado-pendiente-fondo: var(--gris-100);
+  --estado-pendiente-borde: var(--gris-300);
+  --estado-pendiente-texto: var(--gris-700);
+
+  /* En curso: el azul de marca. Es donde está el comercial ahora mismo.   */
+  --estado-curso-fondo: var(--azul-50);
+  --estado-curso-borde: var(--azul-600);
+  --estado-curso-texto: var(--azul-700);
+
+  /* Finalizada: verde de confirmación, deliberadamente sobrio.            */
+  --estado-fin-fondo: #ecfdf5;
+  --estado-fin-borde: #10b981;
+  --estado-fin-texto: #065f46;
+
+  /* No realizada justificada: ámbar. Es una excepción explicada, no un
+     fallo; el rojo sería un castigo desproporcionado por una tienda que
+     estaba cerrada.                                                       */
+  --estado-nojust-fondo: #fffbeb;
+  --estado-nojust-borde: #f59e0b;
+  --estado-nojust-texto: #92400e;
+
+  /* No realizada SIN justificar: rojo. Este sí es el desenlace peor, y
+     tiene que distinguirse a simple vista del anterior.                   */
+  --estado-nosinjust-fondo: #fef2f2;
+  --estado-nosinjust-borde: #ef4444;
+  --estado-nosinjust-texto: #991b1b;
+
+  /* ── Semánticos ───────────────────────────────────────────────────── */
+  --exito: #10b981;
+  --aviso: #f59e0b;
+  --error: #ef4444;
+  --error-fondo: #fef2f2;
+
+  /* ── Prioridad de incidencias ─────────────────────────────────────── */
+  --prio-baja: var(--gris-400);
+  --prio-media: #0ea5e9;
+  --prio-alta: #f59e0b;
+  --prio-critica: #dc2626;
+
+  /* ── Sincronización ───────────────────────────────────────────────
+     El indicador de pendiente-de-sincronizar es un requisito explícito:
+     el comercial necesita saber que su trabajo no se ha perdido.          */
+  --sync-pendiente: #f59e0b;
+  --sync-ok: #10b981;
+  --sync-error: #ef4444;
+
+  /* ── Superficies ──────────────────────────────────────────────────── */
+  --fondo: var(--gris-50);
+  --superficie: var(--gris-0);
+  --superficie-alt: var(--gris-100);
+  --borde: var(--gris-200);
+  --texto: var(--gris-900);
+  --texto-suave: var(--gris-500);
+  --texto-inverso: var(--gris-0);
+
+  /* ── Tipografía ───────────────────────────────────────────────────
+     Escala amplia porque la app se usa de pie, en movimiento y con luz
+     mala. Nada por debajo de 14px en contenido real.                      */
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --txt-xs: 0.8125rem;
+  --txt-sm: 0.875rem;
+  --txt-base: 1rem;
+  --txt-lg: 1.125rem;
+  --txt-xl: 1.25rem;
+  --txt-2xl: 1.625rem;
+
+  /* ── Espaciado ────────────────────────────────────────────────────── */
+  --e1: 0.25rem;
+  --e2: 0.5rem;
+  --e3: 0.75rem;
+  --e4: 1rem;
+  --e5: 1.5rem;
+  --e6: 2rem;
+  --e8: 3rem;
+
+  --radio: 0.75rem;
+  --radio-sm: 0.5rem;
+  --radio-pill: 999px;
+
+  --sombra-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --sombra: 0 1px 3px rgb(15 23 42 / 0.1), 0 1px 2px rgb(15 23 42 / 0.06);
+  --sombra-lg: 0 10px 20px rgb(15 23 42 / 0.1);
+
+  /**
+   * Altura mínima de un control.
+   *
+   * 38 px, no los 48 de la app de campo: aquí se usa con ratón y teclado
+   * sentado, y controles de tamaño táctil desperdiciarían el espacio vertical
+   * que las tablas necesitan.
+   */
+  --tactil-min: 38px;
+
+  /** Ancho de la navegación lateral. */
+  --lateral-ancho: 240px;
+}

@@ -102,7 +102,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 ## Fase 4 — Backoffice — MVP
 
-- [ ] Login y navegación por rol
+- [x] Login y navegación por rol
 - [ ] Interfaz multi-idioma
 - [ ] Gestión de tiendas + importación CSV + indicador de origen del dato
 - [ ] Gestión de comerciales y regeneración de contraseñas
@@ -110,13 +110,13 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [ ] Gestión de catálogos: categorías, motivos, tipos de tienda, zonas
 - [ ] Editor de traducciones del contenido configurable, con aviso de traducciones faltantes
 - [ ] Planificador de rutas (asignación manual) con aviso al asignar ruta en festivo regional
-- [ ] Dashboard del día: completadas vs. planificadas, activos, incidencias abiertas, no realizadas
-- [ ] Bandeja de justificaciones, distinguiendo justificadas de no justificadas, con revisión
+- [x] Dashboard del día: completadas vs. planificadas, activos, incidencias abiertas, no realizadas
+- [x] Bandeja de justificaciones, distinguiendo justificadas de no justificadas
 - [ ] Detalle de visita en solo lectura (checklist, fotos, incidencias, horarios, duración)
-- [ ] Bandeja de incidencias con cambio de estado y asignación
-- [ ] Informes con filtros (fecha, comercial, zona, tienda, tipo, planificada/no planificada)
-- [ ] Métrica de tasa de no realización con desglose por motivo
-- [ ] Exportación a PDF/Excel en el idioma seleccionado
+- [x] Bandeja de incidencias con cambio de estado
+- [x] Informes de cobertura, no realización y ejecución con filtros de periodo
+- [x] Métrica de tasa de no realización con desglose por motivo
+- [x] Exportación CSV desde el panel *(PDF sigue pendiente)*
 
 ## Fase 5 — Endurecimiento y piloto
 

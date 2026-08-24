@@ -1,4 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { fechaLocal } from "@sw/shared";
 import { and, eq, gte, lte, sql, type SQL } from "drizzle-orm";
 import {
   categorias,
@@ -14,6 +16,7 @@ import {
   zonas,
 } from "@sw/db";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
+import type { Configuracion } from "../config/configuracion";
 import type { PayloadToken } from "../auth/auth.service";
 
 export type Filtros = {
@@ -26,7 +29,10 @@ export type Filtros = {
 
 @Injectable()
 export class InformesService {
-  constructor(@Inject(SERVICIO_DB) private readonly db: ClienteDb) {}
+  constructor(
+    @Inject(SERVICIO_DB) private readonly db: ClienteDb,
+    private readonly config: ConfigService<Configuracion, true>,
+  ) {}
 
   /**
    * Restricción por zona del solicitante.
@@ -60,7 +66,14 @@ export class InformesService {
    * Es la pantalla que el supervisor mira por la mañana y a media tarde, así
    * que responde a una sola pregunta: ¿cómo va hoy y qué necesita mi atención?
    */
-  async dashboard(usuario: PayloadToken, fecha: string) {
+  async dashboard(usuario: PayloadToken, fechaPedida?: string) {
+    /**
+     * "Hoy" es el día del SUPERVISOR, no el del servidor en UTC. A las 00:30
+     * en Madrid la fecha UTC sigue siendo la de ayer, y el panel mostraría el
+     * estado del día anterior bajo el título "Estado de hoy".
+     */
+    const zonaHoraria = await this.zonaHorariaDe(usuario);
+    const fecha = fechaPedida ?? fechaLocal(new Date(), zonaHoraria);
     const filtros: Filtros = { desde: fecha, hasta: fecha };
     const ambito = this.ambito(usuario, filtros);
 
@@ -100,6 +113,19 @@ export class InformesService {
       .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
       .where(and(...ambito));
 
+    /**
+     * Las incidencias abiertas son el PENDIENTE TOTAL, no las de hoy.
+     *
+     * Es una cifra de acumulación, no de jornada: un panel que mostrara cero
+     * porque hoy no se ha reportado ninguna, teniendo treinta y seis sin
+     * resolver, le diría al supervisor que no tiene nada que hacer. Por eso
+     * aquí solo se aplica el filtro de zona, no el de fecha.
+     */
+    const alcanceZona =
+      usuario.rol === "supervisor" && usuario.zonaId
+        ? [eq(usuarios.zonaId, usuario.zonaId)]
+        : [];
+
     const [abiertas] = await this.db
       .select({
         total: sql<number>`count(*)::int`,
@@ -111,7 +137,7 @@ export class InformesService {
       .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
       .where(
         and(
-          ...this.ambito(usuario, { desde: fecha, hasta: fecha }),
+          ...alcanceZona,
           sql`${incidencias.estado} in ('abierta', 'en_revision')`,
         ),
       );
@@ -122,6 +148,24 @@ export class InformesService {
       comerciales: actividad,
       incidenciasAbiertas: abiertas,
     };
+  }
+
+  /**
+   * Zona horaria del usuario, con respaldo a la configurada por defecto.
+   *
+   * Un administrador sin zona asignada usa la del sistema: no está adscrito a
+   * ninguna, pero necesita un "hoy" con el que trabajar.
+   */
+  private async zonaHorariaDe(usuario: PayloadToken): Promise<string> {
+    if (!usuario.zonaId) {
+      return this.config.get("ZONA_HORARIA_DEFECTO", { infer: true });
+    }
+    const [zona] = await this.db
+      .select({ tz: zonas.zonaHoraria })
+      .from(zonas)
+      .where(eq(zonas.id, usuario.zonaId))
+      .limit(1);
+    return zona?.tz ?? this.config.get("ZONA_HORARIA_DEFECTO", { infer: true });
   }
 
   /**

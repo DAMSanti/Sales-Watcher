@@ -48,8 +48,15 @@ export const filtrosSchema = filtrosBase
 
 export type FiltrosDto = z.infer<typeof filtrosSchema>;
 
+/**
+ * La fecha NO se rellena aquí.
+ *
+ * `hoy()` devolvería la fecha UTC, y para un supervisor en Madrid a las 00:30
+ * eso es todavía el día anterior: el panel mostraría "estado de hoy" con los
+ * datos de ayer. El servicio la resuelve en la zona del usuario.
+ */
 export const dashboardSchema = z.object({
-  fecha: fecha.optional().transform((f) => f ?? hoy()),
+  fecha: fecha.optional(),
 });
 export type DashboardDto = z.infer<typeof dashboardSchema>;
 

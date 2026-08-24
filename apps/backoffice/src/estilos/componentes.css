@@ -1,0 +1,211 @@
+/* Controles, tarjetas de métrica y tablas. */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  min-height: var(--tactil-min);
+  padding: 0 var(--e4);
+  border-radius: var(--radio-sm);
+  font-size: var(--txt-sm);
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.boton:disabled { opacity: 0.45; cursor: not-allowed; }
+.boton--principal { background: var(--azul-600); color: var(--texto-inverso); }
+.boton--principal:hover:not(:disabled) { background: var(--azul-700); }
+.boton--secundario {
+  background: var(--superficie);
+  color: var(--azul-700);
+  border: 1px solid var(--azul-200);
+}
+.boton--secundario:hover:not(:disabled) { background: var(--azul-50); }
+.boton--sutil { color: var(--texto-suave); font-weight: 500; }
+.boton--peligro { background: var(--superficie); color: var(--error); border: 1px solid var(--error); }
+.boton--ancho { width: 100%; }
+.boton--menudo { min-height: 30px; padding: 0 var(--e3); font-size: var(--txt-xs); }
+
+.campo { display: flex; flex-direction: column; gap: var(--e1); }
+.campo__etiqueta { font-size: var(--txt-xs); font-weight: 600; color: var(--gris-600); }
+.campo__control {
+  min-height: var(--tactil-min);
+  padding: 0 var(--e3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  font-size: var(--txt-sm);
+}
+.campo__control:focus {
+  border-color: var(--azul-600);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--azul-100);
+}
+textarea.campo__control { min-height: 80px; padding: var(--e2) var(--e3); }
+
+/* ── Tarjeta ────────────────────────────────────────────────────────── */
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: var(--e4);
+}
+
+.tarjeta__titulo {
+  font-size: var(--txt-base);
+  font-weight: 700;
+  margin-bottom: var(--e3);
+}
+
+/* ── Métricas ───────────────────────────────────────────────────────── */
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--e3);
+  margin-bottom: var(--e5);
+}
+
+.metrica {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--gris-300);
+  border-radius: var(--radio-sm);
+  padding: var(--e4);
+}
+
+.metrica__valor {
+  font-size: var(--txt-2xl);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrica__etiqueta {
+  margin-top: var(--e2);
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metrica__pie { margin-top: var(--e1); font-size: var(--txt-xs); color: var(--texto-suave); }
+
+/* El color del borde comunica de qué tipo de cifra se trata. */
+.metrica--ok { border-left-color: var(--exito); }
+.metrica--curso { border-left-color: var(--azul-600); }
+.metrica--aviso { border-left-color: var(--aviso); }
+.metrica--alerta { border-left-color: var(--error); }
+.metrica--alerta .metrica__valor { color: var(--estado-nosinjust-texto); }
+
+/* ── Tabla ──────────────────────────────────────────────────────────── */
+
+.tabla-marco {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  /* Las tablas anchas se desplazan dentro de su caja, nunca la página. */
+  overflow-x: auto;
+}
+
+.tabla { width: 100%; border-collapse: collapse; font-size: var(--txt-sm); }
+
+.tabla th {
+  position: sticky;
+  top: 0;
+  padding: var(--e3) var(--e4);
+  background: var(--superficie-alt);
+  text-align: left;
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gris-600);
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: var(--e3) var(--e4);
+  border-top: 1px solid var(--gris-100);
+  vertical-align: top;
+}
+
+.tabla tbody tr:hover { background: var(--gris-50); }
+.tabla__num { text-align: right; font-variant-numeric: tabular-nums; }
+.tabla__ref { font-variant-numeric: tabular-nums; color: var(--texto-suave); }
+
+.tabla__vacia {
+  padding: var(--e8) var(--e4);
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+/* ── Distintivos ────────────────────────────────────────────────────── */
+
+.distintivo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: 2px var(--e2);
+  border-radius: var(--radio-pill);
+  font-size: var(--txt-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.distintivo--abierta { background: var(--estado-nosinjust-fondo); color: var(--estado-nosinjust-texto); }
+.distintivo--en_revision { background: var(--estado-nojust-fondo); color: var(--estado-nojust-texto); }
+.distintivo--resuelta { background: var(--estado-fin-fondo); color: var(--estado-fin-texto); }
+.distintivo--descartada { background: var(--superficie-alt); color: var(--texto-suave); }
+.distintivo--neutro { background: var(--superficie-alt); color: var(--texto-suave); }
+.distintivo--pendiente { background: var(--estado-nojust-fondo); color: var(--estado-nojust-texto); }
+.distintivo--aceptada { background: var(--estado-fin-fondo); color: var(--estado-fin-texto); }
+.distintivo--cuestionada { background: var(--estado-nosinjust-fondo); color: var(--estado-nosinjust-texto); }
+.distintivo--sin-justificar { background: var(--estado-nosinjust-fondo); color: var(--estado-nosinjust-texto); }
+
+.punto {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  display: inline-block; margin-right: var(--e2);
+}
+.punto--baja { background: var(--prio-baja); }
+.punto--media { background: var(--prio-media); }
+.punto--alta { background: var(--prio-alta); }
+.punto--critica { background: var(--prio-critica); }
+
+/* ── Filtros ────────────────────────────────────────────────────────── */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--e3);
+  margin-bottom: var(--e4);
+  padding: var(--e3) var(--e4);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+}
+
+.aviso {
+  padding: var(--e3) var(--e4);
+  border-radius: var(--radio-sm);
+  font-size: var(--txt-sm);
+  margin-bottom: var(--e4);
+}
+.aviso--error { background: var(--error-fondo); color: var(--estado-nosinjust-texto); }
+.aviso--atencion { background: var(--estado-nojust-fondo); color: var(--estado-nojust-texto); }
+
+.cargando { padding: var(--e8); text-align: center; color: var(--texto-suave); }
+
+/* Barra de proporción dentro de una celda de tabla. */
+.barra {
+  height: 6px;
+  border-radius: var(--radio-pill);
+  background: var(--gris-200);
+  overflow: hidden;
+  min-width: 60px;
+}
+.barra__relleno { height: 100%; background: var(--azul-600); border-radius: var(--radio-pill); }
+.barra__relleno--baja { background: var(--aviso); }
