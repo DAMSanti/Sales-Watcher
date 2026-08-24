@@ -1,0 +1,27 @@
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+
+.env
+.env.*
+!.env.example
+
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+*.tsbuildinfo
+.cache/
+
+# Artefactos de tsc que caen fuera de dist/
+packages/*/drizzle.config.js
+packages/*/drizzle.config.d.ts
+packages/*/*.js.map

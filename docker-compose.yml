@@ -1,0 +1,66 @@
+## Infraestructura local de desarrollo.
+## El proveedor de producción está sin decidir a propósito (ver ROADMAP fase 0):
+## todo lo de aquí es sustituible por servicios gestionados sin tocar el código,
+## porque la aplicación solo conoce DATABASE_URL y las variables S3_*.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sw-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sw}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sw_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-sales_watcher}
+      # Fuerza UTC en el contenedor: las marcas de tiempo se almacenan en UTC
+      # y se convierten a la zona del usuario solo en presentación (SPECS §4).
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sw} -d ${POSTGRES_DB:-sales_watcher}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Almacenamiento de objetos compatible con S3 para las fotografías.
+  # En producción se sustituye por S3, R2 o equivalente cambiando solo S3_ENDPOINT.
+  minio:
+    image: minio/minio:latest
+    container_name: sw-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-sw_minio_access}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-sw_minio_secret}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Crea el bucket de fotos en el arranque y sale.
+  minio-init:
+    image: minio/mc:latest
+    container_name: sw-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${S3_ACCESS_KEY_ID:-sw_minio_access} ${S3_SECRET_ACCESS_KEY:-sw_minio_secret};
+      mc mb --ignore-existing local/${S3_BUCKET:-sales-watcher-fotos};
+      echo 'Bucket listo';
+      "
+
+volumes:
+  postgres_data:
+  minio_data:
