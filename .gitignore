@@ -25,3 +25,6 @@ Thumbs.db
 packages/*/drizzle.config.js
 packages/*/drizzle.config.d.ts
 packages/*/*.js.map
+
+# Service worker de desarrollo que genera vite-plugin-pwa
+dev-dist/
