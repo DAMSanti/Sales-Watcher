@@ -1,0 +1,137 @@
+.dialogo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--e5);
+}
+
+.dialogo__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.dialogo__panel {
+  position: relative;
+  width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-lg);
+}
+
+.dialogo__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  padding: var(--e4) var(--e5);
+  border-bottom: 1px solid var(--borde);
+}
+
+.dialogo__titulo { font-size: var(--txt-lg); font-weight: 700; }
+
+.dialogo__cerrar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radio-sm);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--texto-suave);
+}
+.dialogo__cerrar:hover { background: var(--superficie-alt); color: var(--texto); }
+
+.dialogo__cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--e5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+}
+
+.dialogo__pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--e2);
+  padding: var(--e4) var(--e5);
+  border-top: 1px solid var(--borde);
+}
+
+/* Dos columnas para formularios con campos cortos. */
+.rejilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e4);
+}
+.rejilla--completa { grid-column: 1 / -1; }
+
+@media (max-width: 560px) {
+  .rejilla { grid-template-columns: 1fr; }
+}
+
+/* Editor de texto traducible: un campo por idioma. */
+.traduccion {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+}
+
+.traduccion__idioma {
+  width: 34px;
+  flex-shrink: 0;
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.traduccion__campo { flex: 1; }
+
+/* El idioma por defecto se marca: es el único obligatorio. */
+.traduccion--requerido .traduccion__idioma { color: var(--azul-700); }
+
+.faltantes {
+  display: inline-flex;
+  gap: var(--e1);
+  flex-wrap: wrap;
+}
+
+.faltante {
+  padding: 1px var(--e2);
+  border-radius: var(--radio-pill);
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Contraseña temporal: se enseña una vez y hay que poder copiarla. */
+.temporal {
+  padding: var(--e4);
+  border-radius: var(--radio-sm);
+  background: var(--azul-50);
+  border: 1px solid var(--azul-200);
+  text-align: center;
+}
+
+.temporal__clave {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: var(--txt-xl);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--azul-800);
+  user-select: all;
+}
+
+.temporal__aviso {
+  margin-top: var(--e2);
+  font-size: var(--txt-xs);
+  color: var(--texto-suave);
+}

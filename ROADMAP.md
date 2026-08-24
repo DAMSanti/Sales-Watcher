@@ -103,13 +103,14 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 ## Fase 4 — Backoffice — MVP
 
 - [x] Login y navegación por rol
-- [ ] Interfaz multi-idioma
-- [ ] Gestión de tiendas + importación CSV + indicador de origen del dato
-- [ ] Gestión de comerciales y regeneración de contraseñas
-- [ ] Editor de plantillas de checklist
-- [ ] Gestión de catálogos: categorías, motivos, tipos de tienda, zonas
-- [ ] Editor de traducciones del contenido configurable, con aviso de traducciones faltantes
-- [ ] Planificador de rutas (asignación manual) con aviso al asignar ruta en festivo regional
+- [~] Interfaz multi-idioma *(navegación y comunes en los 5; paneles solo en castellano)*
+- [x] Gestión de tiendas + importación CSV + indicador de origen del dato
+- [x] Gestión de comerciales y regeneración de contraseñas
+- [x] Editor de plantillas de checklist e ítems
+- [x] Gestión de catálogos: categorías, motivos, tipos de tienda, zonas
+- [x] Editor de traducciones con aviso de idiomas faltantes por elemento
+- [x] Planificador de rutas con asignación manual
+- [ ] Aviso al asignar ruta en festivo regional *(pendiente del calendario laboral)*
 - [x] Dashboard del día: completadas vs. planificadas, activos, incidencias abiertas, no realizadas
 - [x] Bandeja de justificaciones, distinguiendo justificadas de no justificadas
 - [ ] Detalle de visita en solo lectura (checklist, fotos, incidencias, horarios, duración)

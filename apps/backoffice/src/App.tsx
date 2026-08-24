@@ -13,7 +13,12 @@ import {
   InformeEjecucion,
   InformeNoRealizacion,
 } from "./paneles/Informes";
+import { Catalogos } from "./paneles/Catalogos";
+import { Checklists } from "./paneles/Checklists";
 import { Justificaciones } from "./paneles/Justificaciones";
+import { Rutas } from "./paneles/Rutas";
+import { Tiendas } from "./paneles/Tiendas";
+import { Usuarios } from "./paneles/Usuarios";
 
 export function App() {
   const { perfil, cargando, idioma } = useSesion();
@@ -59,6 +64,11 @@ export function App() {
           <Route path="/informes/cobertura" element={<InformeCobertura />} />
           <Route path="/informes/no-realizacion" element={<InformeNoRealizacion />} />
           <Route path="/informes/ejecucion" element={<InformeEjecucion />} />
+          <Route path="/rutas" element={<Rutas />} />
+          <Route path="/tiendas" element={<Tiendas />} />
+          <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/catalogos" element={<Catalogos />} />
+          <Route path="/checklists" element={<Checklists />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -158,6 +158,18 @@ El planificador inserta la fila de `visitas` junto a la de `rutas_diarias`. La m
 
 **Las descargas de CSV van por `fetch` y blob, no por `<a href>`.** El endpoint exige cabecera de autorización y un enlace directo llegaría sin ella.
 
+### Pantallas de gestión
+
+**No hay botón de borrar en ninguna.** Se desactiva, y la tabla lo muestra atenuado con un distintivo. Es coherente con el esquema: borrar rompería el histórico que referencia el elemento.
+
+**Los códigos aparecen deshabilitados al editar**, con la razón escrita debajo. Un campo apagado sin explicación es lo que genera preguntas al administrador siguiente.
+
+**El editor de traducciones muestra un campo por idioma y marca el castellano como el único obligatorio.** La tabla lista las etiquetas de los idiomas que faltan por elemento, y un aviso cuenta cuántos hay. Es el mecanismo de P16 hecho visible: sin él, una categoría creada seis meses después del rollout sale en el idioma de respaldo para todos y nadie se entera.
+
+**La contraseña temporal se muestra en un diálogo con `user-select: all`.** El administrador se la va a dictar o pegar en un mensaje, y aparece una sola vez.
+
+**Los buscadores esperan 300 ms antes de consultar.** Sin eso, una petición por tecla.
+
 ## Informes
 
 **El denominador de la cobertura sale de `rutas_diarias`, no de `visitas`.** Es la diferencia entre "qué se planificó" y "qué llegó a existir": si una ruta no se materializó, contar sobre visitas inflaría la cobertura al hacer desaparecer del denominador justo lo que no se hizo.

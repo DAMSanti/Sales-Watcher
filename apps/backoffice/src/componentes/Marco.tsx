@@ -14,6 +14,8 @@ export function Marco({ pendientes }: { pendientes: number }) {
   const { t } = useTranslation();
   const { perfil, salir } = useSesion();
 
+  const esAdministrador = perfil?.rol === "administrador";
+
   const clase = ({ isActive }: { isActive: boolean }) =>
     `lateral__enlace ${isActive ? "lateral__enlace--activo" : ""}`;
 
@@ -64,6 +66,31 @@ export function Marco({ pendientes }: { pendientes: number }) {
           <NavLink to="/informes/ejecucion" className={clase}>
             {t("nav.ejecucion")}
           </NavLink>
+
+          <div className="lateral__grupo">{t("nav.gestion")}</div>
+          {/*
+            Las rutas las planifica también el supervisor: es quien conoce el
+            terreno de su zona. El resto del maestro es solo de administrador.
+          */}
+          <NavLink to="/rutas" className={clase}>
+            {t("nav.rutas")}
+          </NavLink>
+          {esAdministrador && (
+            <>
+              <NavLink to="/tiendas" className={clase}>
+                {t("nav.tiendas")}
+              </NavLink>
+              <NavLink to="/usuarios" className={clase}>
+                {t("nav.usuarios")}
+              </NavLink>
+              <NavLink to="/catalogos" className={clase}>
+                {t("nav.catalogos")}
+              </NavLink>
+              <NavLink to="/checklists" className={clase}>
+                {t("nav.checklists")}
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="lateral__pie">
