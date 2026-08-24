@@ -116,6 +116,32 @@ Abrir el checklist **materializa las filas de resultado**, igual que la vista de
 
 **La prioridad por defecto viene del catálogo, pero el comercial puede cambiarla.** Es quien está delante del lineal y ve el contexto que la categoría no captura.
 
+## Backoffice
+
+**No hay endpoints de borrado.** Catálogos, tiendas, usuarios e ítems de checklist se desactivan. Borrar de verdad rompería el histórico que los referencia, y una incidencia sin categoría no se puede leer ni contar.
+
+**Los códigos no se editan.** `codigo` es la clave estable que usan seeds e integraciones; renombrarlo rompería referencias externas en silencio. Para "renombrar" se desactiva y se crea otro. El `PATCH` descarta el campo aunque venga en el cuerpo.
+
+**Basta con el castellano para crear contenido traducible.** Exigir los cinco idiomas bloquearía al administrador que necesita dar de alta una categoría hoy porque el cliente la pidió esta mañana. Lo que falte aparece en `GET /catalogos/traducciones`, que es el mecanismo que evita que los idiomas minoritarios se degraden por acumulación (P16).
+
+**El filtro por zona no es opcional para supervisores.** Un supervisor ve solo los comerciales y las incidencias de su zona. Sin ese filtro tendría delante la plantilla entera y una bandeja llena de cosas que no puede resolver.
+
+**Un administrador no puede desactivarse ni degradarse a sí mismo.** Con un solo administrador, cualquiera de las dos cosas dejaría la instalación sin nadie capaz de gestionarla.
+
+### Importación CSV
+
+Es el ensayo de la futura integración con ERP: el mapeo de columnas que define es el borrador de ese contrato.
+
+**No aborta el fichero ante una fila mala.** Un CSV de tres mil tiendas con dos filas defectuosas carga las otras dos mil novecientas noventa y ocho y devuelve número de línea y motivo de cada rechazo. Rechazarlo entero obligaría a un ciclo de corrección a ciegas.
+
+El parseo respeta comillas porque las direcciones españolas traen comas con frecuencia (`"Calle Mayor 12, 3º B"`), que es justo lo que un `split(",")` rompería. Las filas importadas quedan con `origen: 'csv'`.
+
+### Planificar una ruta crea sus visitas
+
+El planificador inserta la fila de `visitas` junto a la de `rutas_diarias`. La materialización perezosa de la vista del día pasa así a ser una red de seguridad para rutas cargadas por otras vías, no el mecanismo principal.
+
+**Replanificar sustituye la ruta completa**, pero se bloquea si alguna visita de ese día ya empezó: borrarla destruiría un registro de actividad real.
+
 ## Fotografías
 
 **El fichero nunca pasa por la API.** El dispositivo sube directo al almacenamiento con una URL firmada. Con cientos de visitas al día y varias fotos por visita, proxiar las subidas convertiría la API en un cuello de botella.

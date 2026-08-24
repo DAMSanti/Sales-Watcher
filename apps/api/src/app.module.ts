@@ -13,7 +13,12 @@ import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
 import { FotosModule } from "./fotos/fotos.module";
 import { IncidenciasModule } from "./incidencias/incidencias.module";
+import { CatalogosModule } from "./catalogos/catalogos.module";
+import { ChecklistsModule } from "./checklists/checklists.module";
+import { RutasModule } from "./rutas/rutas.module";
 import { SincronizacionModule } from "./sincronizacion/sincronizacion.module";
+import { TiendasModule } from "./tiendas/tiendas.module";
+import { UsuariosModule } from "./usuarios/usuarios.module";
 import { VisitasModule } from "./visitas/visitas.module";
 
 @Module({
@@ -34,6 +39,12 @@ import { VisitasModule } from "./visitas/visitas.module";
     VisitasModule,
     IncidenciasModule,
     SincronizacionModule,
+    // Backoffice
+    CatalogosModule,
+    TiendasModule,
+    UsuariosModule,
+    ChecklistsModule,
+    RutasModule,
   ],
   providers: [
     // El ORDEN importa: se ejecutan de arriba a abajo.

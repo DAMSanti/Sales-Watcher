@@ -60,11 +60,11 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 ## Fase 2 — API backend
 
 - [x] Endpoints de autenticación (login, bloqueo por intentos, cambio forzado)
-- [ ] CRUD de tiendas + importación CSV
-- [ ] CRUD de usuarios/comerciales + regeneración de contraseña
-- [ ] CRUD de plantillas de checklist e ítems (con textos traducibles)
-- [ ] CRUD de catálogos: categorías, motivos de no realización, tipos de tienda, zonas
-- [ ] Planificación de rutas diarias (con orden sugerido, sin franjas)
+- [x] CRUD de tiendas + importación CSV *(tolerante a filas malas, con motivo y línea)*
+- [x] CRUD de usuarios/comerciales + regeneración de contraseña
+- [x] CRUD de plantillas de checklist e ítems (con textos traducibles)
+- [x] CRUD de catálogos + estado de traducciones faltantes
+- [x] Planificación de rutas diarias, que crea también las visitas
 - [x] Endpoints de visita: vista del día, crear no planificada, comenzar, finalizar
 - [x] Justificación con **ventana validada contra la hora de captura en dispositivo**
 - [x] Cierre de jornada por zona horaria, materializando las rutas nunca abiertas
