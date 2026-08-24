@@ -6,3 +6,4 @@ export * from "./visitas";
 export * from "./checklist";
 export * from "./incidencias";
 export * from "./auditoria";
+export * from "./sincronizacion";

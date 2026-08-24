@@ -13,6 +13,7 @@ import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
 import { FotosModule } from "./fotos/fotos.module";
 import { IncidenciasModule } from "./incidencias/incidencias.module";
+import { SincronizacionModule } from "./sincronizacion/sincronizacion.module";
 import { VisitasModule } from "./visitas/visitas.module";
 
 @Module({
@@ -32,6 +33,7 @@ import { VisitasModule } from "./visitas/visitas.module";
     FotosModule,
     VisitasModule,
     IncidenciasModule,
+    SincronizacionModule,
   ],
   providers: [
     // El ORDEN importa: se ejecutan de arriba a abajo.

@@ -144,9 +144,34 @@ La purga limpia dos cosas: fotos caducadas por retención, y reservas que nunca 
 
 ## Sincronización offline
 
-Toda operación que la PWA pueda originar sin conexión lleva `id_cliente`: un identificador generado en el dispositivo **antes** de encolar. Es lo que hace idempotente la sincronización — si la cola reintenta un envío que sí llegó, el servidor reconoce el duplicado por ese identificador en lugar de crear un registro doble.
+Hay **dos identificadores distintos** y confundirlos rompe cosas:
 
-Las tablas con `id_cliente` son `visitas`, `justificaciones`, `incidencias` y `fotos`. Todas tienen índice único sobre él.
+- **`id_cliente`** identifica una **entidad**: esta visita, esta incidencia. Sirve para que las operaciones posteriores del lote puedan referirse a algo que aún no existe en servidor. Está en `visitas`, `justificaciones`, `incidencias` y `fotos`, con índice único.
+- **`op_id`** identifica una **entrada de cola**: este intento de finalizar. Vive en `operaciones_sincronizadas` y sirve para no repetir la operación.
+
+### Por qué hacen falta los dos
+
+Las claves únicas de entidad resuelven las altas: reenviar "crear visita" no duplica. Pero **no resuelven las transiciones de estado**. Si el servidor aplica el lote entero y la respuesta se pierde, el cliente reenvía, y "comenzar visita" sobre una visita ya finalizada devuelve un conflicto. Datos correctos, pero el comercial ve *"no se pudo comenzar la visita"* de una visita que sí se registró.
+
+Con `op_id`, el reintento reproduce el resultado guardado en lugar de reintentar la transición.
+
+### El lote NO es una transacción
+
+Envolverlo entero haría que una sola operación imposible —una justificación cuya ventana cerró— revirtiera también las diez que sí valían. Y como esa operación fallaría igual en cada reintento, la cola quedaría atascada para siempre y se perdería el trabajo de toda la jornada.
+
+Cada operación se aplica por separado, en orden, y se informa de su suerte.
+
+### Permanente frente a temporal
+
+> El cliente tiene que poder distinguir **"descarta esto"** de **"vuelve a intentarlo"**.
+
+Sin esa distinción, o reintenta indefinidamente algo que nunca entrará, o descarta trabajo real de campo. Los códigos 4xx son permanentes; todo lo demás, temporal. **El sesgo por defecto es conservar**: reintentar de más cuesta una petición, descartar de menos pierde una visita entera.
+
+Los fallos no se registran en `operaciones_sincronizadas` — un fallo temporal debe poder reintentarse con el mismo `op_id`.
+
+### Adopción de visitas
+
+Si el comercial llega a una tienda de su ruta por el buscador en vez de por la card —típico si abrió la app sin cobertura—, se crea una visita "no planificada" para una tienda que sí estaba asignada. Al materializar la ruta después, **se adopta la existente** en lugar de crear otra: enlazarla a la ruta y reclasificarla como planificada. Crear una segunda dejaría dos tarjetas de la misma tienda y contaría doble en cobertura.
 
 ## Puesta en marcha
 

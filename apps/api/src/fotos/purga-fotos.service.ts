@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { and, inArray, isNotNull, isNull, lte } from "drizzle-orm";
-import { fotos } from "@sw/db";
+import { fotos, operacionesSincronizadas } from "@sw/db";
 import { AlmacenamientoService } from "../almacenamiento/almacenamiento.service";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { Configuracion } from "../config/configuracion";
@@ -47,7 +47,11 @@ export class PurgaFotosService {
     await this.ejecutar();
   }
 
-  async ejecutar(): Promise<{ caducadas: number; abandonadas: number }> {
+  async ejecutar(): Promise<{
+    caducadas: number;
+    abandonadas: number;
+    operaciones: number;
+  }> {
     /**
      * Guarda contra ejecuciones solapadas. Con varias instancias de la API el
      * cron dispararía en todas a la vez; esto solo cubre el solapamiento
@@ -56,24 +60,44 @@ export class PurgaFotosService {
      */
     if (this.ejecutando) {
       this.logger.warn("Purga ya en curso, se omite esta ejecución");
-      return { caducadas: 0, abandonadas: 0 };
+      return { caducadas: 0, abandonadas: 0, operaciones: 0 };
     }
     this.ejecutando = true;
 
     try {
       const caducadas = await this.purgarCaducadas();
       const abandonadas = await this.purgarReservasAbandonadas();
+      const operaciones = await this.purgarOperacionesAntiguas();
 
-      if (caducadas > 0 || abandonadas > 0) {
+      if (caducadas > 0 || abandonadas > 0 || operaciones > 0) {
         this.logger.log(
-          `Purga completada: ${caducadas} caducada(s), ${abandonadas} reserva(s) abandonada(s)`,
+          `Purga completada: ${caducadas} caducada(s), ${abandonadas} reserva(s) abandonada(s), ${operaciones} clave(s) de idempotencia`,
         );
       }
 
-      return { caducadas, abandonadas };
+      return { caducadas, abandonadas, operaciones };
     } finally {
       this.ejecutando = false;
     }
+  }
+
+  /**
+   * Claves de idempotencia de sincronización ya inservibles.
+   *
+   * Cada operación aplicada deja una fila, así que crecen al ritmo del trabajo
+   * de campo: cientos de visitas al día por decenas de operaciones cada una.
+   *
+   * Treinta días es holgado. Su única función es reconocer el reintento de un
+   * lote cuya respuesta se perdió, y un dispositivo que lleva un mes sin
+   * sincronizar tiene un problema que esta tabla no resuelve.
+   */
+  private async purgarOperacionesAntiguas(): Promise<number> {
+    const limite = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const borradas = await this.db
+      .delete(operacionesSincronizadas)
+      .where(lte(operacionesSincronizadas.aplicadaEn, limite))
+      .returning({ id: operacionesSincronizadas.id });
+    return borradas.length;
   }
 
   /** Fotos confirmadas cuya fecha de expiración ya pasó. */

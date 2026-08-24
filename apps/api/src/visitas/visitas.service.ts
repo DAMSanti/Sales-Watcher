@@ -385,19 +385,47 @@ export class VisitasService {
 
     if (sinVisita.length === 0) return;
 
-    await this.db
-      .insert(visitas)
-      .values(
-        sinVisita.map((r) => ({
+    /**
+     * ADOPCIÓN antes que creación.
+     *
+     * El comercial pudo llegar a una tienda de su ruta por el buscador en
+     * lugar de por la card —típico si abrió la app sin cobertura y la ruta
+     * aún no se había materializado—, creando una visita "no planificada"
+     * para una tienda que sí estaba asignada.
+     *
+     * Crear ahora una segunda visita dejaría dos tarjetas de la misma tienda
+     * en la vista del día y contaría doble en los informes de cobertura. En su
+     * lugar se adopta la existente: se enlaza con la ruta y se reclasifica
+     * como planificada, que es lo que realmente era.
+     */
+    for (const ruta of sinVisita) {
+      const adoptadas = await this.db
+        .update(visitas)
+        .set({ rutaDiariaId: ruta.rutaId, planificada: true })
+        .where(
+          and(
+            eq(visitas.usuarioId, usuarioId),
+            eq(visitas.tiendaId, ruta.tiendaId),
+            eq(visitas.fecha, fecha),
+            isNull(visitas.rutaDiariaId),
+          ),
+        )
+        .returning({ id: visitas.id });
+
+      if (adoptadas.length > 0) continue;
+
+      await this.db
+        .insert(visitas)
+        .values({
           usuarioId,
-          tiendaId: r.tiendaId,
-          rutaDiariaId: r.rutaId,
+          tiendaId: ruta.tiendaId,
+          rutaDiariaId: ruta.rutaId,
           fecha,
-          estado: "pendiente" as const,
+          estado: "pendiente",
           planificada: true,
-        })),
-      )
-      .onConflictDoNothing();
+        })
+        .onConflictDoNothing();
+    }
   }
 
   /** Zona horaria del comercial, para resolver qué día es "hoy" para él. */

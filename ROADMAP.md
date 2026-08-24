@@ -71,7 +71,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Endpoints de resultados de checklist *(con requisito de foto verificado en servidor)*
 - [x] Endpoints de incidencias/oportunidades *(alta en campo + bandeja de backoffice por zona)*
 - [x] Subida y asociación de fotografías
-- [ ] Endpoint de sincronización por lotes (para la cola offline)
+- [x] Endpoint de sincronización por lotes, con clave de idempotencia por operación
 - [ ] Endpoints de consulta agregada para dashboard e informes
 - [x] Negociación de idioma en la API (`Accept-Language` / preferencia de usuario)
 

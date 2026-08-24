@@ -154,9 +154,19 @@ export class CierreJornadaService {
         and(
           inArray(rutasDiarias.usuarioId, ids),
           eq(rutasDiarias.fecha, fecha),
+          /**
+           * Se comprueba por comercial + tienda + fecha, no solo por ruta.
+           *
+           * Si el comercial llegó a esa tienda por el buscador, existe ya una
+           * visita suya sin enlazar a la ruta. Insertar otra dejaría dos
+           * visitas de la misma tienda el mismo día: una finalizada y otra
+           * marcada como no realizada, que es peor que no registrar nada.
+           */
           sql`not exists (
             select 1 from ${visitas}
-            where ${visitas.rutaDiariaId} = ${rutasDiarias.id}
+            where ${visitas.usuarioId} = ${rutasDiarias.usuarioId}
+              and ${visitas.tiendaId} = ${rutasDiarias.tiendaId}
+              and ${visitas.fecha} = ${rutasDiarias.fecha}
           )`,
         ),
       );

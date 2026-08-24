@@ -13,6 +13,11 @@ import { VisitasService } from "./visitas.service";
     ChecklistService,
     CierreJornadaService,
   ],
-  exports: [VisitasService, CierreJornadaService],
+  exports: [
+    VisitasService,
+    JustificacionesService,
+    ChecklistService,
+    CierreJornadaService,
+  ],
 })
 export class VisitasModule {}
