@@ -17,9 +17,9 @@ import { cargarConfiguracion } from "./configuracion";
  * despliegue, no una molestia que silenciar.
  */
 const MINIMA = {
-  DATABASE_URL: "postgresql://sw:pass@localhost:5432/sw",
+  DATABASE_URL: "postgresql://sw:pass@localhost:3905/sw",
   JWT_SECRET: "un-secreto-suficientemente-largo-para-produccion",
-  S3_ENDPOINT: "http://localhost:9000",
+  S3_ENDPOINT: "http://localhost:3906",
   S3_BUCKET: "sales-watcher-fotos",
   S3_ACCESS_KEY_ID: "clave",
   S3_SECRET_ACCESS_KEY: "secreto",
@@ -42,7 +42,7 @@ describe("cargarConfiguracion", () => {
   it("acepta la configuración mínima y aplica los valores por defecto", () => {
     const config = cargarConfiguracion();
 
-    expect(config.PORT).toBe(3000);
+    expect(config.PORT).toBe(3900);
     expect(config.NODE_ENV).toBe("development");
     expect(config.JWT_EXPIRES_IN).toBe("30d");
     expect(config.CIERRE_JORNADA_HORA).toBe("21:00");

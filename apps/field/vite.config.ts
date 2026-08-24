@@ -1,9 +1,30 @@
+import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
-  plugins: [
+/** El `.env` compartido vive en la raíz del monorepo, no aquí. */
+const RAIZ = resolve(__dirname, "../..");
+
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
+
+/**
+ * Los puertos salen del `.env` de la raíz del monorepo.
+ *
+ * Estaban cableados aquí, y cambiar uno obligaba a tocar varios ficheros y a
+ * acordarse de todos. Ahora el bloque 3900-3907 vive en un solo sitio y una
+ * colisión con otro proyecto se resuelve editando una línea.
+ */
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, RAIZ, "");
+  const api = `http://localhost:${env.PORT ?? "3900"}`;
+  // `strictPort` a propósito: sin él, Vite salta al siguiente puerto libre
+  // y acabas con dos servidores sirviendo código distinto sin enterarte.
+  const proxy = { "/api": { target: api, changeOrigin: true } };
+
+  return {
+    plugins: [
     react(),
     VitePWA({
       registerType: "autoUpdate",
@@ -105,23 +126,13 @@ export default defineConfig({
    * comportamiento offline no se puede probar donde de verdad importa: con el
    * service worker real, no con el de desarrollo.
    */
-  preview: {
-    port: 4173,
-    proxy: { "/api": { target: "http://localhost:3000", changeOrigin: true } },
-  },
+    preview: { port: Number(env.PUERTO_FIELD_PREVIEW ?? 3903), strictPort: true, proxy },
 
-  server: {
-    port: 5173,
     /**
-     * La API se sirve en otro puerto. El proxy evita CORS en desarrollo y,
-     * sobre todo, hace que el cliente use rutas relativas: en producción la
-     * app y la API pueden ir tras el mismo dominio sin cambiar el código.
+     * El proxy evita CORS en desarrollo y, sobre todo, hace que el cliente use
+     * rutas relativas: en producción la app y la API pueden ir tras el mismo
+     * dominio sin cambiar el código.
      */
-    proxy: {
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-      },
-    },
-  },
+    server: { port: Number(env.PUERTO_FIELD ?? 3901), strictPort: true, proxy },
+  };
 });

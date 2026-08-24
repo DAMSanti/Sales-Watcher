@@ -107,7 +107,7 @@ try {
   check("objeto vivo existe       ", await existeObjeto(claveViva));
 
   // Disparar la purga a través del endpoint interno.
-  const respuesta = await fetch("http://localhost:3000/api/mantenimiento/purga-fotos", {
+  const respuesta = await fetch(`http://localhost:${process.env.PORT ?? 3900}/api/mantenimiento/purga-fotos`, {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.TOKEN_ADMIN}` },
   });

@@ -10,8 +10,8 @@ Decisiones de código y cómo trabajar en este repositorio. Las decisiones de **
 sales-watcher/
 ├── apps/
 │   ├── api/          API REST (NestJS) — lógica de negocio, cron, sincronización
-│   ├── field/        PWA offline-first del comercial (Vite + React, puerto 5173)
-│   └── backoffice/   Panel de gestión (Vite + React, puerto 5174)
+│   ├── field/        PWA offline-first del comercial (Vite + React, puerto 3901)
+│   └── backoffice/   Panel de gestión (Vite + React, puerto 3902)
 ├── packages/
 │   ├── shared/       Tipos, validación Zod, i18n y reglas de jornada
 │   └── db/           Esquema Drizzle, migraciones y datos semilla

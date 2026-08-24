@@ -403,6 +403,37 @@ fuera.
 
 ---
 
+### Puertos de desarrollo
+
+Todos los servicios locales viven en un bloque contiguo **3900–3907**, no en los
+puertos por defecto de cada tecnología:
+
+| Puerto | Servicio            | Variable                    |
+|--------|---------------------|-----------------------------|
+| 3900   | API                 | `PORT`                      |
+| 3901   | App de campo (dev)  | `PUERTO_FIELD`              |
+| 3902   | Backoffice (dev)    | `PUERTO_BACKOFFICE`         |
+| 3903   | App de campo (preview) | `PUERTO_FIELD_PREVIEW`   |
+| 3904   | Backoffice (preview) | `PUERTO_BACKOFFICE_PREVIEW` |
+| 3905   | PostgreSQL          | `POSTGRES_PORT`             |
+| 3906   | MinIO (API)         | `MINIO_PORT`                |
+| 3907   | MinIO (consola)     | `MINIO_CONSOLE_PORT`        |
+
+El motivo es que 3000, 5173, 5432 y 9000 son los puertos por defecto de medio
+mundo y chocaban con otro proyecto en la máquina de desarrollo. Los valores
+salen del `.env` de la raíz — los `vite.config.ts` los leen con `loadEnv`, así
+que una colisión futura se arregla editando una línea y no seis ficheros.
+
+Los servidores de Vite usan `strictPort: true` a propósito. Con el
+comportamiento por defecto, Vite salta al siguiente puerto libre cuando el suyo
+está ocupado, y eso ya produjo aquí dos servidores sirviendo código distinto sin
+que nadie se enterara. Es preferible que falle el arranque.
+
+CI mantiene PostgreSQL en 5432: corre en un contenedor limpio donde no hay nada
+con lo que chocar, y `DATABASE_URL` se define allí de forma independiente.
+
+---
+
 ## 6. Aprendizajes del piloto
 
 *(Pendiente — rellenar durante la fase 5)*
