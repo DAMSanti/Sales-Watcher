@@ -8,9 +8,21 @@ import { cargarConfiguracion } from "./configuracion";
  * primera petición es mucho peor que una que no arranca.
  */
 
+/**
+ * Configuración mínima con la que la API debe arrancar.
+ *
+ * Toda variable que aparezca aquí es obligatoria en producción. Al añadir una
+ * nueva al esquema, estos tests fallan hasta actualizar este objeto — y ese
+ * fallo es la señal de que hay que documentarla en `.env.example` y en el
+ * despliegue, no una molestia que silenciar.
+ */
 const MINIMA = {
   DATABASE_URL: "postgresql://sw:pass@localhost:5432/sw",
   JWT_SECRET: "un-secreto-suficientemente-largo-para-produccion",
+  S3_ENDPOINT: "http://localhost:9000",
+  S3_BUCKET: "sales-watcher-fotos",
+  S3_ACCESS_KEY_ID: "clave",
+  S3_SECRET_ACCESS_KEY: "secreto",
 };
 
 let entornoOriginal: NodeJS.ProcessEnv;
@@ -37,6 +49,14 @@ describe("cargarConfiguracion", () => {
     expect(config.ZONA_HORARIA_DEFECTO).toBe("Europe/Madrid");
     expect(config.AUTH_MAX_INTENTOS).toBe(5);
     expect(config.AUTH_BLOQUEO_MINUTOS).toBe(15);
+    expect(config.FOTO_MAX_BYTES).toBe(5 * 1024 * 1024);
+    expect(config.URL_SUBIDA_MINUTOS).toBe(15);
+    expect(config.URL_DESCARGA_MINUTOS).toBe(5);
+  });
+
+  it("rechaza que falten las credenciales de almacenamiento", () => {
+    delete process.env.S3_BUCKET;
+    expect(() => cargarConfiguracion()).toThrow(/S3_BUCKET/);
   });
 
   it("rechaza que falte DATABASE_URL", () => {

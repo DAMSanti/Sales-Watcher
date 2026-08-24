@@ -100,6 +100,24 @@ export const fotos = pgTable(
     ubicacion: punto("ubicacion"),
 
     /**
+     * Momento en que el servidor comprobó que el fichero está realmente en el
+     * almacenamiento.
+     *
+     * El dispositivo sube directo al almacenamiento con una URL firmada, sin
+     * pasar por la API, así que la fila se crea ANTES de que el fichero
+     * exista. Mientras `confirmadaEn` sea null, la foto es una reserva: puede
+     * que la subida nunca se completara porque el comercial perdió cobertura
+     * a mitad.
+     *
+     * Sin este campo, un ítem de checklist que "requiere foto" quedaría
+     * satisfecho por una fila que apunta a un objeto inexistente.
+     */
+    confirmadaEn: timestamp("confirmada_en", {
+      withTimezone: true,
+      mode: "date",
+    }),
+
+    /**
      * Fecha a partir de la cual el proceso de purga puede borrar el fichero.
      *
      * El plazo de retención sigue sin decidirse por negocio, pero el mecanismo
@@ -118,5 +136,7 @@ export const fotos = pgTable(
     porIncidencia: index("fotos_incidencia_idx").on(t.incidenciaId),
     /** El proceso de purga barre por fecha de expiración. */
     porExpiracion: index("fotos_expira_en_idx").on(t.expiraEn),
+    /** Y también recoge las reservas que nunca llegaron a completarse. */
+    porConfirmacion: index("fotos_confirmada_en_idx").on(t.confirmadaEn),
   }),
 );

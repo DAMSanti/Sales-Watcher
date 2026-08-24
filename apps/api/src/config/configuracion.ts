@@ -50,6 +50,41 @@ const esquema = z.object({
   AUTH_BLOQUEO_MINUTOS: z.coerce.number().int().positive().default(15),
   /** Longitud mínima de contraseña al cambiarla. */
   AUTH_PASSWORD_MIN: z.coerce.number().int().min(8).default(10),
+
+  // ── Almacenamiento de fotografías ──────────────────────────────────
+  S3_ENDPOINT: z.string().min(1),
+  S3_REGION: z.string().default("us-east-1"),
+  S3_BUCKET: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+
+  /**
+   * Tamaño máximo por fotografía. 5 MB es holgado para una imagen ya
+   * comprimida y redimensionada en el dispositivo; si llega algo mayor,
+   * significa que la compresión del cliente falló y conviene rechazarlo antes
+   * de que cientos de visitas al día llenen el almacenamiento.
+   */
+  FOTO_MAX_BYTES: z.coerce.number().int().positive().default(5 * 1024 * 1024),
+
+  /**
+   * Validez de la URL firmada de subida. Corta, pero suficiente para que el
+   * dispositivo termine de subir por una red móvil lenta.
+   */
+  URL_SUBIDA_MINUTOS: z.coerce.number().int().positive().default(15),
+
+  /**
+   * Validez de la URL firmada de descarga. Muy corta: se genera al vuelo cada
+   * vez que el backoffice pinta una foto, y una URL larga que se filtre da
+   * acceso a la imagen sin pasar por la autenticación.
+   */
+  URL_DESCARGA_MINUTOS: z.coerce.number().int().positive().default(5),
+
+  /**
+   * Horas tras las que una reserva de subida sin confirmar se considera
+   * abandonada y se limpia. Generoso a propósito: el comercial puede quedarse
+   * sin cobertura y no completar la subida hasta el día siguiente.
+   */
+  FOTO_RESERVA_CADUCA_HORAS: z.coerce.number().int().positive().default(48),
 });
 
 export type Configuracion = z.infer<typeof esquema>;

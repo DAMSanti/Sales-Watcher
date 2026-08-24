@@ -50,8 +50,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Invalidación de tokens al cambiar contraseña *(`password_cambiado_en`)*
 - [x] Bloqueo por intentos fallidos + throttle por IP en login
 - [x] Flag `requiere_cambio_password` y forzado real en toda la API, no solo en login
-- [ ] Almacenamiento de objetos con URLs firmadas
-- [ ] Mecanismo de retención de fotos (fecha de expiración + purga), con plazo configurable
+- [x] Almacenamiento de objetos con URLs firmadas *(subida directa desde el dispositivo, verificada en servidor)*
+- [x] Mecanismo de retención y purga de fotos, con plazo configurable *(el plazo sigue sin decidir; el mecanismo ya funciona)*
 - [x] CI: build, tipos y tests + job con Postgres real que valida migraciones y seed
 - [ ] CD *(a la espera del proveedor)*
 - [~] Registro de auditoría: servicio operativo y cableado en auth; falta extenderlo a visitas e incidencias

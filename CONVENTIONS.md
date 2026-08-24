@@ -74,6 +74,32 @@ Todo endpoint exige autenticación por defecto. `@Publico()` es la única forma 
 
 **El login verifica un hash aunque el usuario no exista.** Si no, la respuesta sería mucho más rápida para un número de trabajador inexistente, y esa diferencia de tiempo permite enumerar cuáles son válidos. Los números de trabajador son correlativos, así que la enumeración es barata.
 
+## Fotografías
+
+**El fichero nunca pasa por la API.** El dispositivo sube directo al almacenamiento con una URL firmada. Con cientos de visitas al día y varias fotos por visita, proxiar las subidas convertiría la API en un cuello de botella.
+
+Eso obliga a un flujo de tres pasos: reservar (la API crea la fila y devuelve la URL firmada) → subir (dispositivo contra el almacenamiento) → confirmar (la API comprueba con `HeadObject` que el objeto existe y que tamaño y tipo coinciden con lo declarado).
+
+**El paso de confirmación no es opcional.** Mientras `confirmada_en` sea null, la foto es solo una reserva. Sin esa verificación, un ítem de checklist que exige fotografía quedaría satisfecho por una fila apuntando a un objeto que nunca se subió — y como el comercial puede perder cobertura a mitad de la subida, eso no es un caso hipotético.
+
+**Los tipos van en lista blanca cerrada**, no comprobando que empiece por `image/`. Un SVG es técnicamente una imagen y el navegador ejecuta el script que lleve dentro al abrirlo desde una URL firmada.
+
+**Bucket privado.** No hay acceso sin URL firmada ni conociendo la clave. Las de descarga duran 5 minutos porque se generan al vuelo cada vez que alguien mira una foto.
+
+### El orden de borrado en la purga
+
+> **Primero el objeto, después la fila. Nunca al revés.**
+
+Si se borrase primero la fila, un fallo al borrar el objeto lo dejaría huérfano para siempre: nadie sabría que existe, seguiría ocupando espacio y —en el caso de la retención— seguiría existiendo un dato personal que debía haberse eliminado. Al revés, un fallo deja la fila viva y el siguiente pase lo reintenta.
+
+Por eso solo se borran de base de datos las claves que el almacenamiento confirma haber eliminado.
+
+La purga limpia dos cosas: fotos caducadas por retención, y reservas que nunca se confirmaron. La segunda no es un caso raro — es lo que deja una pérdida de cobertura a mitad de subida.
+
+**El plazo de retención sigue sin decidirse (P7), pero el mecanismo ya funciona.** El plazo es un parámetro; el proceso era el trabajo. Cuando negocio fije el número, `POST /api/mantenimiento/purga-fotos` ejecuta el borrado retroactivo sin desplegar nada.
+
+**`RETENCION_FOTOS_DIAS` vacío significa indefinido, no cero.** Confundirlo borraría todas las fotos en la primera pasada. Hay un test que lo cubre.
+
 ## Sincronización offline
 
 Toda operación que la PWA pueda originar sin conexión lleva `id_cliente`: un identificador generado en el dispositivo **antes** de encolar. Es lo que hace idempotente la sincronización — si la cola reintenta un envío que sí llegó, el servidor reconoce el duplicado por ese identificador en lugar de crear un registro doble.
