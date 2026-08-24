@@ -68,8 +68,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Endpoints de visita: vista del día, crear no planificada, comenzar, finalizar
 - [x] Justificación con **ventana validada contra la hora de captura en dispositivo**
 - [x] Cierre de jornada por zona horaria, materializando las rutas nunca abiertas
-- [ ] Endpoints de resultados de checklist
-- [ ] Endpoints de incidencias/oportunidades
+- [x] Endpoints de resultados de checklist *(con requisito de foto verificado en servidor)*
+- [x] Endpoints de incidencias/oportunidades *(alta en campo + bandeja de backoffice por zona)*
 - [x] Subida y asociación de fotografías
 - [ ] Endpoint de sincronización por lotes (para la cola offline)
 - [ ] Endpoints de consulta agregada para dashboard e informes

@@ -16,8 +16,10 @@ import { ZodValidationPipe } from "../comun/zod-validation.pipe";
 import { Roles } from "../auth/decoradores/roles.decorator";
 import { UsuarioActual } from "../auth/decoradores/usuario-actual.decorator";
 import type { PayloadToken } from "../auth/auth.service";
+import { ChecklistService } from "./checklist.service";
 import { JustificacionesService } from "./justificaciones.service";
 import { VisitasService } from "./visitas.service";
+import { marcarItemSchema, type MarcarItemDto } from "./dto/checklist.dto";
 import {
   comenzarVisitaSchema,
   crearVisitaSchema,
@@ -44,6 +46,7 @@ export class VisitasController {
   constructor(
     private readonly visitas: VisitasService,
     private readonly justificaciones: JustificacionesService,
+    private readonly checklist: ChecklistService,
   ) {}
 
   /** Vista del día: ruta planificada más visitas extra, en una sola lista. */
@@ -129,5 +132,47 @@ export class VisitasController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.justificaciones.justificar(id, usuario, dto);
+  }
+
+  /**
+   * Checklist de la visita.
+   *
+   * Materializa los resultados que falten, lo que permite adjuntar una foto a
+   * un ítem antes de marcarlo: sin fila de resultado no habría a qué asociar
+   * la fotografía, y el ítem que la exige nunca podría completarse.
+   */
+  @Get(":id/checklist")
+  async checklistDeVisita(
+    @Param("id", ParseUUIDPipe) id: string,
+    @UsuarioActual() usuario: PayloadToken,
+    @IdiomaActual() idioma: Idioma,
+  ) {
+    const resultado = await this.checklist.delaVisita(id, usuario);
+    return {
+      ...resultado,
+      items: resultado.items.map((i) => ({
+        ...i,
+        texto: resolver(i.texto, idioma),
+      })),
+    };
+  }
+
+  /** Marcar o desmarcar un ítem del checklist. */
+  @Roles("comercial")
+  @Post(":id/checklist/:itemId")
+  @HttpCode(HttpStatus.OK)
+  async marcarItem(
+    @Param("id", ParseUUIDPipe) visitaId: string,
+    @Param("itemId", ParseUUIDPipe) itemId: string,
+    @Body(new ZodValidationPipe(marcarItemSchema)) dto: MarcarItemDto,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.checklist.marcar(
+      visitaId,
+      itemId,
+      dto.completado,
+      usuario,
+      dto.capturadaEn,
+    );
   }
 }

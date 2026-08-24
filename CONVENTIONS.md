@@ -98,6 +98,24 @@ El cron corre **cada hora**, no una vez al día, y comprueba zona por zona si su
 
 Las visitas cerradas así quedan con `justificada: false`, que es un desenlace distinto y peor que una justificada. El backoffice los separa.
 
+### Checklist: el resultado existe antes de rellenarse
+
+Abrir el checklist **materializa las filas de resultado**, igual que la vista del día materializa las visitas. Resuelve un orden si no imposible: una foto de ítem necesita `resultadoChecklistId` para asociarse, pero ese resultado no existiría hasta marcar el ítem — y marcar un ítem que exige foto requiere que la foto ya esté.
+
+**El requisito de fotografía cuenta solo fotos confirmadas.** Una reserva cuya subida no terminó no satisface nada, y se comprueba en servidor, no solo en la app: la cola offline envía operaciones preparadas hace horas contra un estado que pudo cambiar.
+
+**Desmarcar se permite mientras la visita siga abierta.** El comercial puede equivocarse de fila en una lista de nueve ítems mirando el móvil en un pasillo; obligarle a cerrar la visita mal por un toque erróneo sería absurdo. Al cerrar, el estado queda congelado.
+
+**La plantilla específica del tipo de tienda gana sobre la global, pero la global es el respaldo.** Sin respaldo, una tienda de tipo nuevo se quedaría sin checklist y toda visita a ella parecería completa: peor que no tener checklist es tener uno vacío que da la visita por buena.
+
+## Incidencias
+
+**Las transiciones de estado se declaran explícitamente.** Sin eso, un supervisor podría reabrir una incidencia resuelta hace meses y descuadrar los informes de un periodo ya cerrado. `resuelta` y `descartada` son terminales.
+
+**La bandeja filtra por zona para supervisores.** Sin ese filtro, la bandeja de un supervisor catalán se llenaría de incidencias vascas que no puede resolver.
+
+**La prioridad por defecto viene del catálogo, pero el comercial puede cambiarla.** Es quien está delante del lineal y ve el contexto que la categoría no captura.
+
 ## Fotografías
 
 **El fichero nunca pasa por la API.** El dispositivo sube directo al almacenamiento con una URL firmada. Con cientos de visitas al día y varias fotos por visita, proxiar las subidas convertiría la API en un cuello de botella.
