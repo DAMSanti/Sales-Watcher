@@ -43,9 +43,72 @@
     "cargando": "Loading…",
     "salir": "Sign out",
     "sinConexion": "Offline",
-    "sinConexionAyuda": "Your work is saved and will be sent when coverage returns."
+    "sinConexionAyuda": "Your work is saved and will be sent when coverage returns.",
+    "volver": "Back",
+    "guardar": "Save",
+    "guardando": "Saving…"
   },
   "app": {
     "nombre": "Sales Watcher"
+  },
+  "visita": {
+    "volver": "My day",
+    "comenzar": "Start visit",
+    "comenzando": "Starting…",
+    "finalizar": "End visit",
+    "finalizando": "Finishing…",
+    "finalizada": "COMPLETED",
+    "noRealizada": "NOT DONE",
+    "noPuedoVisitarla": "I couldn't visit it",
+    "duracion": "Duration: {{minutos}} min",
+    "soloLectura": "This visit is closed and cannot be changed.",
+    "incompletaAviso": "Some required tasks were left incomplete.",
+    "desviacionAviso": "You are {{metros}} m from the store's registered location.",
+    "checklist": "Checklist",
+    "incidencias": "Issues and opportunities",
+    "notas": "Notes",
+    "notasPlaceholder": "Observations that don't fit the checklist…"
+  },
+  "checklist": {
+    "vacio": "This store has no checklist configured.",
+    "requiereFoto": "Photo required",
+    "obligatorio": "Required",
+    "faltaFoto": "Attach a photo before ticking this",
+    "progreso": "{{hechos}} of {{total}}"
+  },
+  "incidencia": {
+    "ninguna": "No issues recorded on this visit.",
+    "nueva": "Add issue",
+    "tipo": "Type",
+    "incidencia": "Issue",
+    "oportunidad": "Opportunity",
+    "categoria": "Category",
+    "descripcion": "Description",
+    "descripcionPlaceholder": "What you found…",
+    "prioridad": "Priority",
+    "guardar": "Save",
+    "eligeCategoria": "Choose a category"
+  },
+  "prioridad": {
+    "baja": "Low",
+    "media": "Medium",
+    "alta": "High",
+    "critica": "Critical"
+  },
+  "justificar": {
+    "titulo": "I couldn't visit it",
+    "explicacion": "State why the visit didn't happen. You can only justify it today.",
+    "motivo": "Reason",
+    "comentario": "Comment",
+    "comentarioObligatorio": "This reason needs a comment",
+    "confirmar": "Justify",
+    "confirmando": "Sending…"
+  },
+  "buscador": {
+    "titulo": "Add visit",
+    "placeholder": "Name or reference number",
+    "sinResultados": "No store matches.",
+    "escribeAlgo": "Type to search across stores.",
+    "crear": "Create visit"
   }
 }

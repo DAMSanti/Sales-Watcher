@@ -1,5 +1,7 @@
 {
-  "app": { "nombre": "Sales Watcher" },
+  "app": {
+    "nombre": "Sales Watcher"
+  },
   "login": {
     "titulo": "Iniciar sesión",
     "numeroTrabajador": "Número de trabajador",
@@ -44,6 +46,69 @@
     "cargando": "Cargando…",
     "salir": "Cerrar sesión",
     "sinConexion": "Sin conexión",
-    "sinConexionAyuda": "Tu trabajo se guarda y se enviará al recuperar cobertura."
+    "sinConexionAyuda": "Tu trabajo se guarda y se enviará al recuperar cobertura.",
+    "volver": "Volver",
+    "guardar": "Guardar",
+    "guardando": "Guardando…"
+  },
+  "visita": {
+    "volver": "Mi día",
+    "comenzar": "Comenzar visita",
+    "comenzando": "Comenzando…",
+    "finalizar": "Finalizar visita",
+    "finalizando": "Finalizando…",
+    "finalizada": "FINALIZADA",
+    "noRealizada": "NO REALIZADA",
+    "noPuedoVisitarla": "No he podido visitarla",
+    "duracion": "Duración: {{minutos}} min",
+    "soloLectura": "Esta visita está cerrada. No se puede modificar.",
+    "incompletaAviso": "Quedaron tareas obligatorias sin completar.",
+    "desviacionAviso": "Estás a {{metros}} m de la ubicación registrada de la tienda.",
+    "checklist": "Checklist",
+    "incidencias": "Incidencias y oportunidades",
+    "notas": "Notas",
+    "notasPlaceholder": "Observaciones que no encajan en el checklist…"
+  },
+  "checklist": {
+    "vacio": "Esta tienda no tiene checklist configurado.",
+    "requiereFoto": "Requiere foto",
+    "obligatorio": "Obligatorio",
+    "faltaFoto": "Adjunta una foto para poder marcarlo",
+    "progreso": "{{hechos}} de {{total}}"
+  },
+  "incidencia": {
+    "ninguna": "Sin incidencias registradas en esta visita.",
+    "nueva": "Añadir incidencia",
+    "tipo": "Tipo",
+    "incidencia": "Incidencia",
+    "oportunidad": "Oportunidad",
+    "categoria": "Categoría",
+    "descripcion": "Descripción",
+    "descripcionPlaceholder": "Qué has visto…",
+    "prioridad": "Prioridad",
+    "guardar": "Guardar",
+    "eligeCategoria": "Elige una categoría"
+  },
+  "prioridad": {
+    "baja": "Baja",
+    "media": "Media",
+    "alta": "Alta",
+    "critica": "Crítica"
+  },
+  "justificar": {
+    "titulo": "No he podido visitarla",
+    "explicacion": "Indica por qué no se hizo la visita. Solo puedes justificarla hoy.",
+    "motivo": "Motivo",
+    "comentario": "Comentario",
+    "comentarioObligatorio": "Este motivo necesita un comentario",
+    "confirmar": "Justificar",
+    "confirmando": "Enviando…"
+  },
+  "buscador": {
+    "titulo": "Añadir visita",
+    "placeholder": "Nombre o número de referencia",
+    "sinResultados": "Ninguna tienda coincide.",
+    "escribeAlgo": "Escribe para buscar entre las tiendas.",
+    "crear": "Crear visita"
   }
 }

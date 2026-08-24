@@ -43,9 +43,72 @@
     "cargando": "Kargatzen…",
     "salir": "Saioa itxi",
     "sinConexion": "Konexiorik ez",
-    "sinConexionAyuda": "Zure lana gorde egiten da eta estaldura berreskuratzean bidaliko da."
+    "sinConexionAyuda": "Zure lana gorde egiten da eta estaldura berreskuratzean bidaliko da.",
+    "volver": "Itzuli",
+    "guardar": "Gorde",
+    "guardando": "Gordetzen…"
   },
   "app": {
     "nombre": "Sales Watcher"
+  },
+  "visita": {
+    "volver": "Nire eguna",
+    "comenzar": "Bisita hasi",
+    "comenzando": "Hasten…",
+    "finalizar": "Bisita amaitu",
+    "finalizando": "Amaitzen…",
+    "finalizada": "AMAITUTA",
+    "noRealizada": "EGIN GABE",
+    "noPuedoVisitarla": "Ezin izan dut bisitatu",
+    "duracion": "Iraupena: {{minutos}} min",
+    "soloLectura": "Bisita hau itxita dago. Ezin da aldatu.",
+    "incompletaAviso": "Nahitaezko zeregin batzuk osatu gabe geratu dira.",
+    "desviacionAviso": "Dendaren kokaleku erregistratutik {{metros}} m-ra zaude.",
+    "checklist": "Egiaztapen-zerrenda",
+    "incidencias": "Intzidentziak eta aukerak",
+    "notas": "Oharrak",
+    "notasPlaceholder": "Zerrendan sartzen ez diren oharrak…"
+  },
+  "checklist": {
+    "vacio": "Denda honek ez du egiaztapen-zerrendarik konfiguratuta.",
+    "requiereFoto": "Argazkia behar du",
+    "obligatorio": "Nahitaezkoa",
+    "faltaFoto": "Erantsi argazki bat markatu ahal izateko",
+    "progreso": "{{total}}(e)tik {{hechos}}"
+  },
+  "incidencia": {
+    "ninguna": "Ez da intzidentziarik erregistratu bisita honetan.",
+    "nueva": "Gehitu intzidentzia",
+    "tipo": "Mota",
+    "incidencia": "Intzidentzia",
+    "oportunidad": "Aukera",
+    "categoria": "Kategoria",
+    "descripcion": "Deskribapena",
+    "descripcionPlaceholder": "Zer ikusi duzun…",
+    "prioridad": "Lehentasuna",
+    "guardar": "Gorde",
+    "eligeCategoria": "Aukeratu kategoria bat"
+  },
+  "prioridad": {
+    "baja": "Baxua",
+    "media": "Ertaina",
+    "alta": "Altua",
+    "critica": "Kritikoa"
+  },
+  "justificar": {
+    "titulo": "Ezin izan dut bisitatu",
+    "explicacion": "Adierazi zergatik ez den bisita egin. Gaur bakarrik justifika dezakezu.",
+    "motivo": "Arrazoia",
+    "comentario": "Iruzkina",
+    "comentarioObligatorio": "Arrazoi honek iruzkina behar du",
+    "confirmar": "Justifikatu",
+    "confirmando": "Bidaltzen…"
+  },
+  "buscador": {
+    "titulo": "Gehitu bisita",
+    "placeholder": "Izena edo erreferentzia-zenbakia",
+    "sinResultados": "Ez dago bat datorren dendarik.",
+    "escribeAlgo": "Idatzi dendetan bilatzeko.",
+    "crear": "Sortu bisita"
   }
 }

@@ -82,18 +82,18 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Componentes tolerantes a expansión de texto *(verificado con euskera real)*
 - [x] Pantalla de login + cambio de contraseña forzado
 - [x] Vista del día con cards y resumen de progreso
-- [ ] Buscador de tiendas y "Añadir visita" con etiqueta *no planificada*
-- [ ] Detalle de visita: cabecera y los cuatro estados
-- [ ] Comenzar visita (hora + geolocalización)
-- [ ] Finalizar visita (hora + geolocalización, aviso si checklist incompleto)
-- [ ] Flujo "No he podido visitarla": motivo + comentario
+- [x] Buscador de tiendas y "Añadir visita"
+- [x] Detalle de visita: cabecera y los cuatro estados
+- [x] Comenzar visita (hora + geolocalización, con aviso de desviación)
+- [x] Finalizar visita (hora + geolocalización, marca incompleta)
+- [x] Flujo "No he podido visitarla": motivo + comentario
 - [ ] Aviso de cierre de jornada con visitas sin justificar, con antelación suficiente (no en el último minuto)
-- [ ] Modo solo lectura en visita finalizada y en no realizada
-- [ ] Sección checklist con ítems que exigen foto
-- [ ] Formulario de incidencias/oportunidades con categorías del catálogo
+- [x] Modo solo lectura en visita finalizada y en no realizada
+- [~] Sección checklist *(marcar y desmarcar; falta adjuntar la foto)*
+- [x] Formulario de incidencias/oportunidades con categorías del catálogo
 - [ ] Captura de fotos desde cámara con metadatos
 - [ ] Compresión y redimensionado en dispositivo
-- [ ] Notas libres
+- [x] Notas libres
 - [ ] Contexto de la visita anterior
 - [ ] Caché local de ruta, catálogo y textos del idioma activo (IndexedDB)
 - [ ] Cola de sincronización con reintentos e idempotencia

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { LOCALE, type Idioma } from "@sw/shared";
 import type { TarjetaVisita as Datos } from "../api/tipos";
 
@@ -20,8 +21,12 @@ export function TarjetaVisita({ visita, idioma }: { visita: Datos; idioma: Idiom
   const sinJustificar = visita.estado === "no_realizada" && !visita.justificada;
   const claseEstado = sinJustificar ? "sin-justificar" : visita.estado;
 
-  return (
-    <article className={`tarjeta tarjeta--${claseEstado}`}>
+  /**
+   * Una tarjeta sin visita creada todavia no es pulsable: no hay detalle al
+   * que ir. Ocurre al consultar un dia pasado cuya ruta nunca se materializo.
+   */
+  const contenido = (
+    <>
       <div className="tarjeta__cuerpo">
         <div className="tarjeta__superior">
           <h2 className="tarjeta__nombre">{visita.tienda.nombre}</h2>
@@ -72,7 +77,17 @@ export function TarjetaVisita({ visita, idioma }: { visita: Datos; idioma: Idiom
           {visita.ordenSugerido}
         </div>
       )}
-    </article>
+    </>
+  );
+
+  const clases = `tarjeta tarjeta--${claseEstado}`;
+
+  return visita.visitaId ? (
+    <Link to={`/visita/${visita.visitaId}`} className={`${clases} tarjeta--enlace`}>
+      {contenido}
+    </Link>
+  ) : (
+    <article className={clases}>{contenido}</article>
   );
 }
 

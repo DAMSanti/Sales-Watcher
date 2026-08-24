@@ -1,0 +1,382 @@
+.detalle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.detalle__cabecera {
+  padding: var(--e3) var(--e4) var(--e5);
+  padding-top: calc(var(--e3) + env(safe-area-inset-top, 0px));
+  background: var(--azul-700);
+  color: var(--texto-inverso);
+}
+
+.detalle__volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  min-height: var(--tactil-min);
+  margin-left: calc(var(--e2) * -1);
+  padding: 0 var(--e2);
+  color: var(--azul-100);
+  font-size: var(--txt-sm);
+  font-weight: 600;
+}
+
+.detalle__nombre {
+  margin-top: var(--e2);
+  font-size: var(--txt-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.detalle__referencia {
+  margin-top: var(--e2);
+  font-size: var(--txt-sm);
+  color: var(--azul-200);
+  font-variant-numeric: tabular-nums;
+}
+
+.detalle__direccion {
+  font-size: var(--txt-sm);
+  color: var(--azul-100);
+}
+
+.detalle__cuerpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  padding: var(--e4);
+  /* Reserva para la barra de acción fija, igual que en la vista del día. */
+  padding-bottom: calc(
+    var(--tactil-min) * 2 + var(--e3) * 3 + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+.detalle__cerrada {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  padding: var(--e4);
+  border-radius: var(--radio);
+  background: var(--superficie-alt);
+  color: var(--gris-700);
+  font-size: var(--txt-sm);
+}
+
+.detalle__cerrada strong {
+  font-size: var(--txt-base);
+  letter-spacing: 0.04em;
+}
+
+.detalle__acciones {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  padding: var(--e3) var(--e4);
+  padding-bottom: calc(var(--e3) + env(safe-area-inset-bottom, 0px));
+  background: var(--superficie);
+  border-top: 1px solid var(--borde);
+}
+
+/* ── Secciones ──────────────────────────────────────────────────────── */
+
+.seccion {
+  padding: var(--e4);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+.seccion__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  margin-bottom: var(--e3);
+}
+
+.seccion__titulo {
+  font-size: var(--txt-base);
+  font-weight: 700;
+}
+
+.seccion__contador {
+  font-size: var(--txt-sm);
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.seccion__vacio {
+  padding: var(--e3) 0;
+  color: var(--texto-suave);
+  font-size: var(--txt-sm);
+}
+
+/* ── Checklist ──────────────────────────────────────────────────────── */
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist__fila {
+  padding: var(--e2) 0;
+  border-bottom: 1px solid var(--gris-100);
+}
+
+.checklist__fila:last-child {
+  border-bottom: none;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e3);
+  /* El área pulsable es la fila entera, no solo la casilla: el comercial
+     marca con el pulgar en movimiento. */
+  min-height: var(--tactil-min);
+  padding: var(--e2) 0;
+  cursor: pointer;
+}
+
+.checklist__casilla {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  accent-color: var(--azul-600);
+  cursor: pointer;
+}
+
+.checklist__casilla:disabled {
+  cursor: not-allowed;
+}
+
+.checklist__texto {
+  font-size: var(--txt-base);
+  line-height: 1.4;
+}
+
+.checklist__item--hecho .checklist__texto {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
+.checklist__marcas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+  margin-left: calc(26px + var(--e3));
+}
+
+.checklist__motivo {
+  margin-left: calc(26px + var(--e3));
+  margin-top: var(--e1);
+  font-size: var(--txt-xs);
+  color: var(--estado-nojust-texto);
+}
+
+/* ── Incidencias ────────────────────────────────────────────────────── */
+
+.incidencias {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  margin-bottom: var(--e3);
+}
+
+.incidencia {
+  padding: var(--e3);
+  border-radius: var(--radio-sm);
+  background: var(--superficie-alt);
+}
+
+.incidencia__superior {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  flex-wrap: wrap;
+}
+
+/* Punto de color por prioridad: se lee sin tener que procesar la palabra. */
+.incidencia__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.incidencia__punto--baja { background: var(--prio-baja); }
+.incidencia__punto--media { background: var(--prio-media); }
+.incidencia__punto--alta { background: var(--prio-alta); }
+.incidencia__punto--critica { background: var(--prio-critica); }
+
+.incidencia__nombre {
+  font-weight: 600;
+  font-size: var(--txt-sm);
+}
+
+.incidencia__descripcion {
+  margin-top: var(--e2);
+  font-size: var(--txt-sm);
+  color: var(--gris-600);
+}
+
+/* ── Formularios en línea ───────────────────────────────────────────── */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--borde);
+}
+
+.formulario__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--e2);
+}
+
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+select.campo__control {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--gris-500) 50%),
+    linear-gradient(135deg, var(--gris-500) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: var(--e8);
+}
+
+/* ── Diálogo ────────────────────────────────────────────────────────── */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 0.5);
+}
+
+/*
+  Anclado abajo, no centrado: en un móvil sostenido con una mano, el borde
+  inferior es la zona que el pulgar alcanza sin recolocar el agarre.
+*/
+.modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  padding: var(--e5) var(--e4);
+  padding-bottom: calc(var(--e5) + env(safe-area-inset-bottom, 0px));
+  background: var(--superficie);
+  border-radius: var(--radio) var(--radio) 0 0;
+  box-shadow: var(--sombra-lg);
+}
+
+.modal__titulo {
+  font-size: var(--txt-lg);
+  font-weight: 700;
+}
+
+.modal__explicacion {
+  font-size: var(--txt-sm);
+  color: var(--texto-suave);
+  margin-top: calc(var(--e3) * -1);
+}
+
+.modal__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--e2);
+}
+
+.motivos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+/*
+  Los motivos son botones de ancho completo, no un desplegable. La lista es
+  corta a propósito y verla entera desanima menos a elegir el primero por
+  comodidad, que es el riesgo real de este catálogo.
+*/
+.motivo {
+  min-height: var(--tactil-min);
+  padding: var(--e3) var(--e4);
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  text-align: left;
+  font-size: var(--txt-base);
+}
+
+.motivo--activo {
+  border-color: var(--azul-600);
+  background: var(--azul-50);
+  color: var(--azul-700);
+  font-weight: 600;
+}
+
+/* ── Resultados del buscador ────────────────────────────────────────── */
+
+.resultado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  width: 100%;
+  min-height: var(--tactil-min);
+  padding: var(--e3) var(--e4);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  background: var(--superficie);
+  text-align: left;
+}
+
+.resultado:active:not(:disabled) {
+  background: var(--azul-50);
+}
+
+.resultado:disabled {
+  opacity: 0.5;
+}
+
+.resultado__nombre {
+  font-size: var(--txt-base);
+  font-weight: 600;
+}
+
+.resultado__meta {
+  font-size: var(--txt-sm);
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}

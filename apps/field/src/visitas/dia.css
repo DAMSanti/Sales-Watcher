@@ -237,3 +237,15 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* La tarjeta enlazada mantiene el aspecto de tarjeta, no de enlace. */
+.tarjeta--enlace {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.05s ease, box-shadow 0.15s ease;
+}
+
+.tarjeta--enlace:active {
+  transform: scale(0.99);
+  box-shadow: none;
+}

@@ -43,9 +43,72 @@
     "cargando": "Chargement…",
     "salir": "Se déconnecter",
     "sinConexion": "Hors connexion",
-    "sinConexionAyuda": "Votre travail est enregistré et sera envoyé dès le retour du réseau."
+    "sinConexionAyuda": "Votre travail est enregistré et sera envoyé dès le retour du réseau.",
+    "volver": "Retour",
+    "guardar": "Enregistrer",
+    "guardando": "Enregistrement…"
   },
   "app": {
     "nombre": "Sales Watcher"
+  },
+  "visita": {
+    "volver": "Ma journée",
+    "comenzar": "Commencer la visite",
+    "comenzando": "Démarrage…",
+    "finalizar": "Terminer la visite",
+    "finalizando": "Clôture…",
+    "finalizada": "TERMINÉE",
+    "noRealizada": "NON RÉALISÉE",
+    "noPuedoVisitarla": "Je n'ai pas pu la visiter",
+    "duracion": "Durée : {{minutos}} min",
+    "soloLectura": "Cette visite est clôturée. Elle ne peut pas être modifiée.",
+    "incompletaAviso": "Des tâches obligatoires sont restées non complétées.",
+    "desviacionAviso": "Vous êtes à {{metros}} m de l'emplacement enregistré du magasin.",
+    "checklist": "Checklist",
+    "incidencias": "Incidents et opportunités",
+    "notas": "Notes",
+    "notasPlaceholder": "Observations hors checklist…"
+  },
+  "checklist": {
+    "vacio": "Ce magasin n'a pas de checklist configurée.",
+    "requiereFoto": "Photo requise",
+    "obligatorio": "Obligatoire",
+    "faltaFoto": "Joignez une photo pour pouvoir le cocher",
+    "progreso": "{{hechos}} sur {{total}}"
+  },
+  "incidencia": {
+    "ninguna": "Aucun incident enregistré lors de cette visite.",
+    "nueva": "Ajouter un incident",
+    "tipo": "Type",
+    "incidencia": "Incident",
+    "oportunidad": "Opportunité",
+    "categoria": "Catégorie",
+    "descripcion": "Description",
+    "descripcionPlaceholder": "Ce que vous avez constaté…",
+    "prioridad": "Priorité",
+    "guardar": "Enregistrer",
+    "eligeCategoria": "Choisissez une catégorie"
+  },
+  "prioridad": {
+    "baja": "Basse",
+    "media": "Moyenne",
+    "alta": "Haute",
+    "critica": "Critique"
+  },
+  "justificar": {
+    "titulo": "Je n'ai pas pu la visiter",
+    "explicacion": "Indiquez pourquoi la visite n'a pas eu lieu. Vous ne pouvez la justifier qu'aujourd'hui.",
+    "motivo": "Motif",
+    "comentario": "Commentaire",
+    "comentarioObligatorio": "Ce motif nécessite un commentaire",
+    "confirmar": "Justifier",
+    "confirmando": "Envoi…"
+  },
+  "buscador": {
+    "titulo": "Ajouter une visite",
+    "placeholder": "Nom ou numéro de référence",
+    "sinResultados": "Aucun magasin ne correspond.",
+    "escribeAlgo": "Saisissez pour rechercher parmi les magasins.",
+    "crear": "Créer la visite"
   }
 }

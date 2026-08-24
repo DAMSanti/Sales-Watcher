@@ -43,9 +43,72 @@
     "cargando": "Carregant…",
     "salir": "Tanca la sessió",
     "sinConexion": "Sense connexió",
-    "sinConexionAyuda": "La teva feina es desa i s'enviarà en recuperar cobertura."
+    "sinConexionAyuda": "La teva feina es desa i s'enviarà en recuperar cobertura.",
+    "volver": "Torna",
+    "guardar": "Desa",
+    "guardando": "Desant…"
   },
   "app": {
     "nombre": "Sales Watcher"
+  },
+  "visita": {
+    "volver": "El meu dia",
+    "comenzar": "Comença la visita",
+    "comenzando": "Començant…",
+    "finalizar": "Finalitza la visita",
+    "finalizando": "Finalitzant…",
+    "finalizada": "FINALITZADA",
+    "noRealizada": "NO REALITZADA",
+    "noPuedoVisitarla": "No l'he pogut visitar",
+    "duracion": "Durada: {{minutos}} min",
+    "soloLectura": "Aquesta visita està tancada. No es pot modificar.",
+    "incompletaAviso": "Han quedat tasques obligatòries sense completar.",
+    "desviacionAviso": "Ets a {{metros}} m de la ubicació registrada de la botiga.",
+    "checklist": "Checklist",
+    "incidencias": "Incidències i oportunitats",
+    "notas": "Notes",
+    "notasPlaceholder": "Observacions que no encaixen al checklist…"
+  },
+  "checklist": {
+    "vacio": "Aquesta botiga no té checklist configurat.",
+    "requiereFoto": "Requereix foto",
+    "obligatorio": "Obligatori",
+    "faltaFoto": "Adjunta una foto per poder marcar-ho",
+    "progreso": "{{hechos}} de {{total}}"
+  },
+  "incidencia": {
+    "ninguna": "Sense incidències registrades en aquesta visita.",
+    "nueva": "Afegeix incidència",
+    "tipo": "Tipus",
+    "incidencia": "Incidència",
+    "oportunidad": "Oportunitat",
+    "categoria": "Categoria",
+    "descripcion": "Descripció",
+    "descripcionPlaceholder": "Què has vist…",
+    "prioridad": "Prioritat",
+    "guardar": "Desa",
+    "eligeCategoria": "Tria una categoria"
+  },
+  "prioridad": {
+    "baja": "Baixa",
+    "media": "Mitjana",
+    "alta": "Alta",
+    "critica": "Crítica"
+  },
+  "justificar": {
+    "titulo": "No l'he pogut visitar",
+    "explicacion": "Indica per què no s'ha fet la visita. Només la pots justificar avui.",
+    "motivo": "Motiu",
+    "comentario": "Comentari",
+    "comentarioObligatorio": "Aquest motiu necessita un comentari",
+    "confirmar": "Justifica",
+    "confirmando": "Enviant…"
+  },
+  "buscador": {
+    "titulo": "Afegeix visita",
+    "placeholder": "Nom o número de referència",
+    "sinResultados": "Cap botiga coincideix.",
+    "escribeAlgo": "Escriu per cercar entre les botigues.",
+    "crear": "Crea la visita"
   }
 }

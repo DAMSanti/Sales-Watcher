@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { LOCALE } from "@sw/shared";
 import { ErrorApi, pedir } from "../api/cliente";
 import type { TarjetaVisita as Tarjeta, VistaDelDia as Datos } from "../api/tipos";
@@ -148,9 +149,9 @@ export function VistaDelDia() {
         larga.
       */}
       <div className="dia__accion">
-        <button type="button" className="boton boton--principal boton--ancho">
+        <Link to="/anadir" className="boton boton--principal boton--ancho">
           <span aria-hidden="true">+</span> {t("dia.anadirVisita")}
-        </button>
+        </Link>
       </div>
     </div>
   );
