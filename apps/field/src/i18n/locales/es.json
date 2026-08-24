@@ -74,7 +74,8 @@
     "requiereFoto": "Requiere foto",
     "obligatorio": "Obligatorio",
     "faltaFoto": "Adjunta una foto para poder marcarlo",
-    "progreso": "{{hechos}} de {{total}}"
+    "progreso": "{{hechos}} de {{total}}",
+    "noDisponible": "No se pudo cargar el checklist sin conexión. Ábrelo con cobertura al menos una vez."
   },
   "incidencia": {
     "ninguna": "Sin incidencias registradas en esta visita.",
@@ -110,5 +111,15 @@
     "sinResultados": "Ninguna tienda coincide.",
     "escribeAlgo": "Escribe para buscar entre las tiendas.",
     "crear": "Crear visita"
+  },
+  "sync": {
+    "pendientes_one": "{{count}} cambio sin enviar",
+    "pendientes_other": "{{count}} cambios sin enviar",
+    "enviando": "Enviando cambios…",
+    "enviarAhora": "Enviar ahora",
+    "rechazadas_one": "{{count}} cambio rechazado",
+    "rechazadas_other": "{{count}} cambios rechazados",
+    "guardadoLocal": "Guardado en el dispositivo. Se enviará al recuperar cobertura.",
+    "desdeCache": "Mostrando los últimos datos descargados."
   }
 }

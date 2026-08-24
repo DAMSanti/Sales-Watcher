@@ -74,7 +74,8 @@
     "requiereFoto": "Argazkia behar du",
     "obligatorio": "Nahitaezkoa",
     "faltaFoto": "Erantsi argazki bat markatu ahal izateko",
-    "progreso": "{{total}}(e)tik {{hechos}}"
+    "progreso": "{{total}}(e)tik {{hechos}}",
+    "noDisponible": "Ezin izan da egiaztapen-zerrenda kargatu konexiorik gabe. Ireki behin estaldurarekin."
   },
   "incidencia": {
     "ninguna": "Ez da intzidentziarik erregistratu bisita honetan.",
@@ -110,5 +111,15 @@
     "sinResultados": "Ez dago bat datorren dendarik.",
     "escribeAlgo": "Idatzi dendetan bilatzeko.",
     "crear": "Sortu bisita"
+  },
+  "sync": {
+    "pendientes_one": "Bidali gabeko aldaketa {{count}}",
+    "pendientes_other": "Bidali gabeko {{count}} aldaketa",
+    "enviando": "Aldaketak bidaltzen…",
+    "enviarAhora": "Bidali orain",
+    "rechazadas_one": "Baztertutako aldaketa {{count}}",
+    "rechazadas_other": "Baztertutako {{count}} aldaketa",
+    "guardadoLocal": "Gailuan gordeta. Estaldura berreskuratzean bidaliko da.",
+    "desdeCache": "Deskargatutako azken datuak erakusten."
   }
 }

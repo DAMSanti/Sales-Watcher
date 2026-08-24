@@ -184,6 +184,22 @@ La purga limpia dos cosas: fotos caducadas por retención, y reservas que nunca 
 
 **`RETENCION_FOTOS_DIAS` vacío significa indefinido, no cero.** Confundirlo borraría todas las fotos en la primera pasada. Hay un test que lo cubre.
 
+## La app de campo sin cobertura
+
+**Se intenta el envío directo y solo se encola si falla por RED.** Un 409 por ventana cerrada o un 403 por visita ajena se propagan tal cual: encolarlos metería en la cola algo que va a fallar igual en cada reintento.
+
+La contrapartida es que hay dos caminos y pueden divergir. Por eso el cuerpo directo y el encolado se construyen en el **mismo sitio**, dentro de `ejecutar()`.
+
+**Nunca decir "no hay" cuando es "no se pudo cargar".** Una visita abierta sin cobertura mostraba *"Esta tienda no tiene checklist configurado"* — mentira que llevaría al comercial a cerrar la visita sin hacerlo. Los componentes reciben `disponible` además de los datos.
+
+**La precarga ocurre al cargar la vista del día, no al abrir cada visita.** El comercial pierde la señal *dentro* de la tienda: descargar el checklist al abrirla llegaría tarde. Es el requisito de SPECS §4.
+
+**El service worker no reintenta escrituras.** Cachea el shell y las lecturas (`NetworkFirst`, 4 s de espera), pero las mutaciones son de la cola en IndexedDB, que sabe distinguir un fallo temporal de uno permanente. Background Sync duplicaría esa lógica con menos información.
+
+**El almacén se vacía al cerrar sesión.** Los móviles se comparten entre turnos y el siguiente comercial vería la ruta del anterior.
+
+**El indicador solo aparece cuando hay algo que decir.** Un distintivo verde permanente se vuelve invisible por costumbre y deja de comunicar cuando importa.
+
 ## Sincronización offline
 
 Hay **dos identificadores distintos** y confundirlos rompe cosas:

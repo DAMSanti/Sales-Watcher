@@ -74,7 +74,8 @@
     "requiereFoto": "Requereix foto",
     "obligatorio": "Obligatori",
     "faltaFoto": "Adjunta una foto per poder marcar-ho",
-    "progreso": "{{hechos}} de {{total}}"
+    "progreso": "{{hechos}} de {{total}}",
+    "noDisponible": "No s'ha pogut carregar el checklist sense connexió. Obre'l amb cobertura almenys un cop."
   },
   "incidencia": {
     "ninguna": "Sense incidències registrades en aquesta visita.",
@@ -110,5 +111,15 @@
     "sinResultados": "Cap botiga coincideix.",
     "escribeAlgo": "Escriu per cercar entre les botigues.",
     "crear": "Crea la visita"
+  },
+  "sync": {
+    "pendientes_one": "{{count}} canvi sense enviar",
+    "pendientes_other": "{{count}} canvis sense enviar",
+    "enviando": "Enviant canvis…",
+    "enviarAhora": "Envia ara",
+    "rechazadas_one": "{{count}} canvi rebutjat",
+    "rechazadas_other": "{{count}} canvis rebutjats",
+    "guardadoLocal": "Desat al dispositiu. S'enviarà en recuperar cobertura.",
+    "desdeCache": "Mostrant les últimes dades descarregades."
   }
 }

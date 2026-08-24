@@ -78,7 +78,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 ## Fase 3 — App del comercial (PWA) — MVP
 
-- [~] Esqueleto de la app de campo *(Vite + React; falta manifest y service worker)*
+- [x] Esqueleto PWA: manifest, service worker, instalable
 - [x] Traducciones de interfaz en 5 idiomas y selector, disponible ya en login
 - [x] Componentes tolerantes a expansión de texto *(verificado con euskera real)*
 - [x] Pantalla de login + cambio de contraseña forzado
@@ -96,9 +96,9 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [ ] Compresión y redimensionado en dispositivo
 - [x] Notas libres
 - [ ] Contexto de la visita anterior
-- [ ] Caché local de ruta, catálogo y textos del idioma activo (IndexedDB)
-- [ ] Cola de sincronización con reintentos e idempotencia
-- [ ] Indicador visible de "pendiente de sincronizar" / "sincronizado"
+- [x] Caché local de ruta y catálogos, con precarga de la jornada al entrar
+- [x] Cola de sincronización con reintentos e idempotencia por `opId`
+- [x] Indicador visible de "pendiente de sincronizar" / "sincronizado"
 
 ## Fase 4 — Backoffice — MVP
 

@@ -1,0 +1,67 @@
+/*
+  Barra fina bajo la cabecera. No tapa contenido ni exige acción: el comercial
+  tiene que poder seguir trabajando mientras la cola se vacía sola.
+*/
+.sync {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) var(--e4);
+  font-size: var(--txt-sm);
+  font-weight: 600;
+}
+
+.sync__punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sync__texto {
+  flex: 1;
+}
+
+.sync__accion {
+  min-height: 32px;
+  padding: 0 var(--e3);
+  border-radius: var(--radio-pill);
+  background: rgb(255 255 255 / 0.55);
+  font-size: var(--txt-xs);
+  font-weight: 700;
+  color: inherit;
+}
+
+/* Ámbar: hay trabajo esperando, pero no se ha perdido nada. */
+.sync--pendiente {
+  background: var(--estado-nojust-fondo);
+  color: var(--estado-nojust-texto);
+}
+.sync--pendiente .sync__punto {
+  background: var(--sync-pendiente);
+  /* Latido lento: señala actividad sin competir con la pantalla. */
+  animation: latido 2s ease-in-out infinite;
+}
+
+/* Gris: sin cobertura y sin nada que enviar. Informativo, no alarmante. */
+.sync--offline {
+  background: var(--superficie-alt);
+  color: var(--gris-600);
+}
+.sync--offline .sync__punto {
+  background: var(--gris-400);
+}
+
+/* Rojo: el servidor rechazó algo y hace falta que alguien lo mire. */
+.sync--error {
+  background: var(--estado-nosinjust-fondo);
+  color: var(--estado-nosinjust-texto);
+}
+.sync--error .sync__punto {
+  background: var(--sync-error);
+}
+
+@keyframes latido {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}

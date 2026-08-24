@@ -5,6 +5,10 @@ import { LOCALE } from "@sw/shared";
 import { ErrorApi, pedir } from "../api/cliente";
 import type { TarjetaVisita as Tarjeta, VistaDelDia as Datos } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
+import { guardarCache, leerCache } from "../offline/almacen";
+import { IndicadorSincronizacion } from "../offline/IndicadorSincronizacion";
+import { useSincronizacion } from "../offline/ContextoSincronizacion";
+import { precargarJornada } from "../offline/precarga";
 import { TarjetaVisita } from "./TarjetaVisita";
 import "./dia.css";
 
@@ -16,6 +20,8 @@ export function VistaDelDia() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sinRed, setSinRed] = useState(false);
+  const [desdeCache, setDesdeCache] = useState(false);
+  const { pendientes } = useSincronizacion();
 
   const cargar = useCallback(
     async (senal?: AbortSignal) => {
@@ -24,6 +30,15 @@ export function VistaDelDia() {
         const respuesta = await pedir<Datos>("/visitas/dia", { idioma, senal });
         setDatos(respuesta);
         setSinRed(false);
+        setDesdeCache(false);
+        /** Se guarda para poder abrir la app sin cobertura mañana. */
+        void guardarCache("visitas/dia", respuesta);
+        /**
+         * Y se precarga el detalle de cada visita abierta. El comercial pierde
+         * la señal DENTRO de la tienda: descargar el checklist al abrir la
+         * visita llegaría tarde.
+         */
+        void precargarJornada(respuesta.visitas, idioma);
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") return;
         if (e instanceof ErrorApi && e.esFalloDeRed) {
@@ -33,6 +48,16 @@ export function VistaDelDia() {
            * necesita seguir viendo su ruta, no un mensaje rojo.
            */
           setSinRed(true);
+          /**
+           * Sin red se recurre a lo último descargado. Es la diferencia entre
+           * un comercial que puede consultar su ruta en un sótano y uno que ve
+           * una pantalla vacía.
+           */
+          const guardado = await leerCache<Datos>("visitas/dia");
+          if (guardado) {
+            setDatos(guardado.datos);
+            setDesdeCache(true);
+          }
         } else {
           setError(e instanceof Error ? e.message : String(e));
         }
@@ -56,6 +81,14 @@ export function VistaDelDia() {
     window.addEventListener("online", alVolver);
     return () => window.removeEventListener("online", alVolver);
   }, [cargar]);
+
+  /**
+   * Al vaciarse la cola se recarga: lo que se aplicó en el servidor tiene que
+   * reflejarse en la pantalla sin que el comercial toque nada.
+   */
+  useEffect(() => {
+    if (pendientes.length === 0) void cargar();
+  }, [pendientes.length, cargar]);
 
   if (cargando && !datos) {
     return <p className="cargando">{t("comun.cargando")}</p>;
@@ -104,7 +137,15 @@ export function VistaDelDia() {
         )}
       </header>
 
-      {sinRed && (
+      <IndicadorSincronizacion />
+
+      {desdeCache && (
+        <div className="aviso aviso--sinconexion dia__aviso" role="status">
+          <span>{t("sync.desdeCache")}</span>
+        </div>
+      )}
+
+      {sinRed && !desdeCache && (
         <div className="aviso aviso--sinconexion dia__aviso" role="status">
           <strong>{t("comun.sinConexion")}</strong>
           <span>{t("comun.sinConexionAyuda")}</span>

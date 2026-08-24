@@ -4,6 +4,7 @@ import type { Idioma } from "@sw/shared";
 import { App } from "./App";
 import { ProveedorSesion } from "./auth/sesion";
 import { iniciarI18n } from "./i18n";
+import { ProveedorSincronizacion } from "./offline/ContextoSincronizacion";
 import "./estilos/base.css";
 import "./estilos/componentes.css";
 
@@ -32,7 +33,9 @@ iniciarI18n(idiomaInicial());
 createRoot(document.getElementById("raiz")!).render(
   <StrictMode>
     <ProveedorSesion>
-      <App />
+      <ProveedorSincronizacion>
+        <App />
+      </ProveedorSincronizacion>
     </ProveedorSesion>
   </StrictMode>,
 );

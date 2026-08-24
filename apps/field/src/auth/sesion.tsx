@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Idioma } from "@sw/shared";
 import { ErrorApi, guardarToken, leerToken, pedir } from "../api/cliente";
+import { limpiar } from "../offline/almacen";
 import type { Perfil, RespuestaLogin } from "../api/tipos";
 
 type Sesion = {
@@ -108,6 +109,11 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
   const salir = useCallback(() => {
     guardarToken(null);
     borrarLocal(CLAVE_PERFIL);
+    /**
+     * Se vacía el almacén local. Los móviles se comparten entre turnos, y sin
+     * esto el siguiente comercial vería la ruta y las visitas del anterior.
+     */
+    void limpiar();
     setPerfil(null);
     setSinVerificar(false);
   }, []);

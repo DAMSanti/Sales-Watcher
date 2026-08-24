@@ -74,7 +74,8 @@
     "requiereFoto": "Photo required",
     "obligatorio": "Required",
     "faltaFoto": "Attach a photo before ticking this",
-    "progreso": "{{hechos}} of {{total}}"
+    "progreso": "{{hechos}} of {{total}}",
+    "noDisponible": "The checklist couldn't be loaded offline. Open it with coverage at least once."
   },
   "incidencia": {
     "ninguna": "No issues recorded on this visit.",
@@ -110,5 +111,15 @@
     "sinResultados": "No store matches.",
     "escribeAlgo": "Type to search across stores.",
     "crear": "Create visit"
+  },
+  "sync": {
+    "pendientes_one": "{{count}} unsent change",
+    "pendientes_other": "{{count}} unsent changes",
+    "enviando": "Sending changes…",
+    "enviarAhora": "Send now",
+    "rechazadas_one": "{{count}} rejected change",
+    "rechazadas_other": "{{count}} rejected changes",
+    "guardadoLocal": "Saved on the device. It will be sent when coverage returns.",
+    "desdeCache": "Showing the last downloaded data."
   }
 }

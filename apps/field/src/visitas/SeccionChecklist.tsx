@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ErrorApi, pedir } from "../api/cliente";
+import { ErrorApi } from "../api/cliente";
+import { ejecutar } from "../offline/cola";
 import type { Checklist, ItemChecklist } from "../api/tipos";
 
 /**
@@ -12,11 +13,14 @@ import type { Checklist, ItemChecklist } from "../api/tipos";
  */
 export function SeccionChecklist({
   checklist,
+  disponible,
   editable,
   visitaId,
   alCambiar,
 }: {
   checklist: Checklist | null;
+  /** false cuando los datos no se pudieron traer, no cuando no existen. */
+  disponible: boolean;
   editable: boolean;
   visitaId: string;
   alCambiar: () => Promise<void>;
@@ -24,6 +28,22 @@ export function SeccionChecklist({
   const { t } = useTranslation();
   const [enCurso, setEnCurso] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Marcados sin cobertura, aún no confirmados por el servidor. */
+  const [locales, setLocales] = useState<Record<string, boolean>>({});
+
+  /**
+   * "No disponible" y "no configurado" son cosas distintas y hay que decirlas
+   * distinto: afirmar que la tienda no tiene checklist cuando en realidad no
+   * se pudo descargar llevaría al comercial a cerrar la visita sin hacerlo.
+   */
+  if (!disponible) {
+    return (
+      <section className="seccion">
+        <h2 className="seccion__titulo">{t("visita.checklist")}</h2>
+        <div className="aviso aviso--sinconexion">{t("checklist.noDisponible")}</div>
+      </section>
+    );
+  }
 
   if (!checklist || checklist.items.length === 0) {
     return (
@@ -34,20 +54,34 @@ export function SeccionChecklist({
     );
   }
 
-  const hechos = checklist.items.filter((i) => i.completado).length;
+  const estaHecho = (item: ItemChecklist) => locales[item.itemId] ?? item.completado;
+  const hechos = checklist.items.filter(estaHecho).length;
 
   async function alternar(item: ItemChecklist) {
     setEnCurso(item.itemId);
     setError(null);
     try {
-      await pedir(`/visitas/${visitaId}/checklist/${item.itemId}`, {
-        metodo: "POST",
-        cuerpo: {
-          completado: !item.completado,
-          capturadaEn: new Date().toISOString(),
-        },
+      const completado = !item.completado;
+      const capturadaEn = new Date().toISOString();
+
+      const resultado = await ejecutar({
+        ruta: `/visitas/${visitaId}/checklist/${item.itemId}`,
+        tipo: "checklist.marcar",
+        cuerpo: { completado, capturadaEn },
+        carga: { visita: { id: visitaId }, itemId: item.itemId, completado, capturadaEn },
+        descripcion: item.texto,
       });
-      await alCambiar();
+
+      if (resultado.via === "directo") {
+        await alCambiar();
+      } else {
+        /**
+         * Sin cobertura se marca en local. El servidor volverá a validar el
+         * requisito de fotografía al sincronizar: esto es reflejo inmediato
+         * para el comercial, no una decisión que sustituya a la del servidor.
+         */
+        setLocales((previos) => ({ ...previos, [item.itemId]: completado }));
+      }
     } catch (e) {
       setError(
         e instanceof ErrorApi && e.esFalloDeRed
@@ -78,18 +112,19 @@ export function SeccionChecklist({
 
       <ul className="checklist">
         {checklist.items.map((item) => {
-          const bloqueado = !item.puedeCompletarse && !item.completado;
+          const completado = estaHecho(item);
+          const bloqueado = !item.puedeCompletarse && !completado;
           const deshabilitado = !editable || enCurso !== null || bloqueado;
 
           return (
             <li key={item.itemId} className="checklist__fila">
               <label
-                className={`checklist__item ${item.completado ? "checklist__item--hecho" : ""}`}
+                className={`checklist__item ${completado ? "checklist__item--hecho" : ""}`}
               >
                 <input
                   type="checkbox"
                   className="checklist__casilla"
-                  checked={item.completado}
+                  checked={completado}
                   disabled={deshabilitado}
                   onChange={() => void alternar(item)}
                 />

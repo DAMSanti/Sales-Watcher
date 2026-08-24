@@ -10,6 +10,9 @@ import type {
 } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
 import { obtenerUbicacion } from "../comun/ubicacion";
+import { guardarCache, leerCache } from "../offline/almacen";
+import { ejecutar } from "../offline/cola";
+import { IndicadorSincronizacion } from "../offline/IndicadorSincronizacion";
 import { DialogoJustificar } from "./DialogoJustificar";
 import { SeccionChecklist } from "./SeccionChecklist";
 import { SeccionIncidencias } from "./SeccionIncidencias";
@@ -30,6 +33,15 @@ export function DetalleVisita() {
 
   const [visita, setVisita] = useState<TarjetaVisita | null>(null);
   const [checklist, setChecklist] = useState<Checklist | null>(null);
+  /**
+   * Distingue "no hay checklist" de "no se pudo cargar".
+   *
+   * Sin esta diferencia, una visita abierta sin cobertura mostraba "Esta
+   * tienda no tiene checklist configurado", que es MENTIRA: el checklist
+   * existe y no se pudo traer. El comercial concluiría que no hay nada que
+   * hacer y cerraría la visita sin completarla.
+   */
+  const [datosDisponibles, setDatosDisponibles] = useState(true);
   const [incidencias, setIncidencias] = useState<IncidenciaVisita[]>([]);
   const [cargando, setCargando] = useState(true);
   const [accionEnCurso, setAccionEnCurso] = useState(false);
@@ -37,6 +49,8 @@ export function DetalleVisita() {
   const [desviacion, setDesviacion] = useState<Desviacion | null>(null);
   const [justificando, setJustificando] = useState(false);
   const [notas, setNotas] = useState("");
+  /** Se muestra cuando la acción quedó guardada en el dispositivo. */
+  const [encolado, setEncolado] = useState(false);
 
   /**
    * La visita se localiza dentro de la vista del día en lugar de pedirla por
@@ -58,14 +72,26 @@ export function DetalleVisita() {
       ]);
       setChecklist(lista);
       setIncidencias(incidenciasVisita);
+      setDatosDisponibles(true);
+      void guardarCache(`visita/${id}`, { lista, incidenciasVisita });
     } catch (e) {
-      setError(
-        e instanceof ErrorApi && e.esFalloDeRed
-          ? t("comun.sinConexion")
-          : e instanceof Error
-            ? e.message
-            : String(e),
-      );
+      if (e instanceof ErrorApi && e.esFalloDeRed) {
+        const guardado = await leerCache<{
+          lista: Checklist;
+          incidenciasVisita: IncidenciaVisita[];
+        }>(`visita/${id}`);
+
+        if (guardado) {
+          setChecklist(guardado.datos.lista);
+          setIncidencias(guardado.datos.incidenciasVisita);
+          setDatosDisponibles(true);
+        } else {
+          /** Nunca se abrió esta visita con cobertura: no hay nada que mostrar. */
+          setDatosDisponibles(false);
+        }
+      } else {
+        setError(e instanceof Error ? e.message : String(e));
+      }
     } finally {
       setCargando(false);
     }
@@ -86,15 +112,29 @@ export function DetalleVisita() {
        * del móvil.
        */
       const ubicacion = await obtenerUbicacion();
-      const respuesta = await pedir<{ visita: unknown; desviacion: Desviacion }>(
-        `/visitas/${id}/comenzar`,
-        {
-          metodo: "POST",
-          cuerpo: { ubicacion, capturadaEn: new Date().toISOString() },
-        },
-      );
-      setDesviacion(respuesta.desviacion);
-      await cargar();
+      const capturadaEn = new Date().toISOString();
+
+      const resultado = await ejecutar<{ desviacion: Desviacion }>({
+        ruta: `/visitas/${id}/comenzar`,
+        tipo: "visita.comenzar",
+        cuerpo: { ubicacion, capturadaEn },
+        /** El lote referencia la visita en el cuerpo, no en la URL. */
+        carga: { visita: { id }, ubicacion, capturadaEn },
+        descripcion: visita?.tienda.nombre,
+      });
+
+      if (resultado.via === "directo") {
+        setDesviacion(resultado.datos.desviacion);
+        await cargar();
+      } else {
+        /**
+         * Sin cobertura no hay respuesta del servidor, así que la pantalla
+         * avanza por su cuenta: el comercial acaba de entrar en la tienda y
+         * tiene que poder seguir con el checklist.
+         */
+        setEncolado(true);
+        setVisita((v) => (v ? { ...v, estado: "en_curso" } : v));
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -107,14 +147,17 @@ export function DetalleVisita() {
     setError(null);
     try {
       const ubicacion = await obtenerUbicacion();
-      await pedir(`/visitas/${id}/finalizar`, {
-        metodo: "POST",
-        cuerpo: {
-          ubicacion,
-          capturadaEn: new Date().toISOString(),
-          notasLibres: notas.trim() || undefined,
-        },
+      const capturadaEn = new Date().toISOString();
+      const notasLibres = notas.trim() || undefined;
+
+      await ejecutar({
+        ruta: `/visitas/${id}/finalizar`,
+        tipo: "visita.finalizar",
+        cuerpo: { ubicacion, capturadaEn, notasLibres },
+        carga: { visita: { id }, ubicacion, capturadaEn, notasLibres },
+        descripcion: visita?.tienda.nombre,
       });
+
       navegar("/");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -162,6 +205,14 @@ export function DetalleVisita() {
       </header>
 
       <div className="detalle__cuerpo">
+        <IndicadorSincronizacion />
+
+        {encolado && (
+          <div className="aviso aviso--sinconexion" role="status">
+            {t("sync.guardadoLocal")}
+          </div>
+        )}
+
         {error && (
           <div className="aviso aviso--error" role="alert">
             {error}
@@ -193,6 +244,7 @@ export function DetalleVisita() {
 
         <SeccionChecklist
           checklist={checklist}
+          disponible={datosDisponibles}
           editable={editable}
           visitaId={id!}
           alCambiar={cargar}

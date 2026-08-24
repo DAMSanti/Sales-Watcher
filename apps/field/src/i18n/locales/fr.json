@@ -74,7 +74,8 @@
     "requiereFoto": "Photo requise",
     "obligatorio": "Obligatoire",
     "faltaFoto": "Joignez une photo pour pouvoir le cocher",
-    "progreso": "{{hechos}} sur {{total}}"
+    "progreso": "{{hechos}} sur {{total}}",
+    "noDisponible": "Impossible de charger la checklist hors connexion. Ouvrez-la au moins une fois avec du réseau."
   },
   "incidencia": {
     "ninguna": "Aucun incident enregistré lors de cette visite.",
@@ -110,5 +111,15 @@
     "sinResultados": "Aucun magasin ne correspond.",
     "escribeAlgo": "Saisissez pour rechercher parmi les magasins.",
     "crear": "Créer la visite"
+  },
+  "sync": {
+    "pendientes_one": "{{count}} modification non envoyée",
+    "pendientes_other": "{{count}} modifications non envoyées",
+    "enviando": "Envoi des modifications…",
+    "enviarAhora": "Envoyer maintenant",
+    "rechazadas_one": "{{count}} modification rejetée",
+    "rechazadas_other": "{{count}} modifications rejetées",
+    "guardadoLocal": "Enregistré sur l'appareil. Sera envoyé au retour du réseau.",
+    "desdeCache": "Affichage des dernières données téléchargées."
   }
 }
