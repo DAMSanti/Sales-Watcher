@@ -393,7 +393,19 @@ Consecuencias concretas:
 
 *«Ahora mismo, esta versión de iniciación sí, va a ser solo Granada y Almería.»*
 
-Las zonas placeholder se sustituyen por las dos reales. Ambas están en la España peninsular, lo que **cierra también P17** (Canarias): huso único, sin complicación de cierre de jornada por zona horaria. El mecanismo por zona ya construido sigue valiendo y no estorba.
+Las zonas placeholder se sustituyen por las reales. Ambas están en la España peninsular, lo que **cierra también P17** (Canarias): huso único, sin complicación de cierre de jornada por zona horaria. El mecanismo por zona ya construido sigue valiendo y no estorba.
+
+### 2026-08-25 — Una sola zona para las dos provincias
+
+Al sembrar los datos apareció un desajuste que la lectura del boceto no había hecho evidente: el cliente describe **un FSM que gestiona Granada y Almería**, pero `usuarios.zona_id` es único y la API acota el alcance del supervisor con él. Modelar una zona por provincia obligaba a sembrar dos FSM, que no es lo que hay.
+
+**Decisión: las dos provincias forman una única zona `gra-alm`, «Granada y Almería».**
+
+El razonamiento es que **una zona es el territorio de un FSM**, no una división administrativa. En cuanto se acepta esa definición, el desajuste desaparece: no hacen falta dos zonas ni un alcance multi-zona que ninguna otra cosa necesita.
+
+La alternativa —dar a cada supervisor una lista de zonas— resolvía lo mismo, pero introducía una tabla de unión y obligaba a revisar cada consulta que hoy filtra por `zona_id`. Complejidad real para expresar algo que el modelo ya podía decir de otra manera.
+
+**Lo que se pierde, y dónde se recupera.** La provincia deja de ser un eje de agrupación propio. Para segmentar informes por provincia se usa la **localidad o el código postal** de la tienda (18xxx Granada, 04xxx Almería), datos que ya existen y no hay que mantener aparte. Y si algún día hicieran falta dos FSM, se parte la zona en dos y se reasignan las tiendas: es una migración de datos, no de esquema.
 
 ### 2026-08-25 — La duración de visita: sin acción pendiente · **[cierra P30]**
 

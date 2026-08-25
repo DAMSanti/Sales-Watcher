@@ -111,7 +111,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 Hallazgos del modelado
 
-- [ ] **El FSM del cliente gestiona Granada y Almería, pero el modelo solo admite una zona por usuario.** `usuarios.zona_id` es único y la API acota el alcance del supervisor con él (`incidencias.service.ts`). El seed siembra dos FSM, uno por zona, porque es lo único expresable hoy. Hace falta decidir entre fusionar ambas provincias en una zona o dar alcance multi-zona al supervisor
+- [x] **El FSM gestiona dos provincias y el modelo admite una zona por usuario** → **fusionadas en una sola zona `gra-alm`**. Una zona es el territorio de un FSM, no una división administrativa; con esa definición el desajuste desaparece sin tabla de unión ni alcance multi-zona. La provincia se segmenta por localidad o código postal
 - [ ] **Al reducirse la operación a dos provincias andaluzas, el euskera y el catalán se quedan sin hablantes en esta versión.** La infraestructura de cinco idiomas sigue siendo correcta y la operación puede crecer, pero **la revisión nativa del euskera deja de ser urgente** para el arranque *(reordena una tarea de fase 0)*
 
 ## Fase 2 — API backend

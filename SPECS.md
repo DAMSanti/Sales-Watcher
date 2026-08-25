@@ -124,6 +124,7 @@ Cada GPV tiene **asignadas sus tiendas** y trabaja con un rutero de visitas. La 
 ### Ámbito inicial
 
 - **Geografía:** **Granada y Almería**, y solo esas dos en esta versión inicial. Ambas peninsulares, así que el cierre de jornada es de huso único.
+- **Zonas:** las dos provincias forman **una única zona**, porque una zona es el territorio de un FSM y el FSM del cliente gestiona ambas. La provincia se segmenta por localidad o código postal, no como zona propia.
 - **Canales:** los GPVs se reparten entre **Modern** y **Proximity**. La función es la misma en ambos: **se guarda el canal de cada tienda, pero ningún flujo se bifurca por él**. El campo habilita segmentar informes desde el primer día y deja preparada cualquier diferencia futura, que además podría resolverse por configuración sin tocar código.
 - **Códigos de punto de venta:** cada tienda tiene un código de Danone que **comienza por `350…`** y va asociado a un nombre de tienda. Es el identificador que el GPV teclea al empezar la visita.
 

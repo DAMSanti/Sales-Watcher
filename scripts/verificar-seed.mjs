@@ -41,14 +41,15 @@ const sql = postgres(url, { max: 1 });
 
 /** Conteos esperados tras el seed, ejecutado las veces que sea. */
 const CONTEOS = {
-  // Solo Granada y Almería en esta versión inicial (ANEXO, cierra P29).
-  zonas: 2,
+  // Una sola zona que cubre Granada y Almería: es el territorio de un FSM,
+  // y el FSM del cliente gestiona ambas provincias (ANEXO, cierra P29).
+  zonas: 1,
   tipos_tienda: 5,
   categorias: 14,
   motivos_no_realizacion: 6,
   plantillas_checklist: 2,
   items_checklist: 16,
-  usuarios: 9,
+  usuarios: 8,
   tiendas: 12,
   // Catálogos del reencuadre. Placeholder hasta que llegue el real (P22, P32).
   marcas: 11,
