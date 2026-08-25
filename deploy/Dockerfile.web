@@ -31,6 +31,21 @@ RUN pnpm --filter @sw/shared build && pnpm --filter @sw/${APP} build
 
 FROM nginx:alpine AS runtime
 ARG APP
-COPY --from=build /app/apps/${APP}/dist /usr/share/nginx/html
-COPY deploy/nginx-spa.conf /etc/nginx/conf.d/default.conf
+ARG BASE_BACKOFFICE
+# El backoffice se construye con `base: "/gestion/"`, así que sus assets se
+# referencian como `/gestion/assets/...`. El proxy inverso no stripea el
+# prefijo, y los ficheros tienen que vivir donde la ruta los busca.
+# Para la app de campo (base `/`), se copian a la raíz como siempre.
+RUN if [ "$APP" = "backoffice" ] && [ -n "$BASE_BACKOFFICE" ]; then \
+      mkdir -p "/usr/share/nginx/html${BASE_BACKOFFICE}"; \
+    fi
+COPY --from=build /app/apps/${APP}/dist /usr/share/nginx/html${BASE_BACKOFFICE:-/}
+# Cada app necesita su propio nginx: la de campo sirve desde / y el backoffice
+# desde /gestion/. Sin esto, try_files no encuentra los assets y devuelve HTML.
+COPY deploy/nginx-spa.conf deploy/nginx-spa-backoffice.conf /tmp/
+RUN if [ "$APP" = "backoffice" ]; then \
+      cp /tmp/nginx-spa-backoffice.conf /etc/nginx/conf.d/default.conf; \
+    else \
+      cp /tmp/nginx-spa.conf /etc/nginx/conf.d/default.conf; \
+    fi && rm -f /tmp/nginx-spa*.conf
 EXPOSE 80
