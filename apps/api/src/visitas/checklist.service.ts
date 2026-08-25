@@ -14,7 +14,9 @@ import {
   tiendas,
   visitas,
 } from "@sw/db";
+import { ConfigService } from "@nestjs/config";
 import { AuditoriaService } from "../auditoria/auditoria.service";
+import type { Configuracion } from "../config/configuracion";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { PayloadToken } from "../auth/auth.service";
 
@@ -23,6 +25,7 @@ export class ChecklistService {
   constructor(
     @Inject(SERVICIO_DB) private readonly db: ClienteDb,
     private readonly auditoria: AuditoriaService,
+    private readonly config: ConfigService<Configuracion, true>,
   ) {}
 
   /**
@@ -37,10 +40,30 @@ export class ChecklistService {
    */
   async delaVisita(visitaId: string, usuario: PayloadToken) {
     const { visita, tienda } = await this.visitaPropia(visitaId, usuario);
+
+    /**
+     * Con el checklist apagado ni siquiera se materializan resultados: crear
+     * filas vacías de algo que nadie va a ver ensuciaría la base y falsearía
+     * la tasa de cumplimiento.
+     */
+    if (!this.config.get("CHECKLIST_ACTIVO", { infer: true })) {
+      return {
+        visitaId,
+        editable: this.esEditable(visita.estado),
+        items: [],
+        activo: false,
+      };
+    }
+
     const plantillaId = await this.plantillaAplicable(tienda.tipoTiendaId);
 
     if (!plantillaId) {
-      return { visitaId, editable: this.esEditable(visita.estado), items: [] };
+      return {
+        visitaId,
+        editable: this.esEditable(visita.estado),
+        items: [],
+        activo: true,
+      };
     }
 
     await this.materializarResultados(visitaId, plantillaId);
@@ -91,6 +114,7 @@ export class ChecklistService {
         /** La app puede deshabilitar el interruptor en vez de dejar fallar. */
         puedeCompletarse: !f.item.requiereFoto || f.fotosConfirmadas > 0,
       })),
+      activo: true,
     };
   }
 

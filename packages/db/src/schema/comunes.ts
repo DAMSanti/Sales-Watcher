@@ -83,6 +83,15 @@ export const ambitoEvidenciaEnum = pgEnum("ambito_evidencia", [
   "visita",
   "checklist",
   "incidencia",
+  /**
+   * Evidencia de una acción concreta (SPECS §5.5).
+   *
+   * Los flujos de visibilidad, reorganización y nevera admiten fotografía, y
+   * el código de nevera pide además una del propio código. Sin este ámbito
+   * quedarían colgadas de la visita en general y nadie podría encontrarlas
+   * desde la acción que documentan.
+   */
+  "accion",
 ]);
 
 // ── El ciclo detección → acción → resultado (SPECS §5.5, §5.8) ─────────

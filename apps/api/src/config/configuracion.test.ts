@@ -138,6 +138,33 @@ describe("cargarConfiguracion", () => {
     expect(cargarConfiguracion().RETENCION_EVIDENCIAS_DIAS).toBe(90);
   });
 
+  /**
+   * Las banderas booleanas llegan del entorno como CADENA, y `"false"` es
+   * truthy en JavaScript.
+   *
+   * Esto no es teórico: con `load:` en lugar de `validate:`, `ConfigService`
+   * devolvía la cadena cruda de `process.env` en vez del booleano parseado, y
+   * `CHECKLIST_ACTIVO=false` encendía el checklist. Toda la validación de Zod
+   * se estaba puenteando; los números colaban de milagro porque JavaScript
+   * convierte `"15" * 60` sin quejarse.
+   */
+  it("convierte las banderas a booleano de verdad, no a cadena", () => {
+    process.env.CHECKLIST_ACTIVO = "false";
+    expect(cargarConfiguracion().CHECKLIST_ACTIVO).toBe(false);
+
+    process.env.CHECKLIST_ACTIVO = "true";
+    expect(cargarConfiguracion().CHECKLIST_ACTIVO).toBe(true);
+
+    delete process.env.CHECKLIST_ACTIVO;
+    expect(cargarConfiguracion().CHECKLIST_ACTIVO).toBe(false);
+  });
+
+  /** Y acepta el entorno que se le pase, que es lo que usa `validate`. */
+  it("parsea el entorno que recibe, no solo process.env", () => {
+    const config = cargarConfiguracion({ ...MINIMA, CHECKLIST_ACTIVO: "true" });
+    expect(config.CHECKLIST_ACTIVO).toBe(true);
+  });
+
   it("rechaza un entorno desconocido", () => {
     process.env.NODE_ENV = "staging";
     expect(() => cargarConfiguracion()).toThrow(/NODE_ENV/);

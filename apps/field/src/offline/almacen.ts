@@ -44,7 +44,10 @@ export type OperacionEncolada = {
 export type FotoPendiente = {
   fotoLocalId: string;
   visitaId: string;
-  ambito: "visita" | "checklist" | "incidencia";
+  ambito: "visita" | "checklist" | "incidencia" | "accion";
+  accionId?: string;
+  /** Cuando la acción se creó sin cobertura y aún no tiene id de servidor. */
+  accionIdCliente?: string;
   resultadoChecklistId?: string;
   incidenciaId?: string;
   blob: Blob;

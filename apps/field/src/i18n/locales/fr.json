@@ -112,10 +112,12 @@
   },
   "buscador": {
     "titulo": "Ajouter une visite",
-    "placeholder": "Nom ou numéro de référence",
+    "placeholder": "Code 350… ou nom du magasin",
     "sinResultados": "Aucun magasin ne correspond.",
     "escribeAlgo": "Saisissez pour rechercher parmi les magasins.",
-    "crear": "Créer la visite"
+    "crear": "Créer la visite",
+    "iniciarVisita": "Démarrer la visite",
+    "otraTienda": "Autre magasin"
   },
   "sync": {
     "pendientes_one": "{{count}} modification non envoyée",
@@ -288,7 +290,10 @@
       "mejorable": "À améliorer",
       "mala": "Mauvaise",
       "no_ha_podido_hablar": "Je n'ai pas pu lui parler"
-    }
+    },
+    "registrada": "Enregistré",
+    "evidenciaOpcional": "Ajouter une preuve ? C'est facultatif.",
+    "terminar": "Terminer"
   },
   "pendientes": {
     "titulo": "De votre dernière visite",
@@ -328,5 +333,15 @@
       "sinRelacionResponsable": "Relation avec le responsable non renseignée",
       "pendientesSinComprobar": "{{n}} action(s) de visites précédentes non vérifiées"
     }
+  },
+  "video": {
+    "grabar": "Filmer",
+    "procesando": "Envoi de la vidéo…",
+    "subido": "Vidéo envoyée ({{s}} s, {{mb}} Mo)",
+    "demasiadoGrande": "La vidéo fait {{mb}} Mo, le maximum est {{max}}. Filmez plus court.",
+    "demasiadoLargo": "La vidéo dure {{s}} s, le maximum est {{max}} s.",
+    "sinDuracion": "Vidéo illisible. Refilmez.",
+    "sinCobertura": "La vidéo nécessite du réseau. Réessayez en sortant du magasin.",
+    "avisoAudio": "La vidéo enregistre aussi le son."
   }
 }

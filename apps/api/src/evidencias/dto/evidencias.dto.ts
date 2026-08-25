@@ -12,9 +12,10 @@ const puntoSchema = z.object({
 export const solicitarSubidaSchema = z
   .object({
     visitaId: z.string().uuid(),
-    ambito: z.enum(["visita", "checklist", "incidencia"]),
+    ambito: z.enum(["visita", "checklist", "incidencia", "accion"]),
     resultadoChecklistId: z.string().uuid().optional(),
     incidenciaId: z.string().uuid().optional(),
+    accionId: z.string().uuid().optional(),
     tipoMime: z.string().min(1),
     tamanoBytes: z.number().int().positive(),
     /**
@@ -56,8 +57,12 @@ export const solicitarSubidaSchema = z
     },
   )
   .refine((d) => d.ambito !== "incidencia" || d.incidenciaId !== undefined, {
-    message: "Una foto de ámbito incidencia necesita incidenciaId",
+    message: "Una evidencia de ámbito incidencia necesita incidenciaId",
     path: ["incidenciaId"],
+  })
+  .refine((d) => d.ambito !== "accion" || d.accionId !== undefined, {
+    message: "Una evidencia de ámbito acción necesita accionId",
+    path: ["accionId"],
   });
 
 export type SolicitarSubidaDto = z.infer<typeof solicitarSubidaSchema>;

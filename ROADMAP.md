@@ -198,7 +198,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 > **Desbloqueada.** El checklist se conserva como capa de configuración y como sección opcional corta, así que los flujos nuevos no sustituyen la maquinaria: se apoyan en ella.
 
-- [ ] Inicio de visita **por código o por nombre de tienda**, con confirmación visual antes de iniciar
+- [x] Inicio de visita **por código o por nombre**, con confirmación visual antes de iniciar
 - [x] Pantalla principal con las **tres categorías** (Dairy / Waters / PBB) + **responsable de tienda** transversal
 - [x] Menú por categoría: **Incidencias · Oportunidades · Extraespacios**
 - [x] Los nueve flujos, con validación en cliente que replica la del servidor
@@ -211,10 +211,11 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Traducción de los flujos a los **cinco idiomas** *(verificado en euskera a 360 px: sin desbordes)*
 - [x] Los flujos nuevos viajan por la **cola offline** *(`accion.registrar`, `accion.comprobar`, `relacion.guardar`)*
 - [x] Los avisos del resumen viajan como **códigos**, no como frases: una frase del servidor saldría en castellano para quien tiene la interfaz en otro idioma
-- [ ] Captura de **vídeo** con cámara nativa, validando duración y tamaño en el dispositivo
+- [x] Captura de **vídeo** con cámara nativa, validando duración y tamaño en el dispositivo, con aviso de que graba sonido
 - [ ] **Resultados propios del GPV visibles para él** — facings ganados, Top Picos incorporados *(«la idea es que los GPVs generen más oportunidades»)*
-- [ ] Captura de **foto** en los flujos que la admiten *(visibilidad, reorganización, nevera)*
-- [ ] Convertir el checklist en **sección opcional, desactivada por defecto** y nunca obligatoria para cerrar
+- [x] Captura de **evidencia** en los flujos que la admiten, como segundo paso opcional tras registrar
+- [x] Ámbito **`accion`** en evidencias: la foto cuelga de lo que documenta, no de la visita en general
+- [x] Checklist como **sección opcional, apagada por defecto** (`CHECKLIST_ACTIVO`) y nunca obligatoria para cerrar
 - [x] **Retirado el registro genérico de incidencias de la app de campo** *(`ContextoAnterior` y `SeccionIncidencias`)*: duplicaban lo que ya muestran las acciones
 - [ ] Probar el recorrido completo **sin cobertura**, no solo con red
 

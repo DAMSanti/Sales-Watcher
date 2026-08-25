@@ -49,9 +49,10 @@ function esVideo(tipoMime: string): boolean {
 
 export type SolicitudSubida = {
   visitaId: string;
-  ambito: "visita" | "checklist" | "incidencia";
+  ambito: "visita" | "checklist" | "incidencia" | "accion";
   resultadoChecklistId?: string | undefined;
   incidenciaId?: string | undefined;
+  accionId?: string | undefined;
   tipoMime: string;
   tamanoBytes: number;
   anchoPx?: number | undefined;
@@ -161,6 +162,7 @@ export class EvidenciasService {
         ambito: solicitud.ambito,
         resultadoChecklistId: solicitud.resultadoChecklistId ?? null,
         incidenciaId: solicitud.incidenciaId ?? null,
+        accionId: solicitud.accionId ?? null,
         claveAlmacenamiento: clave,
         tipoMime: solicitud.tipoMime,
         tamanoBytes: solicitud.tamanoBytes,

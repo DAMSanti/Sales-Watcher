@@ -112,10 +112,12 @@
   },
   "buscador": {
     "titulo": "Gehitu bisita",
-    "placeholder": "Izena edo erreferentzia-zenbakia",
+    "placeholder": "350… kodea edo dendaren izena",
     "sinResultados": "Ez dago bat datorren dendarik.",
     "escribeAlgo": "Idatzi dendetan bilatzeko.",
-    "crear": "Sortu bisita"
+    "crear": "Sortu bisita",
+    "iniciarVisita": "Bisita hasi",
+    "otraTienda": "Beste denda bat"
   },
   "sync": {
     "pendientes_one": "Bidali gabeko aldaketa {{count}}",
@@ -288,7 +290,10 @@
       "mejorable": "Hobegarria",
       "mala": "Txarra",
       "no_ha_podido_hablar": "Ezin izan dut berarekin hitz egin"
-    }
+    },
+    "registrada": "Erregistratuta",
+    "evidenciaOpcional": "Frogarik gehitu nahi duzu? Aukerakoa da.",
+    "terminar": "Amaitu"
   },
   "pendientes": {
     "titulo": "Zure azken bisitatik",
@@ -328,5 +333,15 @@
       "sinRelacionResponsable": "Arduradunarekiko harremana erregistratu gabe",
       "pendientesSinComprobar": "Aurreko bisitetako {{n}} ekintza egiaztatu gabe"
     }
+  },
+  "video": {
+    "grabar": "Bideoa grabatu",
+    "procesando": "Bideoa igotzen…",
+    "subido": "Bideoa igota ({{s}} s, {{mb}} MB)",
+    "demasiadoGrande": "Bideoak {{mb}} MB ditu eta gehienez {{max}}. Grabatu laburragoa.",
+    "demasiadoLargo": "Bideoak {{s}} s irauten du eta gehienez {{max}} s.",
+    "sinDuracion": "Ezin izan da bideoa irakurri. Grabatu berriro.",
+    "sinCobertura": "Bideoak estaldura behar du. Saiatu dendatik irtetean.",
+    "avisoAudio": "Bideoak soinua ere grabatzen du."
   }
 }

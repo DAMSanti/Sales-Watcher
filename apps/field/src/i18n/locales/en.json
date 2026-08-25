@@ -112,10 +112,12 @@
   },
   "buscador": {
     "titulo": "Add visit",
-    "placeholder": "Name or reference number",
+    "placeholder": "Code 350… or store name",
     "sinResultados": "No store matches.",
     "escribeAlgo": "Type to search across stores.",
-    "crear": "Create visit"
+    "crear": "Create visit",
+    "iniciarVisita": "Start visit",
+    "otraTienda": "Another store"
   },
   "sync": {
     "pendientes_one": "{{count}} unsent change",
@@ -288,7 +290,10 @@
       "mejorable": "Could be better",
       "mala": "Poor",
       "no_ha_podido_hablar": "Couldn't speak to them"
-    }
+    },
+    "registrada": "Recorded",
+    "evidenciaOpcional": "Add evidence? It's optional.",
+    "terminar": "Done"
   },
   "pendientes": {
     "titulo": "From your last visit",
@@ -328,5 +333,15 @@
       "sinRelacionResponsable": "Manager relationship not recorded",
       "pendientesSinComprobar": "{{n}} action(s) from earlier visits not checked"
     }
+  },
+  "video": {
+    "grabar": "Record video",
+    "procesando": "Uploading video…",
+    "subido": "Video uploaded ({{s}} s, {{mb}} MB)",
+    "demasiadoGrande": "The video is {{mb}} MB and the limit is {{max}}. Record a shorter one.",
+    "demasiadoLargo": "The video is {{s}} s long and the limit is {{max}} s.",
+    "sinDuracion": "Couldn't read the video. Record it again.",
+    "sinCobertura": "Video needs coverage. Try again when you leave the store.",
+    "avisoAudio": "Video records sound too."
   }
 }

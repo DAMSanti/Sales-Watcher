@@ -112,10 +112,12 @@
   },
   "buscador": {
     "titulo": "Añadir visita",
-    "placeholder": "Nombre o número de referencia",
+    "placeholder": "Código 350… o nombre de la tienda",
     "sinResultados": "Ninguna tienda coincide.",
     "escribeAlgo": "Escribe para buscar entre las tiendas.",
-    "crear": "Crear visita"
+    "crear": "Crear visita",
+    "iniciarVisita": "Iniciar visita",
+    "otraTienda": "Otra tienda"
   },
   "sync": {
     "pendientes_one": "{{count}} cambio sin enviar",
@@ -288,7 +290,10 @@
       "mejorable": "Mejorable",
       "mala": "Mala",
       "no_ha_podido_hablar": "No he podido hablar con él"
-    }
+    },
+    "registrada": "Registrado",
+    "evidenciaOpcional": "¿Quieres añadir una evidencia? Es opcional.",
+    "terminar": "Terminar"
   },
   "pendientes": {
     "titulo": "De tu última visita",
@@ -328,5 +333,15 @@
       "sinRelacionResponsable": "Sin registrar la relación con el responsable",
       "pendientesSinComprobar": "{{n}} acción(es) de visitas anteriores sin comprobar"
     }
+  },
+  "video": {
+    "grabar": "Grabar vídeo",
+    "procesando": "Subiendo vídeo…",
+    "subido": "Vídeo subido ({{s}} s, {{mb}} MB)",
+    "demasiadoGrande": "El vídeo pesa {{mb}} MB y el máximo son {{max}}. Graba uno más corto.",
+    "demasiadoLargo": "El vídeo dura {{s}} s y el máximo son {{max}} s.",
+    "sinDuracion": "No se pudo leer el vídeo. Vuelve a grabarlo.",
+    "sinCobertura": "El vídeo necesita cobertura. Inténtalo al salir de la tienda.",
+    "avisoAudio": "El vídeo graba también el sonido."
   }
 }

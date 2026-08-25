@@ -63,6 +63,24 @@ const esquema = z.object({
    */
   ACCION_ESTANCADA_DIAS: z.coerce.number().int().positive().default(14),
 
+  /**
+   * Si el checklist aparece en la visita.
+   *
+   * **Desactivado por defecto** (ANEXO, decisión que cierra P19). El boceto
+   * sustituye el checklist por los flujos tipificados; lo que queda es una
+   * sección opcional y corta para lo que esos flujos no cubren, y por eso hay
+   * que encenderla a conciencia en vez de encontrársela puesta.
+   *
+   * El guardarraíl importa: un checklist editable sin freno crece hasta
+   * convertirse en el cuestionario que el boceto rechaza, porque añadir una
+   * pregunta siempre parece barato para quien no la responde en una tienda con
+   * una mano ocupada.
+   */
+  CHECKLIST_ACTIVO: z
+    .string()
+    .optional()
+    .transform((v) => v === "true" || v === "1"),
+
   // ── Almacenamiento de fotografías ──────────────────────────────────
   S3_ENDPOINT: z.string().min(1),
   S3_REGION: z.string().default("us-east-1"),
@@ -150,8 +168,10 @@ const esquema = z.object({
 
 export type Configuracion = z.infer<typeof esquema>;
 
-export function cargarConfiguracion(): Configuracion {
-  const resultado = esquema.safeParse(process.env);
+export function cargarConfiguracion(
+  entorno: NodeJS.ProcessEnv = process.env,
+): Configuracion {
+  const resultado = esquema.safeParse(entorno);
 
   if (!resultado.success) {
     const detalles = resultado.error.issues

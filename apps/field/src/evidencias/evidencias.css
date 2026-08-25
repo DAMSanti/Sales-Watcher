@@ -29,3 +29,10 @@
   font-size: var(--txt-xs);
   color: var(--texto-suave);
 }
+
+/* El aviso de grabación de audio: informativo, no alarma. */
+.foto__aviso--sutil {
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-style: italic;
+}

@@ -112,10 +112,12 @@
   },
   "buscador": {
     "titulo": "Afegeix visita",
-    "placeholder": "Nom o número de referència",
+    "placeholder": "Codi 350… o nom de la botiga",
     "sinResultados": "Cap botiga coincideix.",
     "escribeAlgo": "Escriu per cercar entre les botigues.",
-    "crear": "Crea la visita"
+    "crear": "Crea la visita",
+    "iniciarVisita": "Iniciar visita",
+    "otraTienda": "Una altra botiga"
   },
   "sync": {
     "pendientes_one": "{{count}} canvi sense enviar",
@@ -288,7 +290,10 @@
       "mejorable": "Millorable",
       "mala": "Dolenta",
       "no_ha_podido_hablar": "No he pogut parlar-hi"
-    }
+    },
+    "registrada": "Registrat",
+    "evidenciaOpcional": "Vols afegir una evidència? És opcional.",
+    "terminar": "Acabar"
   },
   "pendientes": {
     "titulo": "De la teva darrera visita",
@@ -328,5 +333,15 @@
       "sinRelacionResponsable": "Sense registrar la relació amb el responsable",
       "pendientesSinComprobar": "{{n}} acció(ns) de visites anteriors sense comprovar"
     }
+  },
+  "video": {
+    "grabar": "Gravar vídeo",
+    "procesando": "Pujant vídeo…",
+    "subido": "Vídeo pujat ({{s}} s, {{mb}} MB)",
+    "demasiadoGrande": "El vídeo pesa {{mb}} MB i el màxim són {{max}}. Grava'n un de més curt.",
+    "demasiadoLargo": "El vídeo dura {{s}} s i el màxim són {{max}} s.",
+    "sinDuracion": "No s'ha pogut llegir el vídeo. Torna a gravar-lo.",
+    "sinCobertura": "El vídeo necessita cobertura. Prova-ho en sortir de la botiga.",
+    "avisoAudio": "El vídeo grava també el so."
   }
 }

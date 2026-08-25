@@ -27,7 +27,23 @@ import { VisitasModule } from "./visitas/visitas.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [() => cargarConfiguracion()],
+      /**
+       * `validate`, no `load`.
+       *
+       * `ConfigService.get()` resuelve en este orden: entorno VALIDADO →
+       * `process.env` → configuración cargada. Con `load` el objeto parseado
+       * caía en el último escalón, así que `process.env` ganaba y devolvía la
+       * CADENA cruda: `CHECKLIST_ACTIVO=false` llegaba como `"false"`, que es
+       * truthy, y el checklist salía encendido con la bandera apagada.
+       *
+       * No era un fallo del checklist: toda la validación de Zod —cada
+       * `coerce`, cada `transform`, cada valor por defecto— se estaba
+       * puenteando. Los números funcionaban de milagro, porque JavaScript
+       * convierte `"15" * 60` sin quejarse.
+       *
+       * Con `validate` el objeto va a la primera casilla y es el que manda.
+       */
+      validate: (entorno) => cargarConfiguracion(entorno),
     }),
     ThrottlerModule.forRoot([{ name: "default", ttl: 60_000, limit: 120 }]),
     // Habilita los procesos programados: purga de fotos y, más adelante,

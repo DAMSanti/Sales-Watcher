@@ -256,6 +256,10 @@ export class SincronizacionService {
             incidenciaId: operacion.incidenciaIdCliente
               ? equivalencias.get(operacion.incidenciaIdCliente)
               : operacion.incidenciaId,
+            /** Y una de acción, igual: se detecta y se fotografía sin red. */
+            accionId: operacion.accionIdCliente
+              ? equivalencias.get(operacion.accionIdCliente)
+              : operacion.accionId,
           },
           usuario,
         );

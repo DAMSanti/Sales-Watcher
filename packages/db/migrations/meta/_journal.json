@@ -43,6 +43,13 @@
       "when": 1787690045540,
       "tag": "0005_renombrar_evidencias",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787691353155,
+      "tag": "0006_evidencia_de_accion",
+      "breakpoints": true
     }
   ]
 }

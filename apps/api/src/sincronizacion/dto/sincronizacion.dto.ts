@@ -134,11 +134,17 @@ export const operacionSchema = z.discriminatedUnion("tipo", [
     tipo: z.literal("evidencia.reservar"),
     opId,
     visita: refVisitaSchema,
-    ambito: z.enum(["visita", "checklist", "incidencia"]),
+    ambito: z.enum(["visita", "checklist", "incidencia", "accion"]),
     resultadoChecklistId: z.string().uuid().optional(),
     incidenciaId: z.string().uuid().optional(),
     /** Para una incidencia creada en este mismo lote. */
     incidenciaIdCliente: z.string().min(1).max(128).optional(),
+    accionId: z.string().uuid().optional(),
+    /**
+     * La acción puede haberse creado en ESTE mismo lote y no tener aún id de
+     * servidor. El GPV detecta y fotografía sin cobertura de por medio.
+     */
+    accionIdCliente: z.string().min(1).max(128).optional(),
     tipoMime: z.string().min(1),
     tamanoBytes: z.number().int().positive(),
     capturadaEn: z.coerce.date(),

@@ -379,3 +379,41 @@
   border-radius: var(--radio-sm);
   cursor: pointer;
 }
+
+/* ── Confirmación antes de iniciar la visita ───────────────────────── */
+/*
+ * El código va grande porque es lo que el GPV acaba de teclear y lo que puede
+ * haber confundido; el nombre debajo es lo que de verdad le confirma que está
+ * en la tienda correcta.
+ */
+.confirmacion {
+  display: grid;
+  gap: var(--e2);
+  padding: var(--e5) var(--e4);
+  text-align: center;
+  background: var(--superficie);
+  border: 2px solid var(--azul-600);
+  border-radius: var(--radio);
+}
+
+.confirmacion__codigo {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--azul-700);
+}
+
+.confirmacion__nombre {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--texto);
+  overflow-wrap: anywhere;
+}
+
+.confirmacion__direccion {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}

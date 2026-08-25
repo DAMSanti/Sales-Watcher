@@ -18,10 +18,74 @@ type Reserva = {
 
 export type Destino = {
   visitaId: string;
-  ambito: "visita" | "checklist" | "incidencia";
+  ambito: "visita" | "checklist" | "incidencia" | "accion";
   resultadoChecklistId?: string;
   incidenciaId?: string;
+  accionId?: string;
+  /** Cuando la acción se creó sin cobertura y aún no tiene id de servidor. */
+  accionIdCliente?: string;
 };
+
+/**
+ * Límites de vídeo, en espejo de los que valida el servidor.
+ *
+ * Se comprueban aquí para no gastarle 25 MB de datos al GPV subiendo algo que
+ * el servidor va a rechazar. La API sigue siendo la autoridad: esto es
+ * cortesía, no la defensa.
+ */
+export const VIDEO_MAX_BYTES = 25 * 1024 * 1024;
+export const VIDEO_MAX_SEGUNDOS = 60;
+
+/**
+ * Duración real del fichero, leída por el navegador.
+ *
+ * No se puede confiar en lo que diga la cámara: hay dispositivos que graban
+ * unos décimas de más, y el servidor rechaza por encima del tope.
+ */
+export function duracionDeVideo(fichero: File): Promise<number> {
+  return new Promise((listo, fallo) => {
+    const url = URL.createObjectURL(fichero);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(url);
+      listo(Math.round(video.duration));
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      fallo(new Error("no se pudo leer el vídeo"));
+    };
+    video.src = url;
+  });
+}
+
+/**
+ * Sube un vídeo.
+ *
+ * A diferencia de la foto NO se comprime en el dispositivo: no hay equivalente
+ * barato al redimensionado en `canvas`, y transcodificar en el móvil gastaría
+ * batería y tiempo del GPV. El servidor lo normaliza a 720p después.
+ *
+ * Por eso tampoco se guarda para después si falla la red: 25 MB en IndexedDB
+ * por cada vídeo pendiente llenarían el almacenamiento del navegador. Si no
+ * hay cobertura, se avisa y el GPV lo intenta al salir de la tienda.
+ */
+export async function subirVideo(
+  fichero: File,
+  duracionS: number,
+  destino: Destino,
+  ubicacion?: Punto,
+): Promise<ResultadoSubida> {
+  const evidenciaId = await flujoCompleto(fichero, {
+    ...destino,
+    tipoMime: fichero.type || "video/mp4",
+    tamanoBytes: fichero.size,
+    duracionS,
+    capturadaEn: new Date().toISOString(),
+    ubicacion,
+  });
+  return { via: "subida", evidenciaId };
+}
 
 export type ResultadoSubida =
   | { via: "subida"; evidenciaId: string }
@@ -86,13 +150,17 @@ async function flujoCompleto(
   blob: Blob,
   datos: {
     visitaId: string;
-    ambito: "visita" | "checklist" | "incidencia";
+    ambito: "visita" | "checklist" | "incidencia" | "accion";
     resultadoChecklistId?: string;
     incidenciaId?: string;
+    accionId?: string;
+    accionIdCliente?: string;
     tipoMime: string;
     tamanoBytes: number;
     anchoPx?: number;
     altoPx?: number;
+    /** Solo vídeo. El servidor la exige y la valida contra su tope. */
+    duracionS?: number;
     capturadaEn: string;
     ubicacion?: Punto;
   },

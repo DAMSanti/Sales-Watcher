@@ -15,6 +15,7 @@ import {
   tipoEvidenciaEnum,
 } from "./comunes";
 import { resultadosChecklist } from "./checklist";
+import { acciones } from "./acciones";
 import { incidencias } from "./incidencias";
 import { visitas } from "./visitas";
 
@@ -52,6 +53,7 @@ export const evidencias = pgTable(
       () => resultadosChecklist.id,
     ),
     incidenciaId: uuid("incidencia_id").references(() => incidencias.id),
+    accionId: uuid("accion_id").references(() => acciones.id),
 
     /** Clave en el almacenamiento de objetos. Nunca una URL firmada: caducan. */
     claveAlmacenamiento: text("clave_almacenamiento").notNull(),
@@ -124,6 +126,8 @@ export const evidencias = pgTable(
     idClienteUnico: uniqueIndex("evidencias_id_cliente_unico").on(t.idCliente),
     porVisita: index("evidencias_visita_idx").on(t.visitaId),
     porIncidencia: index("evidencias_incidencia_idx").on(t.incidenciaId),
+    /** El detalle de una acción trae sus evidencias por aquí. */
+    porAccion: index("evidencias_accion_idx").on(t.accionId),
     /** El proceso de purga barre por fecha de expiración. */
     porExpiracion: index("evidencias_expira_en_idx").on(t.expiraEn),
     /** Y también recoge las reservas que nunca llegaron a completarse. */

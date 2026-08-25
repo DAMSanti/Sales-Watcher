@@ -14,7 +14,8 @@ import type {
 } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
 import { ejecutar } from "../offline/cola";
-import { NEVERA_EXIGE_CODIGO, OPCIONES } from "./flujos";
+import { BotonEvidencia } from "../evidencias/BotonEvidencia";
+import { EVIDENCIA_POR_FLUJO, NEVERA_EXIGE_CODIGO, OPCIONES } from "./flujos";
 
 /**
  * Formulario de un flujo de detección (SPECS §5.5).
@@ -52,6 +53,16 @@ export function FormularioFlujo({
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [encolado, setEncolado] = useState(false);
+
+  /**
+   * La acción recién creada, para colgarle la evidencia.
+   *
+   * La evidencia se pide DESPUÉS de guardar y no antes porque necesita el
+   * identificador de la acción: una foto que no se puede asociar a lo que
+   * documenta acaba colgando de la visita en general, donde nadie la busca.
+   */
+  const [creada, setCreada] = useState<{ id: string } | null>(null);
+  const admiteEvidencia = EVIDENCIA_POR_FLUJO[tipo];
 
   const regla = resolverResponsable(tipo, categoria);
   const necesitaMarca = tipo === "facings" || tipo === "visibilidad";
@@ -126,17 +137,69 @@ export function FormularioFlujo({
 
       if (resultado.via === "encolado") {
         // Sin cobertura la pantalla avanza igual: el GPV está en el lineal y
-        // no puede quedarse esperando a que vuelva la red.
+        // no puede quedarse esperando a que vuelva la red. Tampoco se le
+        // ofrece adjuntar evidencia: la acción aún no tiene identidad.
         setEncolado(true);
         setTimeout(() => void alGuardar(), 600);
-      } else {
-        await alGuardar();
+        return;
       }
+
+      const id = (resultado.datos as { id?: string })?.id;
+      if (admiteEvidencia && id) {
+        // Se queda en el segundo paso en lugar de cerrar: adjuntar la foto es
+        // parte de registrar la situación, no un trámite aparte.
+        setCreada({ id });
+        return;
+      }
+
+      await alGuardar();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setEnviando(false);
     }
+  }
+
+  /**
+   * Segundo paso: la evidencia.
+   *
+   * Es OPCIONAL en todos los flujos. El botón de terminar está siempre activo,
+   * porque el boceto pide que la fotografía no sea obligatoria en ninguno de
+   * ellos y bloquear aquí convertiría un apoyo en un peaje.
+   */
+  if (creada) {
+    return (
+      <div className="flujo">
+        <header className="flujo__cabecera">
+          <h3 className="flujo__titulo">{t("flujo.registrada")}</h3>
+          <p className="flujo__pregunta">{t("flujo.evidenciaOpcional")}</p>
+        </header>
+
+        <div className="flujo__campos">
+          <BotonEvidencia
+            tipo="foto"
+            destino={{ visitaId, ambito: "accion", accionId: creada.id }}
+            onSubida={() => {}}
+          />
+          {admiteEvidencia === "ambas" && (
+            <BotonEvidencia
+              tipo="video"
+              destino={{ visitaId, ambito: "accion", accionId: creada.id }}
+              onSubida={() => {}}
+            />
+          )}
+        </div>
+
+        <div className="flujo__acciones">
+          <button
+            className="boton boton--principal boton--ancho"
+            onClick={() => void alGuardar()}
+          >
+            {t("flujo.terminar")}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

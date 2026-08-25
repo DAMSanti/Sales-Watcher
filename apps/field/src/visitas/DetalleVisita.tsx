@@ -362,13 +362,17 @@ export function DetalleVisita() {
               alGuardar={cargar}
             />
 
-            <SeccionChecklist
-              checklist={checklist}
-              disponible={datosDisponibles}
-              editable={editable}
-              visitaId={id!}
-              alCambiar={cargar}
-            />
+            {/* El checklist solo aparece si está encendido. Apagado no deja
+                ni rastro: una sección vacía invitaría a preguntarse qué falta. */}
+            {checklist?.activo !== false && (
+              <SeccionChecklist
+                checklist={checklist}
+                disponible={datosDisponibles}
+                editable={editable}
+                visitaId={id!}
+                alCambiar={cargar}
+              />
+            )}
           </>
         )}
 

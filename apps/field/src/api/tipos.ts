@@ -78,6 +78,14 @@ export type Checklist = {
   visitaId: string;
   editable: boolean;
   items: ItemChecklist[];
+  /**
+   * Si el checklist está encendido en esta instalación.
+   *
+   * Apagado por defecto: el boceto lo sustituye por los flujos tipificados y
+   * lo que queda es una sección opcional. Distinto de `items: []`, que
+   * significa "encendido pero sin plantilla para esta tienda".
+   */
+  activo?: boolean;
 };
 
 export type Categoria = {

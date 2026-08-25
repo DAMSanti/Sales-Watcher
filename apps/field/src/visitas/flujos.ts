@@ -85,6 +85,27 @@ export const OPCIONES = {
 } as const;
 
 /**
+ * Flujos que admiten evidencia, y de qué clase (SPECS §5.5).
+ *
+ * No todos la piden. El boceto es explícito en que **fechas y huecos NO
+ * requieren fotografía**: pedirla ahí sería fricción sin motivo, y el objetivo
+ * declarado es que el GPV pase menos tiempo delante del móvil.
+ *
+ * - **Stock en Waters/PBB**: foto o vídeo. Es donde el boceto quiere apoyarse
+ *   para hablar con el responsable del establecimiento, y una falta repetida
+ *   documentada es la munición de esa conversación.
+ * - **Visibilidad y reorganización**: fotografía del lineal, opcional.
+ * - **Nevera**: fotografía, y con especial motivo cuando hay código — permite
+ *   verificar una transcripción dudosa sin volver a la tienda.
+ */
+export const EVIDENCIA_POR_FLUJO: Partial<Record<TipoSituacion, "foto" | "ambas">> = {
+  stock: "ambas",
+  visibilidad: "foto",
+  reorganizacion: "foto",
+  nevera: "foto",
+};
+
+/**
  * Situaciones de nevera que exigen el código de la unidad.
  *
  * El código existe para que el FSM identifique exactamente qué nevera hay que

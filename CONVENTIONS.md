@@ -141,6 +141,16 @@ Y una consecuencia de interfaz: **el GPV no habla con el reponedor**. Las incide
 
 **`estancada` se deriva de la antigüedad; no es un estado.** Una acción estancada sigue abierta y solo sube en el panel del FSM. Convertirlo en estado permitiría que algo estuviera «estancado» y «resuelto» a la vez, o que dejara de estarlo sin que nadie hiciera nada. Y **las acciones no caducan**: cerrarlas solas destruiría en silencio el seguimiento que da sentido al sistema.
 
+### La configuración se lee del objeto validado, nunca de `process.env`
+
+`ConfigModule` se monta con **`validate:`, no con `load:`**. No es cosmético.
+
+`ConfigService.get()` resuelve en este orden: **entorno validado → `process.env` → configuración cargada**. Con `load:` el objeto parseado por Zod cae en el último escalón, así que `process.env` gana y devuelve la **cadena cruda**.
+
+Eso puentea la validación entera: cada `coerce`, cada `transform` y cada valor por defecto del esquema. Los números lo disimulan porque JavaScript convierte `"15" * 60` sin protestar; las banderas booleanas no, y `"false"` es truthy — `CHECKLIST_ACTIVO=false` encendía el checklist.
+
+Si alguna vez hay que volver a `load:`, hay que asumir que todo valor llega como cadena y tratarlo así en cada punto de uso. Es mucho peor que la alternativa.
+
 ### La tabla se llama `evidencias`, no `fotos`
 
 Contiene fotografías y vídeos. Mientras se llamó `fotos`, cualquiera que leyese `requiereFoto` tenía que acordarse de que podía haber un vídeo detrás.
