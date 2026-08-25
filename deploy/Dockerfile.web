@@ -12,7 +12,10 @@ ARG APP
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+# `tsconfig.base.json` va aquí y no con el código: todos los paquetes lo
+# heredan con `extends`, y sin él `tsc` falla con un TS5083 que no menciona
+# el fichero que falta sino el proyecto que no compila.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY apps/${APP}/package.json apps/${APP}/
 COPY packages/shared/package.json packages/shared/
 COPY packages/db/package.json packages/db/

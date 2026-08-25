@@ -15,7 +15,10 @@ WORKDIR /app
 # Solo los manifiestos primero: mientras no cambien, esta capa se reutiliza y
 # el `pnpm install` no se repite en cada cambio de código.
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+# `tsconfig.base.json` va aquí y no con el código: todos los paquetes lo
+# heredan con `extends`, y sin él `tsc` falla con un TS5083 que no menciona
+# el fichero que falta sino el proyecto que no compila.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/shared/package.json packages/shared/
 COPY packages/db/package.json packages/db/
