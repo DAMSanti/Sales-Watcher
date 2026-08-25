@@ -49,7 +49,10 @@
     "sinConexionAyuda": "Tu trabajo se guarda y se enviará al recuperar cobertura.",
     "volver": "Volver",
     "guardar": "Guardar",
-    "guardando": "Guardando…"
+    "guardando": "Guardando…",
+    "si": "Sí",
+    "no": "No",
+    "editar": "Editar"
   },
   "visita": {
     "volver": "Mi día",
@@ -67,7 +70,9 @@
     "checklist": "Checklist",
     "incidencias": "Incidencias y oportunidades",
     "notas": "Notas",
-    "notasPlaceholder": "Observaciones que no encajan en el checklist…"
+    "notasPlaceholder": "Observaciones que no encajan en el checklist…",
+    "categorias": "Categorías",
+    "volverCategorias": "Categorías"
   },
   "checklist": {
     "vacio": "Esta tienda no tiene checklist configurado.",
@@ -143,5 +148,185 @@
     "primeraVisita": "Primera visita registrada a esta tienda.",
     "abiertas_one": "{{count}} incidencia abierta",
     "abiertas_other": "{{count}} incidencias abiertas"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "bloque": {
+    "incidencias": "Incidencias",
+    "oportunidades": "Oportunidades",
+    "extraespacios": "Extraespacios"
+  },
+  "situacion": {
+    "stock": "Falta de producto",
+    "fechas": "Problema con las fechas",
+    "hueco": "Hueco en el lineal",
+    "top_pico": "Top Pico sin incorporar",
+    "facings": "Ganar facings",
+    "visibilidad": "Mejorar visibilidad",
+    "reorganizacion": "Reorganizar el lineal",
+    "extraespacio": "Extraespacio",
+    "nevera": "Nevera"
+  },
+  "flujo": {
+    "stock": {
+      "pregunta": "¿Hay suficiente producto para cubrir la jornada?",
+      "suficiencia": "Producto suficiente",
+      "comunicado": "¿Se lo has comunicado al responsable?"
+    },
+    "fechas": {
+      "pregunta": "¿Has detectado algún problema con las fechas?",
+      "problema": "Tipo de problema"
+    },
+    "hueco": {
+      "pregunta": "¿Existe un hueco de nuestro producto?",
+      "existe": "Hay hueco",
+      "cubierto": "¿Está cubierto con una referencia Danone adyacente?",
+      "corregido": "¿Has podido corregirlo?"
+    },
+    "topPico": {
+      "pregunta": "¿Qué referencia Top Pico falta en el surtido?",
+      "referencia": "Referencia"
+    },
+    "facings": {
+      "pregunta": "¿Existe oportunidad de ganar facings?",
+      "conseguido": "¿Has conseguido ganar espacio?",
+      "cuantos": "¿Cuántos facings has ganado?"
+    },
+    "visibilidad": {
+      "pregunta": "¿Existe oportunidad de mejorar la visibilidad?",
+      "ubicacion": "Ubicación actual",
+      "propuesta": "Qué propones"
+    },
+    "reorganizacion": {
+      "pregunta": "¿Qué propones cambiar en el lineal?",
+      "propuesta": "Tu propuesta"
+    },
+    "extraespacio": {
+      "pregunta": "¿Dónde y por qué cabría un punto de carga adicional?",
+      "tipo": "Tipo de extraespacio",
+      "motivo": "Motivo"
+    },
+    "nevera": {
+      "pregunta": "¿Cómo está la nevera?",
+      "situacion": "Situación",
+      "codigo": "Código de la nevera",
+      "codigoAyuda": "Está dentro de la nevera. Sin él puede retirarse la unidad equivocada."
+    },
+    "marca": "Marca",
+    "detalle": "Detalle",
+    "sinMarcas": "No hay marcas disponibles",
+    "sinReferencias": "No hay referencias disponibles",
+    "iraAlFsm": "Se generará una acción para tu responsable.",
+    "actuasTu": "Puedes resolverlo tú en tienda.",
+    "hablasConEncargado": "Coméntaselo al encargado del establecimiento.",
+    "faltaDetalle": "Indica cuál es el problema",
+    "faltaReferencia": "Elige una referencia",
+    "faltaPropuesta": "Escribe tu propuesta",
+    "faltaFacings": "Indica cuántos facings has ganado",
+    "faltaCodigoNevera": "Hace falta el código para no retirar otra nevera",
+    "suficiencia": {
+      "si": "Sí",
+      "no": "No",
+      "reponedor_no_ha_pasado": "El reponedor no ha pasado"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrecto",
+      "proximo_caducar": "Próximo a caducar",
+      "mal_colocado": "Producto mal colocado",
+      "otro": "Otro"
+    },
+    "correccion": {
+      "si": "Sí, corregido",
+      "no_posible": "No ha sido posible"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Cabecera",
+      "isla": "Isla",
+      "pila": "Pila",
+      "otro": "Otro"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Alta rotación",
+      "promocion": "Promoción",
+      "potencial_venta": "Potencial de venta",
+      "falta_espacio_lineal": "Falta espacio en lineal",
+      "oportunidad_estacional": "Oportunidad estacional",
+      "otro": "Otro"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Se usa correctamente",
+      "uso_parcial": "Se usa parcialmente",
+      "uso_incorrecto": "Se usa incorrectamente",
+      "retirada": "Nos la han retirado",
+      "vacia_desaprovechada": "Vacía o desaprovechada",
+      "necesita_nueva": "Se necesita una nueva",
+      "necesita_recogida": "Necesita recogida",
+      "otro": "Otro"
+    },
+    "ubicacion": {
+      "palomar": "Palomar (arriba)",
+      "zona_intermedia": "Zona intermedia",
+      "altura_ojos": "Altura de los ojos",
+      "foso": "Foso (abajo)",
+      "otra": "Otra"
+    },
+    "propuesta": {
+      "subir_producto": "Subir el producto",
+      "bajar_producto": "Bajar el producto",
+      "ganar_espacio": "Ganar espacio",
+      "cambiar_ubicacion": "Cambiar de ubicación",
+      "reorganizar_lineal": "Reorganizar el lineal",
+      "otra": "Otra"
+    },
+    "valoracion": {
+      "muy_buena": "Muy buena",
+      "buena": "Buena",
+      "correcta": "Correcta",
+      "mejorable": "Mejorable",
+      "mala": "Mala",
+      "no_ha_podido_hablar": "No he podido hablar con él"
+    }
+  },
+  "pendientes": {
+    "titulo": "De tu última visita",
+    "intro": "Comprueba si se ha resuelto y sigue con la visita.",
+    "desdeHace": "hace {{dias}} días",
+    "conTuResponsable": "con tu responsable",
+    "resuelto": "Resuelto",
+    "sigueIgual": "Sigue igual",
+    "verTodas": "Ver {{n}} más",
+    "plegar": "Ver menos"
+  },
+  "responsable": {
+    "titulo": "Responsable de tienda",
+    "haHablado": "¿Has hablado con el responsable?",
+    "valoracion": "¿Cómo valorarías la relación?",
+    "valoracionAyuda": "La relación en general, no cómo ha ido la conversación de hoy.",
+    "cuestion": "¿Hay alguna cuestión pendiente?",
+    "comentario": "Cuál",
+    "registrar": "Registrar",
+    "sinRegistrar": "Sin registrar",
+    "hablado": "Has hablado con el responsable",
+    "noHablado": "No has podido hablar con él",
+    "conCuestion": "con una cuestión pendiente",
+    "faltaValoracion": "Falta valorar la relación",
+    "faltaComentario": "Describe la cuestión pendiente"
+  },
+  "resumen": {
+    "titulo": "Resumen de la visita",
+    "incidencias": "{{n}} incidencia(s)",
+    "oportunidades": "{{n}} oportunidad(es)",
+    "facings": "+{{n}} facings",
+    "extraespacios": "{{n}} extraespacio(s)",
+    "paraElFsm": "{{n}} para tu responsable",
+    "nadaRegistrado": "No has registrado nada en esta visita. Puedes cerrarla igualmente.",
+    "seguirEnLaVisita": "Seguir en la visita",
+    "aviso": {
+      "sinRelacionResponsable": "Sin registrar la relación con el responsable",
+      "pendientesSinComprobar": "{{n}} acción(es) de visitas anteriores sin comprobar"
+    }
   }
 }

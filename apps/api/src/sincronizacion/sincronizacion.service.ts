@@ -11,6 +11,7 @@ import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import { ChecklistService } from "../visitas/checklist.service";
 import { FotosService } from "../fotos/fotos.service";
 import { IncidenciasService } from "../incidencias/incidencias.service";
+import { AccionesService } from "../acciones/acciones.service";
 import { JustificacionesService } from "../visitas/justificaciones.service";
 import { VisitasService } from "../visitas/visitas.service";
 import type { PayloadToken } from "../auth/auth.service";
@@ -26,6 +27,7 @@ export class SincronizacionService {
     private readonly justificaciones: JustificacionesService,
     private readonly checklist: ChecklistService,
     private readonly incidencias: IncidenciasService,
+    private readonly acciones: AccionesService,
     private readonly fotos: FotosService,
   ) {}
 
@@ -203,6 +205,46 @@ export class SincronizacionService {
           id: incidencia.id,
           ...(operacion.idCliente ? { idCliente: operacion.idCliente } : {}),
         };
+      }
+
+      case "accion.registrar": {
+        const visitaId = await this.resolverVisita(operacion.visita, equivalencias);
+        const accion = await this.acciones.registrar(visitaId, usuario, operacion.datos);
+        // La acción recién creada puede ser el destino de una comprobación
+        // posterior del MISMO lote, así que se registra la equivalencia.
+        if (operacion.datos.idCliente) {
+          equivalencias.set(operacion.datos.idCliente, accion.id);
+        }
+        return {
+          estado: "aplicada",
+          id: accion.id,
+          ...(operacion.datos.idCliente ? { idCliente: operacion.datos.idCliente } : {}),
+        };
+      }
+
+      case "accion.comprobar": {
+        // La acción puede haberse creado en este mismo lote y no tener aún id
+        // de servidor: se resuelve por la equivalencia igual que las visitas.
+        const accionId =
+          equivalencias.get(operacion.accionId) ?? operacion.accionId;
+        const visitaId = operacion.visita
+          ? await this.resolverVisita(operacion.visita, equivalencias)
+          : undefined;
+        const comprobacion = await this.acciones.comprobar(accionId, usuario, {
+          ...operacion.datos,
+          ...(visitaId ? { visitaId } : {}),
+        });
+        return { estado: "aplicada", id: comprobacion.id };
+      }
+
+      case "relacion.guardar": {
+        const visitaId = await this.resolverVisita(operacion.visita, equivalencias);
+        const relacion = await this.acciones.guardarRelacionResponsable(
+          visitaId,
+          usuario,
+          operacion.datos,
+        );
+        return { estado: "aplicada", id: relacion.id };
       }
 
       case "foto.reservar": {

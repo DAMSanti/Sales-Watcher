@@ -85,6 +85,47 @@ export class AccionesService {
     return this.config.get("ACCION_ESTANCADA_DIAS", { infer: true }) ?? UMBRAL_ESTANCADA_DIAS;
   }
 
+  // ── Catálogos ────────────────────────────────────────────────────────
+
+  /** Marcas activas, opcionalmente de una sola categoría de producto. */
+  async marcasDisponibles(categoria?: string) {
+    return this.db
+      .select({
+        id: marcas.id,
+        nombre: marcas.nombre,
+        codigo: marcas.codigo,
+        categoriaProducto: marcas.categoriaProducto,
+      })
+      .from(marcas)
+      .where(
+        categoria
+          ? and(eq(marcas.activo, true), sql`${marcas.categoriaProducto}::text = ${categoria}`)
+          : eq(marcas.activo, true),
+      )
+      .orderBy(marcas.orden, marcas.nombre);
+  }
+
+  /** Referencias de producto activas, para elegir el Top Pico que falta. */
+  async referenciasDisponibles(categoria?: string) {
+    return this.db
+      .select({
+        id: referenciasProducto.id,
+        nombre: referenciasProducto.nombre,
+        codigo: referenciasProducto.codigo,
+        categoriaProducto: referenciasProducto.categoriaProducto,
+      })
+      .from(referenciasProducto)
+      .where(
+        categoria
+          ? and(
+              eq(referenciasProducto.activo, true),
+              sql`${referenciasProducto.categoriaProducto}::text = ${categoria}`,
+            )
+          : eq(referenciasProducto.activo, true),
+      )
+      .orderBy(referenciasProducto.orden, referenciasProducto.nombre);
+  }
+
   // ── Registrar una detección ──────────────────────────────────────────
 
   /**
@@ -715,11 +756,16 @@ export class AccionesService {
       /**
        * En el MVP no hay mínimos obligatorios para cerrar (decisión consciente
        * del cliente). Se informa de lo que falta, no se bloquea.
+       *
+       * Se devuelven CÓDIGOS, no frases. La app está en cinco idiomas y una
+       * frase construida aquí saldría en castellano para un GPV que tiene la
+       * interfaz en francés — el clásico hueco de i18n en los bordes, donde la
+       * pantalla está traducida pero el mensaje del servidor no.
        */
       avisos: [
-        ...(relacion ? [] : ["Sin registrar la relación con el responsable de tienda"]),
+        ...(relacion ? [] : [{ codigo: "sinRelacionResponsable" as const }]),
         ...(pendientesPrevias > 0
-          ? [`${pendientesPrevias} acción(es) de visitas anteriores sin comprobar`]
+          ? [{ codigo: "pendientesSinComprobar" as const, n: pendientesPrevias }]
           : []),
       ],
     };

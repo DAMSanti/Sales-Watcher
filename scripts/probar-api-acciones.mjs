@@ -74,22 +74,38 @@ async function pedir(token, ruta, opciones = {}) {
 }
 
 let visitaId = null;
+/** Si la visita ya estaba abierta, no se toca su estado al limpiar. */
+let abiertaPorNosotros = false;
 
 try {
   const gpv = await entrar("30001");
   const fsm = await entrar("20001");
 
   // ── Preparar una visita en curso ─────────────────────────────────────
+  /**
+   * Vale una pendiente o una ya en curso.
+   *
+   * Antes exigía una pendiente, y bastaba con que otra prueba —o un recorrido
+   * manual por el navegador— hubiera empezado las del día para que este script
+   * fallara sin haber nada roto.
+   */
   const dia = await pedir(gpv, "/visitas/dia");
-  const pendiente = dia.datos.visitas.find((v) => v.estado === "pendiente");
-  if (!pendiente) throw new Error("no hay visita pendiente en la ruta de hoy");
+  const pendiente =
+    dia.datos.visitas.find((v) => v.estado === "pendiente") ??
+    dia.datos.visitas.find((v) => v.estado === "en_curso");
+  if (!pendiente) throw new Error("no hay visita utilizable en la ruta de hoy");
 
-  const comenzada = await pedir(gpv, `/visitas/${pendiente.visitaId}/comenzar`, {
-    method: "POST",
-    cuerpo: {},
-  });
-  ok("comenzar visita", comenzada.estado === 200 || comenzada.estado === 201, `HTTP ${comenzada.estado}`);
+  const yaEnCurso = pendiente.estado === "en_curso";
+  const comenzada = yaEnCurso
+    ? { estado: 200 }
+    : await pedir(gpv, `/visitas/${pendiente.visitaId}/comenzar`, { method: "POST", cuerpo: {} });
+  ok(
+    "visita en curso",
+    comenzada.estado === 200 || comenzada.estado === 201,
+    yaEnCurso ? "ya estaba abierta" : `HTTP ${comenzada.estado}`,
+  );
   visitaId = pendiente.visitaId;
+  abiertaPorNosotros = !yaEnCurso;
   const tiendaId = pendiente.tienda.id;
   console.log(`\n  Visita en ${pendiente.tienda.nombre}\n`);
 
@@ -431,9 +447,12 @@ try {
     await sql`delete from comprobaciones_accion where accion_id in (${mias})`;
     await sql`delete from relaciones_responsable where visita_id = ${visitaId}`;
     await sql`delete from acciones where visita_origen_id = ${visitaId}`;
-    // La visita se devuelve a pendiente: era de la ruta del día, no la creamos.
-    await sql`update visitas set estado = 'pendiente', hora_inicio = null,
-                ubicacion_inicio = null where id = ${visitaId}`;
+    // Solo se devuelve a pendiente si la abrimos nosotros: si ya estaba en
+    // curso, cerrarla sería destruir el estado de otra prueba.
+    if (!abiertaPorNosotros) {
+      await sql`update visitas set estado = 'pendiente', hora_inicio = null,
+                  ubicacion_inicio = null where id = ${visitaId}`;
+    }
   }
 
   const [restos] = await sql`select count(*)::int as n from acciones`;

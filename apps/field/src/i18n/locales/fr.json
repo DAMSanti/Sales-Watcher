@@ -46,7 +46,10 @@
     "sinConexionAyuda": "Votre travail est enregistré et sera envoyé dès le retour du réseau.",
     "volver": "Retour",
     "guardar": "Enregistrer",
-    "guardando": "Enregistrement…"
+    "guardando": "Enregistrement…",
+    "si": "Oui",
+    "no": "Non",
+    "editar": "Modifier"
   },
   "app": {
     "nombre": "Sales Watcher"
@@ -67,7 +70,9 @@
     "checklist": "Checklist",
     "incidencias": "Incidents et opportunités",
     "notas": "Notes",
-    "notasPlaceholder": "Observations hors checklist…"
+    "notasPlaceholder": "Observations hors checklist…",
+    "categorias": "Catégories",
+    "volverCategorias": "Catégories"
   },
   "checklist": {
     "vacio": "Ce magasin n'a pas de checklist configurée.",
@@ -143,5 +148,185 @@
     "primeraVisita": "Première visite enregistrée dans ce magasin.",
     "abiertas_one": "{{count}} incident ouvert",
     "abiertas_other": "{{count}} incidents ouverts"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "bloque": {
+    "incidencias": "Incidents",
+    "oportunidades": "Opportunités",
+    "extraespacios": "Espaces additionnels"
+  },
+  "situacion": {
+    "stock": "Rupture de produit",
+    "fechas": "Problème de dates",
+    "hueco": "Trou dans le linéaire",
+    "top_pico": "Top Pico non référencé",
+    "facings": "Gagner des facings",
+    "visibilidad": "Améliorer la visibilité",
+    "reorganizacion": "Réorganiser le linéaire",
+    "extraespacio": "Espace additionnel",
+    "nevera": "Frigo"
+  },
+  "flujo": {
+    "stock": {
+      "pregunta": "Y a-t-il assez de produit pour la journée ?",
+      "suficiencia": "Produit suffisant",
+      "comunicado": "L'avez-vous signalé au responsable ?"
+    },
+    "fechas": {
+      "pregunta": "Avez-vous détecté un problème de dates ?",
+      "problema": "Type de problème"
+    },
+    "hueco": {
+      "pregunta": "Y a-t-il un trou sur notre produit ?",
+      "existe": "Il y a un trou",
+      "cubierto": "Est-il couvert par une référence Danone voisine ?",
+      "corregido": "Avez-vous pu le corriger ?"
+    },
+    "topPico": {
+      "pregunta": "Quelle référence Top Pico manque à l'assortiment ?",
+      "referencia": "Référence"
+    },
+    "facings": {
+      "pregunta": "Y a-t-il une opportunité de gagner des facings ?",
+      "conseguido": "Avez-vous gagné de l'espace ?",
+      "cuantos": "Combien de facings gagnés ?"
+    },
+    "visibilidad": {
+      "pregunta": "Y a-t-il une opportunité d'améliorer la visibilité ?",
+      "ubicacion": "Emplacement actuel",
+      "propuesta": "Que proposez-vous"
+    },
+    "reorganizacion": {
+      "pregunta": "Que proposez-vous de changer dans le linéaire ?",
+      "propuesta": "Votre proposition"
+    },
+    "extraespacio": {
+      "pregunta": "Où et pourquoi un point de vente additionnel serait-il justifié ?",
+      "tipo": "Type d'espace",
+      "motivo": "Motif"
+    },
+    "nevera": {
+      "pregunta": "Dans quel état est le frigo ?",
+      "situacion": "Situation",
+      "codigo": "Code du frigo",
+      "codigoAyuda": "Il se trouve à l'intérieur du frigo. Sans lui, la mauvaise unité peut être retirée."
+    },
+    "marca": "Marque",
+    "detalle": "Détail",
+    "sinMarcas": "Aucune marque disponible",
+    "sinReferencias": "Aucune référence disponible",
+    "iraAlFsm": "Une action sera créée pour votre responsable.",
+    "actuasTu": "Vous pouvez le résoudre en magasin.",
+    "hablasConEncargado": "Parlez-en au responsable du magasin.",
+    "faltaDetalle": "Indiquez le problème",
+    "faltaReferencia": "Choisissez une référence",
+    "faltaPropuesta": "Écrivez votre proposition",
+    "faltaFacings": "Indiquez combien de facings",
+    "faltaCodigoNevera": "Le code évite de retirer le mauvais frigo",
+    "suficiencia": {
+      "si": "Oui",
+      "no": "Non",
+      "reponedor_no_ha_pasado": "Le réassortisseur n'est pas passé"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrect",
+      "proximo_caducar": "Bientôt périmé",
+      "mal_colocado": "Produit mal placé",
+      "otro": "Autre"
+    },
+    "correccion": {
+      "si": "Oui, corrigé",
+      "no_posible": "Impossible"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Tête de gondole",
+      "isla": "Îlot",
+      "pila": "Pile",
+      "otro": "Autre"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Forte rotation",
+      "promocion": "Promotion",
+      "potencial_venta": "Potentiel de vente",
+      "falta_espacio_lineal": "Manque de place en linéaire",
+      "oportunidad_estacional": "Opportunité saisonnière",
+      "otro": "Autre"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Bien utilisé",
+      "uso_parcial": "Partiellement utilisé",
+      "uso_incorrecto": "Mal utilisé",
+      "retirada": "Il a été retiré",
+      "vacia_desaprovechada": "Vide ou sous-utilisé",
+      "necesita_nueva": "Un nouveau est nécessaire",
+      "necesita_recogida": "À récupérer",
+      "otro": "Autre"
+    },
+    "ubicacion": {
+      "palomar": "Étagère haute",
+      "zona_intermedia": "Zone intermédiaire",
+      "altura_ojos": "Hauteur des yeux",
+      "foso": "Étagère basse",
+      "otra": "Autre"
+    },
+    "propuesta": {
+      "subir_producto": "Monter le produit",
+      "bajar_producto": "Descendre le produit",
+      "ganar_espacio": "Gagner de l'espace",
+      "cambiar_ubicacion": "Changer d'emplacement",
+      "reorganizar_lineal": "Réorganiser le linéaire",
+      "otra": "Autre"
+    },
+    "valoracion": {
+      "muy_buena": "Très bonne",
+      "buena": "Bonne",
+      "correcta": "Correcte",
+      "mejorable": "À améliorer",
+      "mala": "Mauvaise",
+      "no_ha_podido_hablar": "Je n'ai pas pu lui parler"
+    }
+  },
+  "pendientes": {
+    "titulo": "De votre dernière visite",
+    "intro": "Vérifiez si c'est résolu et poursuivez la visite.",
+    "desdeHace": "il y a {{dias}} jours",
+    "conTuResponsable": "avec votre responsable",
+    "resuelto": "Résolu",
+    "sigueIgual": "Toujours pareil",
+    "verTodas": "Voir {{n}} de plus",
+    "plegar": "Voir moins"
+  },
+  "responsable": {
+    "titulo": "Responsable du magasin",
+    "haHablado": "Avez-vous parlé au responsable ?",
+    "valoracion": "Comment évaluez-vous la relation ?",
+    "valoracionAyuda": "La relation en général, pas la conversation d'aujourd'hui.",
+    "cuestion": "Y a-t-il un point en suspens ?",
+    "comentario": "Laquelle",
+    "registrar": "Enregistrer",
+    "sinRegistrar": "Non renseigné",
+    "hablado": "Vous avez parlé au responsable",
+    "noHablado": "Vous n'avez pas pu lui parler",
+    "conCuestion": "avec un point en suspens",
+    "faltaValoracion": "L'évaluation manque",
+    "faltaComentario": "Décrivez le point en suspens"
+  },
+  "resumen": {
+    "titulo": "Résumé de la visite",
+    "incidencias": "{{n}} incident(s)",
+    "oportunidades": "{{n}} opportunité(s)",
+    "facings": "+{{n}} facings",
+    "extraespacios": "{{n}} espace(s) additionnel(s)",
+    "paraElFsm": "{{n}} pour votre responsable",
+    "nadaRegistrado": "Vous n'avez rien enregistré. Vous pouvez quand même clôturer.",
+    "seguirEnLaVisita": "Rester dans la visite",
+    "aviso": {
+      "sinRelacionResponsable": "Relation avec le responsable non renseignée",
+      "pendientesSinComprobar": "{{n}} action(s) de visites précédentes non vérifiées"
+    }
   }
 }

@@ -46,7 +46,10 @@
     "sinConexionAyuda": "Zure lana gorde egiten da eta estaldura berreskuratzean bidaliko da.",
     "volver": "Itzuli",
     "guardar": "Gorde",
-    "guardando": "Gordetzen…"
+    "guardando": "Gordetzen…",
+    "si": "Bai",
+    "no": "Ez",
+    "editar": "Editatu"
   },
   "app": {
     "nombre": "Sales Watcher"
@@ -67,7 +70,9 @@
     "checklist": "Egiaztapen-zerrenda",
     "incidencias": "Intzidentziak eta aukerak",
     "notas": "Oharrak",
-    "notasPlaceholder": "Zerrendan sartzen ez diren oharrak…"
+    "notasPlaceholder": "Zerrendan sartzen ez diren oharrak…",
+    "categorias": "Kategoriak",
+    "volverCategorias": "Kategoriak"
   },
   "checklist": {
     "vacio": "Denda honek ez du egiaztapen-zerrendarik konfiguratuta.",
@@ -143,5 +148,185 @@
     "primeraVisita": "Denda honetako lehen bisita erregistratua.",
     "abiertas_one": "Intzidentzia {{count}} irekita",
     "abiertas_other": "{{count}} intzidentzia irekita"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "bloque": {
+    "incidencias": "Gorabeherak",
+    "oportunidades": "Aukerak",
+    "extraespacios": "Espazio gehigarriak"
+  },
+  "situacion": {
+    "stock": "Produktu falta",
+    "fechas": "Datekin arazoa",
+    "hueco": "Hutsunea apalategian",
+    "top_pico": "Top Pico sartu gabe",
+    "facings": "Facing-ak irabazi",
+    "visibilidad": "Ikusgaitasuna hobetu",
+    "reorganizacion": "Apalategia berrantolatu",
+    "extraespacio": "Espazio gehigarria",
+    "nevera": "Hozkailua"
+  },
+  "flujo": {
+    "stock": {
+      "pregunta": "Nahikoa produktu dago eguna estaltzeko?",
+      "suficiencia": "Produktu nahikoa",
+      "comunicado": "Arduradunari jakinarazi diozu?"
+    },
+    "fechas": {
+      "pregunta": "Datekin arazorik antzeman duzu?",
+      "problema": "Arazo mota"
+    },
+    "hueco": {
+      "pregunta": "Gure produktuaren hutsunerik dago?",
+      "existe": "Hutsunea dago",
+      "cubierto": "Ondoko Danone erreferentzia batekin estalita dago?",
+      "corregido": "Konpondu ahal izan duzu?"
+    },
+    "topPico": {
+      "pregunta": "Zein Top Pico erreferentzia falta da?",
+      "referencia": "Erreferentzia"
+    },
+    "facings": {
+      "pregunta": "Facing-ak irabazteko aukerarik dago?",
+      "conseguido": "Espazioa irabaztea lortu duzu?",
+      "cuantos": "Zenbat facing irabazi dituzu?"
+    },
+    "visibilidad": {
+      "pregunta": "Ikusgaitasuna hobetzeko aukerarik dago?",
+      "ubicacion": "Egungo kokapena",
+      "propuesta": "Zer proposatzen duzu"
+    },
+    "reorganizacion": {
+      "pregunta": "Zer aldatzea proposatzen duzu apalategian?",
+      "propuesta": "Zure proposamena"
+    },
+    "extraespacio": {
+      "pregunta": "Non eta zergatik sartuko litzateke karga puntu gehigarri bat?",
+      "tipo": "Espazio gehigarri mota",
+      "motivo": "Arrazoia"
+    },
+    "nevera": {
+      "pregunta": "Nola dago hozkailua?",
+      "situacion": "Egoera",
+      "codigo": "Hozkailuaren kodea",
+      "codigoAyuda": "Hozkailuaren barruan dago. Gabe, okerreko unitatea ken daiteke."
+    },
+    "marca": "Marka",
+    "detalle": "Xehetasuna",
+    "sinMarcas": "Ez dago markarik eskuragarri",
+    "sinReferencias": "Ez dago erreferentziarik eskuragarri",
+    "iraAlFsm": "Ekintza bat sortuko da zure arduradunarentzat.",
+    "actuasTu": "Zuk konpon dezakezu dendan.",
+    "hablasConEncargado": "Aipa iezaiozu establezimenduko arduradunari.",
+    "faltaDetalle": "Adierazi zein den arazoa",
+    "faltaReferencia": "Aukeratu erreferentzia bat",
+    "faltaPropuesta": "Idatzi zure proposamena",
+    "faltaFacings": "Adierazi zenbat facing irabazi dituzun",
+    "faltaCodigoNevera": "Kodea behar da beste hozkailu bat ez kentzeko",
+    "suficiencia": {
+      "si": "Bai",
+      "no": "Ez",
+      "reponedor_no_ha_pasado": "Hornitzailea ez da pasatu"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO okerra",
+      "proximo_caducar": "Iraungitzear",
+      "mal_colocado": "Produktua gaizki jarrita",
+      "otro": "Bestelakoa"
+    },
+    "correccion": {
+      "si": "Bai, konponduta",
+      "no_posible": "Ez da posible izan"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Buruko",
+      "isla": "Uhartea",
+      "pila": "Pila",
+      "otro": "Bestelakoa"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Errotazio handia",
+      "promocion": "Promozioa",
+      "potencial_venta": "Salmenta potentziala",
+      "falta_espacio_lineal": "Apalategian espazio falta",
+      "oportunidad_estacional": "Sasoiko aukera",
+      "otro": "Bestelakoa"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Ondo erabiltzen da",
+      "uso_parcial": "Partzialki erabiltzen da",
+      "uso_incorrecto": "Gaizki erabiltzen da",
+      "retirada": "Kendu digute",
+      "vacia_desaprovechada": "Hutsik edo aprobetxatu gabe",
+      "necesita_nueva": "Berri bat behar da",
+      "necesita_recogida": "Jasotzea behar du",
+      "otro": "Bestelakoa"
+    },
+    "ubicacion": {
+      "palomar": "Goiko apala",
+      "zona_intermedia": "Erdiko gunea",
+      "altura_ojos": "Begien altuera",
+      "foso": "Beheko apala",
+      "otra": "Bestelakoa"
+    },
+    "propuesta": {
+      "subir_producto": "Produktua igo",
+      "bajar_producto": "Produktua jaitsi",
+      "ganar_espacio": "Espazioa irabazi",
+      "cambiar_ubicacion": "Kokapena aldatu",
+      "reorganizar_lineal": "Apalategia berrantolatu",
+      "otra": "Bestelakoa"
+    },
+    "valoracion": {
+      "muy_buena": "Oso ona",
+      "buena": "Ona",
+      "correcta": "Zuzena",
+      "mejorable": "Hobegarria",
+      "mala": "Txarra",
+      "no_ha_podido_hablar": "Ezin izan dut berarekin hitz egin"
+    }
+  },
+  "pendientes": {
+    "titulo": "Zure azken bisitatik",
+    "intro": "Egiaztatu konpondu den eta jarraitu bisitarekin.",
+    "desdeHace": "duela {{dias}} egun",
+    "conTuResponsable": "zure arduradunarekin",
+    "resuelto": "Konponduta",
+    "sigueIgual": "Berdin jarraitzen du",
+    "verTodas": "Ikusi {{n}} gehiago",
+    "plegar": "Gutxiago ikusi"
+  },
+  "responsable": {
+    "titulo": "Dendako arduraduna",
+    "haHablado": "Arduradunarekin hitz egin duzu?",
+    "valoracion": "Nola baloratuko zenuke harremana?",
+    "valoracionAyuda": "Harremana orokorrean, ez gaurko elkarrizketa.",
+    "cuestion": "Konpontzeke dagoen gairik badago?",
+    "comentario": "Zein",
+    "registrar": "Erregistratu",
+    "sinRegistrar": "Erregistratu gabe",
+    "hablado": "Arduradunarekin hitz egin duzu",
+    "noHablado": "Ezin izan duzu berarekin hitz egin",
+    "conCuestion": "gai bat konpontzeke",
+    "faltaValoracion": "Harremana baloratzea falta da",
+    "faltaComentario": "Deskribatu konpontzeke dagoen gaia"
+  },
+  "resumen": {
+    "titulo": "Bisitaren laburpena",
+    "incidencias": "{{n}} gorabehera",
+    "oportunidades": "{{n}} aukera",
+    "facings": "+{{n}} facing",
+    "extraespacios": "{{n}} espazio gehigarri",
+    "paraElFsm": "{{n}} zure arduradunarentzat",
+    "nadaRegistrado": "Ez duzu ezer erregistratu bisita honetan. Hala ere itxi dezakezu.",
+    "seguirEnLaVisita": "Bisitan jarraitu",
+    "aviso": {
+      "sinRelacionResponsable": "Arduradunarekiko harremana erregistratu gabe",
+      "pendientesSinComprobar": "Aurreko bisitetako {{n}} ekintza egiaztatu gabe"
+    }
   }
 }

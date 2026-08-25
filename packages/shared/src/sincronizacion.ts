@@ -25,6 +25,14 @@ export type TipoOperacion =
   | "visita.justificar"
   | "checklist.marcar"
   | "incidencia.crear"
+  /**
+   * El ciclo de acciones también viaja por la cola: el GPV detecta en el
+   * lineal, que es justo donde peor va la cobertura. Sin esto, lo detectado se
+   * perdería o habría que pedirle que lo reescriba al salir de la tienda.
+   */
+  | "accion.registrar"
+  | "accion.comprobar"
+  | "relacion.guardar"
   | "foto.reservar"
   | "foto.confirmar";
 

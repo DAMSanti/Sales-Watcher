@@ -3,9 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorApi, pedir } from "../api/cliente";
 import type {
+  Accion,
+  CategoriaProducto,
   Checklist,
   Desviacion,
   IncidenciaVisita,
+  RelacionResponsable,
+  ResumenVisita,
   TarjetaVisita,
 } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
@@ -17,7 +21,15 @@ import { ContextoAnterior } from "./ContextoAnterior";
 import { DialogoJustificar } from "./DialogoJustificar";
 import { SeccionChecklist } from "./SeccionChecklist";
 import { SeccionIncidencias } from "./SeccionIncidencias";
+import { DialogoResumen } from "./DialogoResumen";
+import { PanelCategoria } from "./PanelCategoria";
+import { SeccionPendientes } from "./SeccionPendientes";
+import { SeccionResponsable } from "./SeccionResponsable";
+import { ICONO_CATEGORIA } from "./flujos";
 import "./detalle.css";
+import "./acciones.css";
+
+const CATEGORIAS: CategoriaProducto[] = ["dairy", "waters", "pbb"];
 
 /**
  * Detalle de la visita (SPECS §5.4).
@@ -44,6 +56,17 @@ export function DetalleVisita() {
    */
   const [datosDisponibles, setDatosDisponibles] = useState(true);
   const [incidencias, setIncidencias] = useState<IncidenciaVisita[]>([]);
+
+  // ── El ciclo de acciones ───────────────────────────────────────────
+  /** Lo detectado en ESTA visita, para los contadores de cada flujo. */
+  const [registradas, setRegistradas] = useState<Record<string, number>>({});
+  /** Lo que sigue abierto en la tienda de visitas ANTERIORES. */
+  const [pendientes, setPendientes] = useState<Accion[]>([]);
+  const [relacion, setRelacion] = useState<RelacionResponsable | null>(null);
+  /** Categoría abierta. `null` = pantalla principal con las tres. */
+  const [categoriaAbierta, setCategoriaAbierta] = useState<CategoriaProducto | null>(null);
+  const [resumen, setResumen] = useState<ResumenVisita | null>(null);
+  const [confirmandoCierre, setConfirmandoCierre] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [accionEnCurso, setAccionEnCurso] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +90,44 @@ export function DetalleVisita() {
       const encontrada = dia.visitas.find((v) => v.visitaId === id) ?? null;
       setVisita(encontrada);
 
-      const [lista, incidenciasVisita] = await Promise.all([
+      const [lista, incidenciasVisita, resumenVisita] = await Promise.all([
         pedir<Checklist>(`/visitas/${id}/checklist`, { idioma }),
         pedir<IncidenciaVisita[]>(`/visitas/${id}/incidencias`, { idioma }),
+        pedir<ResumenVisita>(`/visitas/${id}/resumen`, { idioma }),
       ]);
       setChecklist(lista);
       setIncidencias(incidenciasVisita);
+      setResumen(resumenVisita);
+      setRelacion(
+        resumenVisita.relacionResponsable
+          ? { id: "", ...resumenVisita.relacionResponsable, comentario: null }
+          : null,
+      );
+
+      // Contadores por flujo, aplanando el resumen que viene por categoría.
+      const cuenta: Record<string, number> = {};
+      for (const bloque of Object.values(resumenVisita.porCategoria)) {
+        for (const [tipo, n] of Object.entries(bloque.situaciones)) {
+          cuenta[tipo] = (cuenta[tipo] ?? 0) + n;
+        }
+      }
+      setRegistradas(cuenta);
+
+      /**
+       * Lo abierto se pide por TIENDA, no por visita: una acción pertenece a la
+       * tienda y sobrevive a la visita que la detectó. Se excluye lo de esta
+       * misma visita, que ya está en los contadores de arriba y volvería a
+       * aparecer como "pendiente de antes" sin serlo.
+       */
+      if (encontrada?.tienda.id) {
+        const abiertas = await pedir<Accion[]>(
+          `/tiendas/${encontrada.tienda.id}/acciones`,
+          { idioma },
+        );
+        setPendientes(abiertas.filter((a) => a.visitaOrigenId !== id));
+        void guardarCache(`acciones/${encontrada.tienda.id}`, abiertas);
+      }
+
       setDatosDisponibles(true);
       void guardarCache(`visita/${id}`, { lista, incidenciasVisita });
     } catch (e) {
@@ -140,6 +195,23 @@ export function DetalleVisita() {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setAccionEnCurso(false);
+    }
+  }
+
+  /**
+   * Pide el resumen y lo enseña. No bloquea el cierre: si el resumen no se
+   * puede traer —sin cobertura, por ejemplo— el diálogo aparece igual con lo
+   * último que se cargó, y el GPV puede cerrar. Impedir cerrar una visita
+   * porque no hay red sería exactamente el problema que el modo offline existe
+   * para evitar.
+   */
+  async function pedirCierre() {
+    setConfirmandoCierre(true);
+    try {
+      const actual = await pedir<ResumenVisita>(`/visitas/${id}/resumen`, { idioma });
+      setResumen(actual);
+    } catch {
+      /* Se conserva el resumen anterior. */
     }
   }
 
@@ -243,24 +315,83 @@ export function DetalleVisita() {
           </div>
         )}
 
-        <ContextoAnterior visitaId={id!} idioma={idioma} />
+        {/*
+          Dentro de una categoría, la pantalla se dedica a ella entera. En un
+          móvil sostenido con una mano, mostrar las tres categorías abiertas a
+          la vez obligaría a desplazarse mucho justo cuando el GPV tiene poco
+          tiempo y el lineal delante.
+        */}
+        {categoriaAbierta ? (
+          <PanelCategoria
+            categoria={categoriaAbierta}
+            visitaId={id!}
+            nombreTienda={visita.tienda.nombre}
+            registradas={registradas}
+            alVolver={() => setCategoriaAbierta(null)}
+            alRegistrar={cargar}
+          />
+        ) : (
+          <>
+            {/* Las tres categorías del boceto. */}
+            <nav className="categorias" aria-label={t("visita.categorias")}>
+              {CATEGORIAS.map((c) => {
+                const bloque = resumen?.porCategoria[c];
+                const total = bloque
+                  ? bloque.incidencias + bloque.oportunidades
+                  : 0;
+                return (
+                  <button
+                    key={c}
+                    className="categoria__tarjeta"
+                    onClick={() => setCategoriaAbierta(c)}
+                    disabled={!editable}
+                  >
+                    <span className="categoria__icono" aria-hidden="true">
+                      {ICONO_CATEGORIA[c]}
+                    </span>
+                    <span className="categoria__nombre">{t(`categoria.${c}`)}</span>
+                    {total > 0 && <span className="categoria__contador">{total}</span>}
+                  </button>
+                );
+              })}
+            </nav>
 
-        <SeccionChecklist
-          checklist={checklist}
-          disponible={datosDisponibles}
-          editable={editable}
-          visitaId={id!}
-          alCambiar={cargar}
-        />
+            <SeccionPendientes
+              acciones={pendientes}
+              visitaId={id!}
+              editable={editable}
+              alComprobar={cargar}
+            />
 
-        <SeccionIncidencias
-          incidencias={incidencias}
-          editable={editable}
-          visitaId={id!}
-          alCambiar={cargar}
-        />
+            {/* Transversal: fuera de las categorías porque en cada punto de
+                venta hay un único encargado. */}
+            <SeccionResponsable
+              relacion={relacion}
+              visitaId={id!}
+              editable={editable}
+              alGuardar={cargar}
+            />
 
-        {editable && (
+            <ContextoAnterior visitaId={id!} idioma={idioma} />
+
+            <SeccionChecklist
+              checklist={checklist}
+              disponible={datosDisponibles}
+              editable={editable}
+              visitaId={id!}
+              alCambiar={cargar}
+            />
+
+            <SeccionIncidencias
+              incidencias={incidencias}
+              editable={editable}
+              visitaId={id!}
+              alCambiar={cargar}
+            />
+          </>
+        )}
+
+        {editable && !categoriaAbierta && (
           <section className="seccion">
             <h2 className="seccion__titulo">{t("visita.notas")}</h2>
             <textarea
@@ -301,16 +432,25 @@ export function DetalleVisita() {
             </>
           )}
 
-          {editable && (
+          {editable && !categoriaAbierta && (
             <button
               className="boton boton--principal boton--ancho"
-              onClick={() => void finalizar()}
+              onClick={() => void pedirCierre()}
               disabled={accionEnCurso}
             >
-              {accionEnCurso ? t("visita.finalizando") : t("visita.finalizar")}
+              {t("visita.finalizar")}
             </button>
           )}
         </div>
+      )}
+
+      {confirmandoCierre && (
+        <DialogoResumen
+          resumen={resumen}
+          cerrando={accionEnCurso}
+          alCancelar={() => setConfirmandoCierre(false)}
+          alConfirmar={() => void finalizar()}
+        />
       )}
 
       {justificando && (

@@ -20,9 +20,11 @@ import {
   bandejaAccionesSchema,
   cambiarEstadoAccionSchema,
   comprobarSchema,
+  catalogoSchema,
   registrarAccionSchema,
   relacionResponsableSchema,
   type BandejaAccionesDto,
+  type CatalogoDto,
   type CambiarEstadoAccionDto,
   type ComprobarDto,
   type RegistrarAccionDto,
@@ -39,6 +41,30 @@ import {
 @Controller()
 export class AccionesController {
   constructor(private readonly acciones: AccionesService) {}
+
+  // ── Catálogos que necesitan los flujos ───────────────────────────────
+
+  /**
+   * Marcas y segmentos, para los flujos de facings y visibilidad.
+   *
+   * Sin `textoI18n`: son nombres propios y no se traducen. De ahí que no lleven
+   * resolución de idioma como el resto de catálogos.
+   */
+  @Get("marcas")
+  async marcas(@Query(new ZodValidationPipe(catalogoSchema)) query: CatalogoDto) {
+    return this.acciones.marcasDisponibles(query.categoria);
+  }
+
+  /**
+   * Referencias de producto, de las que el GPV elige el Top Pico que falta.
+   *
+   * NO es la base de datos de Top Picos —esa vive en otra aplicación del
+   * cliente—, solo el catálogo que da nombres estables a las referencias.
+   */
+  @Get("referencias")
+  async referencias(@Query(new ZodValidationPipe(catalogoSchema)) query: CatalogoDto) {
+    return this.acciones.referenciasDisponibles(query.categoria);
+  }
 
   // ── El GPV, en tienda ────────────────────────────────────────────────
 

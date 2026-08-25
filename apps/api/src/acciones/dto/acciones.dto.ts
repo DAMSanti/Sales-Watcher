@@ -299,3 +299,9 @@ export const relacionResponsableSchema = z
     }
   });
 export type RelacionResponsableDto = z.infer<typeof relacionResponsableSchema>;
+
+/** Filtro de los catálogos de marcas y referencias. */
+export const catalogoSchema = z.object({
+  categoria: categoriaProducto.optional(),
+});
+export type CatalogoDto = z.infer<typeof catalogoSchema>;

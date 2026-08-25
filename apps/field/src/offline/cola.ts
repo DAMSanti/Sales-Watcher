@@ -57,7 +57,9 @@ function nuevoId() {
  */
 export async function ejecutar<T>(opciones: {
   ruta: string;
-  metodo?: "POST";
+  /** `PUT` para operaciones idempotentes por naturaleza, como la relación
+   *  con el responsable: hay una sola por visita y el GPV puede corregirla. */
+  metodo?: "POST" | "PUT";
   tipo: TipoOperacion;
   carga: Record<string, unknown>;
   cuerpo: Record<string, unknown>;

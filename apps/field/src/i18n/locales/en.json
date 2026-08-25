@@ -46,7 +46,10 @@
     "sinConexionAyuda": "Your work is saved and will be sent when coverage returns.",
     "volver": "Back",
     "guardar": "Save",
-    "guardando": "Saving…"
+    "guardando": "Saving…",
+    "si": "Yes",
+    "no": "No",
+    "editar": "Edit"
   },
   "app": {
     "nombre": "Sales Watcher"
@@ -67,7 +70,9 @@
     "checklist": "Checklist",
     "incidencias": "Issues and opportunities",
     "notas": "Notes",
-    "notasPlaceholder": "Observations that don't fit the checklist…"
+    "notasPlaceholder": "Observations that don't fit the checklist…",
+    "categorias": "Categories",
+    "volverCategorias": "Categories"
   },
   "checklist": {
     "vacio": "This store has no checklist configured.",
@@ -143,5 +148,185 @@
     "primeraVisita": "First recorded visit to this store.",
     "abiertas_one": "{{count}} open issue",
     "abiertas_other": "{{count}} open issues"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "bloque": {
+    "incidencias": "Issues",
+    "oportunidades": "Opportunities",
+    "extraespacios": "Extra spaces"
+  },
+  "situacion": {
+    "stock": "Out of stock",
+    "fechas": "Date issue",
+    "hueco": "Gap on shelf",
+    "top_pico": "Missing Top Pico",
+    "facings": "Gain facings",
+    "visibilidad": "Improve visibility",
+    "reorganizacion": "Reorganise the shelf",
+    "extraespacio": "Extra space",
+    "nevera": "Cooler"
+  },
+  "flujo": {
+    "stock": {
+      "pregunta": "Is there enough product to cover the day?",
+      "suficiencia": "Enough product",
+      "comunicado": "Have you told the store manager?"
+    },
+    "fechas": {
+      "pregunta": "Have you spotted a date problem?",
+      "problema": "Problem type"
+    },
+    "hueco": {
+      "pregunta": "Is there a gap in our product?",
+      "existe": "There is a gap",
+      "cubierto": "Is it covered with an adjacent Danone reference?",
+      "corregido": "Were you able to fix it?"
+    },
+    "topPico": {
+      "pregunta": "Which Top Pico reference is missing?",
+      "referencia": "Reference"
+    },
+    "facings": {
+      "pregunta": "Is there an opportunity to gain facings?",
+      "conseguido": "Did you gain space?",
+      "cuantos": "How many facings did you gain?"
+    },
+    "visibilidad": {
+      "pregunta": "Is there an opportunity to improve visibility?",
+      "ubicacion": "Current position",
+      "propuesta": "What do you propose"
+    },
+    "reorganizacion": {
+      "pregunta": "What would you change on the shelf?",
+      "propuesta": "Your proposal"
+    },
+    "extraespacio": {
+      "pregunta": "Where and why would an extra display fit?",
+      "tipo": "Type of space",
+      "motivo": "Reason"
+    },
+    "nevera": {
+      "pregunta": "How is the cooler?",
+      "situacion": "Situation",
+      "codigo": "Cooler code",
+      "codigoAyuda": "It is inside the cooler. Without it, the wrong unit may be collected."
+    },
+    "marca": "Brand",
+    "detalle": "Detail",
+    "sinMarcas": "No brands available",
+    "sinReferencias": "No references available",
+    "iraAlFsm": "An action will be created for your manager.",
+    "actuasTu": "You can resolve this in store.",
+    "hablasConEncargado": "Raise it with the store manager.",
+    "faltaDetalle": "Say what the problem is",
+    "faltaReferencia": "Pick a reference",
+    "faltaPropuesta": "Write your proposal",
+    "faltaFacings": "Say how many facings",
+    "faltaCodigoNevera": "The code prevents collecting the wrong cooler",
+    "suficiencia": {
+      "si": "Yes",
+      "no": "No",
+      "reponedor_no_ha_pasado": "The merchandiser hasn't been"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "Incorrect FIFO",
+      "proximo_caducar": "Close to expiry",
+      "mal_colocado": "Badly placed product",
+      "otro": "Other"
+    },
+    "correccion": {
+      "si": "Yes, fixed",
+      "no_posible": "Not possible"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "End cap",
+      "isla": "Island",
+      "pila": "Stack",
+      "otro": "Other"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "High rotation",
+      "promocion": "Promotion",
+      "potencial_venta": "Sales potential",
+      "falta_espacio_lineal": "Not enough shelf space",
+      "oportunidad_estacional": "Seasonal opportunity",
+      "otro": "Other"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Used correctly",
+      "uso_parcial": "Partly used",
+      "uso_incorrecto": "Used incorrectly",
+      "retirada": "It was removed",
+      "vacia_desaprovechada": "Empty or wasted",
+      "necesita_nueva": "A new one is needed",
+      "necesita_recogida": "Needs collection",
+      "otro": "Other"
+    },
+    "ubicacion": {
+      "palomar": "Top shelf",
+      "zona_intermedia": "Middle zone",
+      "altura_ojos": "Eye level",
+      "foso": "Bottom shelf",
+      "otra": "Other"
+    },
+    "propuesta": {
+      "subir_producto": "Move product up",
+      "bajar_producto": "Move product down",
+      "ganar_espacio": "Gain space",
+      "cambiar_ubicacion": "Change position",
+      "reorganizar_lineal": "Reorganise the shelf",
+      "otra": "Other"
+    },
+    "valoracion": {
+      "muy_buena": "Very good",
+      "buena": "Good",
+      "correcta": "Fine",
+      "mejorable": "Could be better",
+      "mala": "Poor",
+      "no_ha_podido_hablar": "Couldn't speak to them"
+    }
+  },
+  "pendientes": {
+    "titulo": "From your last visit",
+    "intro": "Check whether it's resolved and carry on.",
+    "desdeHace": "{{dias}} days ago",
+    "conTuResponsable": "with your manager",
+    "resuelto": "Resolved",
+    "sigueIgual": "Still open",
+    "verTodas": "See {{n}} more",
+    "plegar": "See less"
+  },
+  "responsable": {
+    "titulo": "Store manager",
+    "haHablado": "Did you speak to the manager?",
+    "valoracion": "How would you rate the relationship?",
+    "valoracionAyuda": "The relationship overall, not today's conversation.",
+    "cuestion": "Is anything outstanding?",
+    "comentario": "What",
+    "registrar": "Record",
+    "sinRegistrar": "Not recorded",
+    "hablado": "You spoke to the manager",
+    "noHablado": "You couldn't speak to them",
+    "conCuestion": "with something outstanding",
+    "faltaValoracion": "The rating is missing",
+    "faltaComentario": "Describe what's outstanding"
+  },
+  "resumen": {
+    "titulo": "Visit summary",
+    "incidencias": "{{n}} issue(s)",
+    "oportunidades": "{{n}} opportunity(ies)",
+    "facings": "+{{n}} facings",
+    "extraespacios": "{{n}} extra space(s)",
+    "paraElFsm": "{{n}} for your manager",
+    "nadaRegistrado": "You recorded nothing on this visit. You can still close it.",
+    "seguirEnLaVisita": "Stay in the visit",
+    "aviso": {
+      "sinRelacionResponsable": "Manager relationship not recorded",
+      "pendientesSinComprobar": "{{n}} action(s) from earlier visits not checked"
+    }
   }
 }

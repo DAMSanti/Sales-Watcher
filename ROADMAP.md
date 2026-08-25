@@ -191,28 +191,25 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 > **Desbloqueada.** El checklist se conserva como capa de configuración y como sección opcional corta, así que los flujos nuevos no sustituyen la maquinaria: se apoyan en ella.
 
 - [ ] Inicio de visita **por código o por nombre de tienda**, con confirmación visual antes de iniciar
-- [ ] Pantalla principal con las **tres categorías** (Dairy / Waters / PBB) + **responsable de tienda** transversal
-- [ ] Menú por categoría: **Incidencias · Oportunidades · Extraespacios**
-- [ ] Flujo de **falta de stock** *(la opción «el reponedor todavía no ha pasado» solo en Dairy)*
-- [ ] Flujo de **fechas** *(solo Dairy, sin evidencia)*
-- [ ] Flujo de **huecos** *(Dairy: ¿cubierto con adyacente? · Waters/PBB: ¿lo has corregido?)*
-- [ ] Flujo de **Top Picos**: selección de referencias ausentes **desde el catálogo**, no tecleadas
-- [ ] **Top Picos pendientes** al entrar en la tienda, con comprobación 🟢/🔴
-- [ ] Flujo de **ganancia de facings** *(sin contar el lineal: solo el incremento)*
-- [ ] Flujo de **visibilidad** *(ubicación actual → propuesta)*
-- [ ] Flujo de **reorganización** *(texto libre + foto)*
-- [ ] Flujo de **extraespacios** *(categoría → tipo → motivo)*
-- [ ] Flujo de **neveras**, con **código de nevera** y foto del propio código *(está dentro de la nevera: la interfaz no debe sugerir que se ve de lejos)*
-- [ ] Sección de **responsable de tienda**, con la valoración enunciada como **relación general, no conversación del día**
-- [ ] **Acciones pendientes de visitas anteriores**, presentadas como contexto y no como reproche
-- [ ] **Resumen de visita** antes de cerrar, agrupado por categoría
-- [ ] Cierre **sin mínimos obligatorios**
+- [x] Pantalla principal con las **tres categorías** (Dairy / Waters / PBB) + **responsable de tienda** transversal
+- [x] Menú por categoría: **Incidencias · Oportunidades · Extraespacios**
+- [x] Los nueve flujos, con validación en cliente que replica la del servidor
+- [x] La disponibilidad por categoría sale de `situacionDisponible` de `@sw/shared`: la **misma función** que valida el servidor, no una lista paralela
+- [x] **Acciones pendientes de visitas anteriores**, plegadas cuando son muchas para no enterrar las categorías
+- [x] Sección de **responsable de tienda**, con la aclaración *«la relación en general, no la conversación de hoy»* visible bajo la pregunta
+- [x] **Resumen de visita** antes de cerrar, con extraespacios en su propio bloque
+- [x] Cierre **sin mínimos obligatorios**: el resumen avisa, no bloquea
+- [x] Aviso de a quién irá lo registrado, calculado con el motor de reglas real
+- [x] Traducción de los flujos a los **cinco idiomas** *(verificado en euskera a 360 px: sin desbordes)*
+- [x] Los flujos nuevos viajan por la **cola offline** *(`accion.registrar`, `accion.comprobar`, `relacion.guardar`)*
+- [x] Los avisos del resumen viajan como **códigos**, no como frases: una frase del servidor saldría en castellano para quien tiene la interfaz en otro idioma
 - [ ] Captura de **vídeo** con cámara nativa, validando duración y tamaño en el dispositivo
 - [ ] **Aviso visible de que se está grabando audio** *(según lo que resuelva P31)*
 - [ ] **Resultados propios del GPV visibles para él** — facings ganados, Top Picos incorporados *(«la idea es que los GPVs generen más oportunidades»)*
-- [ ] Todos los flujos nuevos operativos **offline** y en la cola de sincronización
-- [ ] Traducción de los flujos nuevos a los cinco idiomas
+- [ ] Captura de **foto** en los flujos que la admiten *(visibilidad, reorganización, nevera)*
 - [ ] Convertir el checklist en **sección opcional, desactivada por defecto** y nunca obligatoria para cerrar
+- [ ] **Retirar o fusionar `ContextoAnterior`**: hoy muestra incidencias antiguas justo debajo de «De tu última visita», que muestra acciones. Son dos listas de pendientes en formatos distintos — la duplicación que el reencuadre quería evitar
+- [ ] Probar el recorrido completo **sin cobertura**, no solo con red
 
 ## Fase 4 — Backoffice — MVP
 

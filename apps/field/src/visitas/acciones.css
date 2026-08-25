@@ -1,0 +1,381 @@
+/*
+ * El ciclo de acciones en la app de campo.
+ *
+ * Criterio de fondo: el GPV usa esto de pie, con una mano, a veces con guantes
+ * y con prisa. Todo lo pulsable llega a 44 px de alto como mínimo, que es el
+ * umbral por debajo del cual fallar el toque deja de ser excepcional.
+ */
+
+/* ── Las tres categorías ───────────────────────────────────────────── */
+
+.categorias {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e2);
+  margin-bottom: var(--e4);
+}
+
+.categoria__tarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e1);
+  padding: var(--e4) var(--e2);
+  min-height: 96px;
+  background: var(--superficie);
+  border: 2px solid var(--borde);
+  border-radius: var(--radio);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.categoria__tarjeta:hover:not(:disabled),
+.categoria__tarjeta:focus-visible {
+  border-color: var(--azul-600);
+  background: var(--superficie-alt);
+}
+
+.categoria__tarjeta:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.categoria__icono {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.categoria__nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--texto);
+  /* Los nombres de categoría no se traducen igual de cortos en los cinco
+     idiomas; se deja que rompan en vez de desbordar la tarjeta. */
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.categoria__contador {
+  position: absolute;
+  top: var(--e2);
+  right: var(--e2);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--azul-600);
+  border-radius: 11px;
+}
+
+/* ── Dentro de una categoría ───────────────────────────────────────── */
+
+.categoria__volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: var(--e2) 0;
+  background: none;
+  border: 0;
+  color: var(--azul-600);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.categoria__titulo {
+  margin: 0 0 var(--e4);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.bloque {
+  margin-bottom: var(--e5);
+}
+
+.bloque__titulo {
+  margin: 0 0 var(--e2);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-suave);
+}
+
+.bloque__flujos {
+  display: grid;
+  gap: var(--e2);
+}
+
+.flujo__boton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e2);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--e3);
+  text-align: left;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+}
+
+.flujo__boton:hover,
+.flujo__boton:focus-visible {
+  border-color: var(--azul-600);
+}
+
+.flujo__boton-texto {
+  font-size: 0.95rem;
+  color: var(--texto);
+}
+
+.flujo__boton-contador {
+  flex-shrink: 0;
+  min-width: 22px;
+  padding: 2px 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--azul-600);
+  border-radius: 11px;
+}
+
+/* ── Formulario de un flujo ────────────────────────────────────────── */
+
+.flujo__cabecera {
+  margin-bottom: var(--e4);
+}
+
+.flujo__titulo {
+  margin: 0 0 var(--e1);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.flujo__pregunta {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--texto-suave);
+}
+
+.flujo__campos {
+  display: grid;
+  gap: var(--e4);
+}
+
+/* Lo que le pasará a lo que registra: sin esto, registrar algo de Dairy y no
+   ver consecuencia parece que no sirvió de nada. */
+.flujo__responsable {
+  margin: var(--e4) 0 0;
+  padding: var(--e3);
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+  background: var(--superficie-alt);
+  border-left: 3px solid var(--azul-600);
+  border-radius: var(--radio-sm);
+}
+
+.flujo__acciones {
+  display: flex;
+  gap: var(--e2);
+  margin-top: var(--e4);
+}
+
+.flujo__acciones .boton {
+  flex: 1;
+}
+
+/* ── Opciones como botones, no como desplegable ────────────────────── */
+
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+.opciones--columna {
+  flex-direction: column;
+}
+
+.opcion {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: var(--e2) var(--e3);
+  font-size: 0.9rem;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+}
+
+.opcion--activa {
+  color: #fff;
+  background: var(--azul-600);
+  border-color: var(--azul-600);
+  font-weight: 600;
+}
+
+.campo__ayuda {
+  margin: var(--e1) 0 0;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+/* ── Pendientes de visitas anteriores ──────────────────────────────── */
+/*
+ * Deliberadamente sobrio. Es contexto útil, no una lista de deberes: el
+ * cliente quiere que los GPVs detecten MÁS, y volver a una tienda y encontrar
+ * una alarma roja empuja a lo contrario.
+ */
+
+.pendientes__intro {
+  margin: 0 0 var(--e3);
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.pendientes__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e2);
+}
+
+.pendiente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e2);
+  padding: var(--e3);
+  background: var(--superficie-alt);
+  border-radius: var(--radio-sm);
+}
+
+.pendiente__datos {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+.pendiente__situacion {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.pendiente__categoria {
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.pendiente__referencia {
+  font-size: 0.875rem;
+  color: var(--texto);
+  overflow-wrap: anywhere;
+}
+
+.pendiente__antiguedad {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.pendiente__acciones {
+  display: flex;
+  gap: var(--e2);
+  flex-shrink: 0;
+}
+
+/* ── Responsable de tienda ─────────────────────────────────────────── */
+
+.responsable__resumen {
+  margin: 0 0 var(--e3);
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+.responsable__resumen--vacio {
+  color: var(--texto-suave);
+}
+
+.responsable__formulario {
+  display: grid;
+  gap: var(--e4);
+}
+
+/* ── Resumen de cierre ─────────────────────────────────────────────── */
+
+.dialogo--resumen {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.resumen {
+  display: grid;
+  gap: var(--e4);
+  margin: var(--e3) 0;
+}
+
+.resumen__categoria {
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--borde);
+}
+
+.resumen__categoria:last-of-type {
+  border-bottom: 0;
+}
+
+.resumen__nombre {
+  margin: 0 0 var(--e2);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.resumen__lineas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e1);
+  font-size: 0.9rem;
+}
+
+.resumen__escalado {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+
+.resumen__vacio {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.resumen__avisos {
+  margin: 0;
+  padding-left: var(--e4);
+  font-size: 0.85rem;
+}
+
+.pendientes__desplegar {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--e2);
+  padding: var(--e2);
+  font-size: 0.875rem;
+  color: var(--azul-600);
+  background: none;
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+}

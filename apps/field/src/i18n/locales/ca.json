@@ -46,7 +46,10 @@
     "sinConexionAyuda": "La teva feina es desa i s'enviarà en recuperar cobertura.",
     "volver": "Torna",
     "guardar": "Desa",
-    "guardando": "Desant…"
+    "guardando": "Desant…",
+    "si": "Sí",
+    "no": "No",
+    "editar": "Editar"
   },
   "app": {
     "nombre": "Sales Watcher"
@@ -67,7 +70,9 @@
     "checklist": "Checklist",
     "incidencias": "Incidències i oportunitats",
     "notas": "Notes",
-    "notasPlaceholder": "Observacions que no encaixen al checklist…"
+    "notasPlaceholder": "Observacions que no encaixen al checklist…",
+    "categorias": "Categories",
+    "volverCategorias": "Categories"
   },
   "checklist": {
     "vacio": "Aquesta botiga no té checklist configurat.",
@@ -143,5 +148,185 @@
     "primeraVisita": "Primera visita registrada a aquesta botiga.",
     "abiertas_one": "{{count}} incidència oberta",
     "abiertas_other": "{{count}} incidències obertes"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "bloque": {
+    "incidencias": "Incidències",
+    "oportunidades": "Oportunitats",
+    "extraespacios": "Extraespais"
+  },
+  "situacion": {
+    "stock": "Falta de producte",
+    "fechas": "Problema amb les dates",
+    "hueco": "Buit al lineal",
+    "top_pico": "Top Pico sense incorporar",
+    "facings": "Guanyar facings",
+    "visibilidad": "Millorar visibilitat",
+    "reorganizacion": "Reorganitzar el lineal",
+    "extraespacio": "Extraespai",
+    "nevera": "Nevera"
+  },
+  "flujo": {
+    "stock": {
+      "pregunta": "Hi ha prou producte per cobrir la jornada?",
+      "suficiencia": "Producte suficient",
+      "comunicado": "Ho has comunicat al responsable?"
+    },
+    "fechas": {
+      "pregunta": "Has detectat cap problema amb les dates?",
+      "problema": "Tipus de problema"
+    },
+    "hueco": {
+      "pregunta": "Hi ha un buit del nostre producte?",
+      "existe": "Hi ha buit",
+      "cubierto": "Està cobert amb una referència Danone adjacent?",
+      "corregido": "Has pogut corregir-ho?"
+    },
+    "topPico": {
+      "pregunta": "Quina referència Top Pico falta a l'assortiment?",
+      "referencia": "Referència"
+    },
+    "facings": {
+      "pregunta": "Hi ha oportunitat de guanyar facings?",
+      "conseguido": "Has aconseguit guanyar espai?",
+      "cuantos": "Quants facings has guanyat?"
+    },
+    "visibilidad": {
+      "pregunta": "Hi ha oportunitat de millorar la visibilitat?",
+      "ubicacion": "Ubicació actual",
+      "propuesta": "Què proposes"
+    },
+    "reorganizacion": {
+      "pregunta": "Què proposes canviar al lineal?",
+      "propuesta": "La teva proposta"
+    },
+    "extraespacio": {
+      "pregunta": "On i per què hi cabria un punt de càrrega addicional?",
+      "tipo": "Tipus d'extraespai",
+      "motivo": "Motiu"
+    },
+    "nevera": {
+      "pregunta": "Com està la nevera?",
+      "situacion": "Situació",
+      "codigo": "Codi de la nevera",
+      "codigoAyuda": "És dins de la nevera. Sense ell es pot retirar la unitat equivocada."
+    },
+    "marca": "Marca",
+    "detalle": "Detall",
+    "sinMarcas": "No hi ha marques disponibles",
+    "sinReferencias": "No hi ha referències disponibles",
+    "iraAlFsm": "Es generarà una acció per al teu responsable.",
+    "actuasTu": "Ho pots resoldre tu a la botiga.",
+    "hablasConEncargado": "Comenta-ho a l'encarregat de l'establiment.",
+    "faltaDetalle": "Indica quin és el problema",
+    "faltaReferencia": "Tria una referència",
+    "faltaPropuesta": "Escriu la teva proposta",
+    "faltaFacings": "Indica quants facings has guanyat",
+    "faltaCodigoNevera": "Cal el codi per no retirar una altra nevera",
+    "suficiencia": {
+      "si": "Sí",
+      "no": "No",
+      "reponedor_no_ha_pasado": "El reposador no ha passat"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrecte",
+      "proximo_caducar": "Proper a caducar",
+      "mal_colocado": "Producte mal col·locat",
+      "otro": "Altre"
+    },
+    "correccion": {
+      "si": "Sí, corregit",
+      "no_posible": "No ha estat possible"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Capçalera",
+      "isla": "Illa",
+      "pila": "Pila",
+      "otro": "Altre"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Alta rotació",
+      "promocion": "Promoció",
+      "potencial_venta": "Potencial de venda",
+      "falta_espacio_lineal": "Falta espai al lineal",
+      "oportunidad_estacional": "Oportunitat estacional",
+      "otro": "Altre"
+    },
+    "situacionNevera": {
+      "uso_correcto": "S'usa correctament",
+      "uso_parcial": "S'usa parcialment",
+      "uso_incorrecto": "S'usa incorrectament",
+      "retirada": "Ens l'han retirada",
+      "vacia_desaprovechada": "Buida o desaprofitada",
+      "necesita_nueva": "Se'n necessita una de nova",
+      "necesita_recogida": "Necessita recollida",
+      "otro": "Altre"
+    },
+    "ubicacion": {
+      "palomar": "Palomar (a dalt)",
+      "zona_intermedia": "Zona intermèdia",
+      "altura_ojos": "Alçada dels ulls",
+      "foso": "Fossat (a baix)",
+      "otra": "Altra"
+    },
+    "propuesta": {
+      "subir_producto": "Pujar el producte",
+      "bajar_producto": "Baixar el producte",
+      "ganar_espacio": "Guanyar espai",
+      "cambiar_ubicacion": "Canviar d'ubicació",
+      "reorganizar_lineal": "Reorganitzar el lineal",
+      "otra": "Altra"
+    },
+    "valoracion": {
+      "muy_buena": "Molt bona",
+      "buena": "Bona",
+      "correcta": "Correcta",
+      "mejorable": "Millorable",
+      "mala": "Dolenta",
+      "no_ha_podido_hablar": "No he pogut parlar-hi"
+    }
+  },
+  "pendientes": {
+    "titulo": "De la teva darrera visita",
+    "intro": "Comprova si s'ha resolt i continua amb la visita.",
+    "desdeHace": "fa {{dias}} dies",
+    "conTuResponsable": "amb el teu responsable",
+    "resuelto": "Resolt",
+    "sigueIgual": "Segueix igual",
+    "verTodas": "Veure'n {{n}} més",
+    "plegar": "Veure'n menys"
+  },
+  "responsable": {
+    "titulo": "Responsable de botiga",
+    "haHablado": "Has parlat amb el responsable?",
+    "valoracion": "Com valoraries la relació?",
+    "valoracionAyuda": "La relació en general, no com ha anat la conversa d'avui.",
+    "cuestion": "Hi ha alguna qüestió pendent?",
+    "comentario": "Quina",
+    "registrar": "Registrar",
+    "sinRegistrar": "Sense registrar",
+    "hablado": "Has parlat amb el responsable",
+    "noHablado": "No hi has pogut parlar",
+    "conCuestion": "amb una qüestió pendent",
+    "faltaValoracion": "Falta valorar la relació",
+    "faltaComentario": "Descriu la qüestió pendent"
+  },
+  "resumen": {
+    "titulo": "Resum de la visita",
+    "incidencias": "{{n}} incidència(es)",
+    "oportunidades": "{{n}} oportunitat(s)",
+    "facings": "+{{n}} facings",
+    "extraespacios": "{{n}} extraespai(s)",
+    "paraElFsm": "{{n}} per al teu responsable",
+    "nadaRegistrado": "No has registrat res en aquesta visita. La pots tancar igualment.",
+    "seguirEnLaVisita": "Continuar a la visita",
+    "aviso": {
+      "sinRelacionResponsable": "Sense registrar la relació amb el responsable",
+      "pendientesSinComprobar": "{{n}} acció(ns) de visites anteriors sense comprovar"
+    }
   }
 }

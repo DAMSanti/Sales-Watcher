@@ -1,5 +1,10 @@
 import { MAX_OPERACIONES_LOTE } from "@sw/shared";
 import { z } from "zod";
+import {
+  comprobarSchema,
+  registrarAccionSchema,
+  relacionResponsableSchema,
+} from "../../acciones/dto/acciones.dto";
 
 const puntoSchema = z.object({
   lat: z.number().min(-90).max(90),
@@ -91,6 +96,39 @@ export const operacionSchema = z.discriminatedUnion("tipo", [
     descripcion: z.string().max(4000).optional(),
     prioridad: z.enum(["baja", "media", "alta", "critica"]).optional(),
     idCliente,
+  }),
+  /**
+   * El ciclo de acciones por lote.
+   *
+   * El detalle va anidado bajo `datos` en lugar de aplanado porque los
+   * esquemas de acción y de relación llevan validación cruzada (`superRefine`)
+   * y no se pueden fundir con el resto de campos. Anidarlos conserva esa
+   * validación intacta: el lote comprueba exactamente lo mismo que el endpoint
+   * directo, que es la propiedad que hace fiable el modo offline.
+   */
+  z.object({
+    tipo: z.literal("accion.registrar"),
+    opId,
+    visita: refVisitaSchema,
+    datos: registrarAccionSchema,
+  }),
+  z.object({
+    tipo: z.literal("accion.comprobar"),
+    opId,
+    /**
+     * Puede ser un `idCliente` de una acción creada en ESTE mismo lote: el GPV
+     * detecta y comprueba sin cobertura de por medio. El servicio lo resuelve
+     * con la tabla de equivalencias.
+     */
+    accionId: z.string().min(1),
+    visita: refVisitaSchema.optional(),
+    datos: comprobarSchema,
+  }),
+  z.object({
+    tipo: z.literal("relacion.guardar"),
+    opId,
+    visita: refVisitaSchema,
+    datos: relacionResponsableSchema,
   }),
   z.object({
     tipo: z.literal("foto.reservar"),
