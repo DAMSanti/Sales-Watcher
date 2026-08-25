@@ -245,13 +245,16 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
 - [ ] Detalle de visita **organizado por categoría de producto**, con evidencias
 - [ ] **Ocultar la duración de visita** en el detalle y en los informes
-- [ ] Dashboard de resultados — las once preguntas de SPECS 6.4:
-  - [ ] Embudo: oportunidades detectadas → trabajadas → solucionadas
-  - [ ] **Facings ganados**, agregables por GPV, tienda, categoría, marca y mes
-  - [ ] Top Picos incorporados
-  - [ ] Incidencias de stock repetidas y tiendas con problemas recurrentes
-  - [ ] Acciones abiertas demasiado tiempo
-  - [ ] Detección y resultado **por GPV, presentados juntos** *(mostrar solo uno crea un incentivo torcido)*
+- [x] Dashboard de resultados — las once preguntas de SPECS 6.4:
+  - [x] Embudo detectadas → trabajadas → solucionadas, como barra apilada de una rampa secuencial *(es una progresión ordenada, no tres identidades)*
+  - [x] **Facings ganados**, con desglose conmutable por GPV, tienda, categoría, marca y mes
+  - [x] Top Picos incorporados y pendientes
+  - [x] Faltas de stock repetidas y tiendas con más incidencias
+  - [x] Acciones abiertas demasiado tiempo, sin filtro de periodo
+  - [x] Detección y resultado **por GPV en la misma tabla**, con la razón escrita en la propia pantalla
+  - [x] Cada bloque **declara su base temporal** y la pregunta 11 declara su lectura
+  - [x] Vista de tabla del embudo, como alivio del aviso de contraste del paso más claro
+  - [x] Traducido a los cinco idiomas
 - [ ] Histórico de la **relación con el responsable** por tienda
 - [ ] Reproducción de **vídeo** en el detalle
 - [ ] Gestión del catálogo de **marcas/segmentos** y de **referencias de producto**, con importación CSV

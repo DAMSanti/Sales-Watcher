@@ -12,7 +12,8 @@
     "aplicar": "Apply",
     "exportar": "Export CSV",
     "vacio": "Nothing to show with these filters.",
-    "todos": "All"
+    "todos": "All",
+    "sinDato": "No data"
   },
   "nav": {
     "supervision": "Supervision",
@@ -28,7 +29,8 @@
     "catalogos": "Catalogues",
     "checklists": "Checklists",
     "rutas": "Routes",
-    "acciones": "Actions"
+    "acciones": "Actions",
+    "resultados": "Results"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -282,5 +284,63 @@
     "comercial": "GPV",
     "supervisor": "FSM",
     "administrador": "Admin"
+  },
+  "resultados": {
+    "titulo": "Results",
+    "subtitulo": "What the visits achieved, not how many there were",
+    "embudo": "Of what was detected, what got resolved",
+    "baseCohorte": "Opportunities detected in the period and what became of them. Excludes earlier periods' resolutions.",
+    "detectadas": "Detected",
+    "solucionadas": "Resolved",
+    "enCurso": "Worked, unresolved",
+    "sinTocar": "Untouched",
+    "conversion": "Conversion",
+    "conversionPie": "% of detections that ended in a result",
+    "verTabla": "View as table",
+    "verGrafico": "View the chart",
+    "logros": "What was achieved",
+    "facings": "Facings gained",
+    "topPicos": "Top Picos added",
+    "topPicosPendientes": "Top Picos pending",
+    "baseIncorporacion": "By date added",
+    "facingsPor": "Facings by",
+    "facingsDetalle": "{{n}} facings across {{ops}} operations",
+    "sinFacings": "No facings gained in this period",
+    "dimension": {
+      "gpv": "GPV",
+      "tienda": "Store",
+      "categoria": "Category",
+      "marca": "Brand",
+      "mes": "Month"
+    },
+    "equipo": "By GPV",
+    "equipoNota": "Detection and result shown together on purpose: measuring only results discourages reporting what you cannot fix.",
+    "gpv": "GPV",
+    "oportunidades": "Opportunities",
+    "escaladas": "Escalated to FSM",
+    "resueltas": "Resolved",
+    "tasaPropia": "% of their own",
+    "seguimiento": "What has been open too long",
+    "seguimientoNota": "No period filter: what is open is still open today.",
+    "abiertas": "Open",
+    "estancadas": "Stalled",
+    "umbral": "More than {{n}} days",
+    "diasMedios": "Average days",
+    "masAntigua": "Oldest",
+    "patrones": "What keeps happening",
+    "patronesNota": "From {{n}} times in the period. Only works because detections are typed.",
+    "stockRepetido": "Recurring stock-outs",
+    "tiendasRecurrentes": "Stores with the most issues",
+    "sinPatrones": "Nothing repeats enough in this period",
+    "tienda": "Store",
+    "categoria": "Category",
+    "veces": "Times",
+    "incidencias": "Issues",
+    "sinResolver": "Unresolved",
+    "perdidas": "Where potential is lost",
+    "perdidasLectura": "Detected opportunities that produced no result: still open or dismissed.",
+    "facingsNoConseguidos": "Facings not gained",
+    "deDetectadas": "of {{n}} opportunities",
+    "sinResultado": "No result"
   }
 }

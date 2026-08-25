@@ -12,7 +12,8 @@
     "aplicar": "Aplicar",
     "exportar": "Exportar CSV",
     "vacio": "No hay nada que mostrar con estos filtros.",
-    "todos": "Todos"
+    "todos": "Todos",
+    "sinDato": "Sin dato"
   },
   "nav": {
     "supervision": "Supervisión",
@@ -28,7 +29,8 @@
     "catalogos": "Catálogos",
     "checklists": "Checklists",
     "rutas": "Rutas",
-    "acciones": "Acciones"
+    "acciones": "Acciones",
+    "resultados": "Resultados"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -282,5 +284,63 @@
     "comercial": "GPV",
     "supervisor": "FSM",
     "administrador": "Administración"
+  },
+  "resultados": {
+    "titulo": "Resultados",
+    "subtitulo": "Qué consiguieron las visitas, no cuántas hubo",
+    "embudo": "De lo detectado, qué se resolvió",
+    "baseCohorte": "Oportunidades detectadas en el periodo y qué fue de ellas. No cuenta lo resuelto de periodos anteriores.",
+    "detectadas": "Detectadas",
+    "solucionadas": "Solucionadas",
+    "enCurso": "Trabajadas, sin resolver",
+    "sinTocar": "Sin tocar",
+    "conversion": "Conversión",
+    "conversionPie": "% de lo detectado que acabó en resultado",
+    "verTabla": "Ver como tabla",
+    "verGrafico": "Ver el gráfico",
+    "logros": "Lo conseguido",
+    "facings": "Facings ganados",
+    "topPicos": "Top Picos incorporados",
+    "topPicosPendientes": "Top Picos pendientes",
+    "baseIncorporacion": "Por fecha de incorporación",
+    "facingsPor": "Facings por",
+    "facingsDetalle": "{{n}} facings en {{ops}} operaciones",
+    "sinFacings": "Ningún facing ganado en este periodo",
+    "dimension": {
+      "gpv": "GPV",
+      "tienda": "Tienda",
+      "categoria": "Categoría",
+      "marca": "Marca",
+      "mes": "Mes"
+    },
+    "equipo": "Por GPV",
+    "equipoNota": "Detección y resultado juntos a propósito: medir solo el resultado desincentiva registrar lo que uno no puede resolver.",
+    "gpv": "GPV",
+    "oportunidades": "Oportunidades",
+    "escaladas": "Escaladas al FSM",
+    "resueltas": "Resueltas",
+    "tasaPropia": "% de las suyas",
+    "seguimiento": "Lo que lleva tiempo abierto",
+    "seguimientoNota": "Sin filtro de periodo: lo abierto sigue abierto hoy, y acotarlo lo escondería.",
+    "abiertas": "Abiertas",
+    "estancadas": "Estancadas",
+    "umbral": "Más de {{n}} días",
+    "diasMedios": "Días de media",
+    "masAntigua": "La más antigua",
+    "patrones": "Lo que se repite",
+    "patronesNota": "A partir de {{n}} veces en el periodo. Solo funciona porque lo detectado está tipificado.",
+    "stockRepetido": "Faltas de producto que se repiten",
+    "tiendasRecurrentes": "Tiendas con más incidencias",
+    "sinPatrones": "Nada se repite lo suficiente en este periodo",
+    "tienda": "Tienda",
+    "categoria": "Categoría",
+    "veces": "Veces",
+    "incidencias": "Incidencias",
+    "sinResolver": "Sin resolver",
+    "perdidas": "Dónde se pierde potencial",
+    "perdidasLectura": "Oportunidades detectadas que no acabaron en resultado: siguen abiertas o se descartaron.",
+    "facingsNoConseguidos": "Facings no conseguidos",
+    "deDetectadas": "de {{n}} oportunidades",
+    "sinResultado": "Sin resultado"
   }
 }

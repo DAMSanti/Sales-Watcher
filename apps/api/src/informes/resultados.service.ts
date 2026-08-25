@@ -377,6 +377,16 @@ export class ResultadosService {
           where ${acciones.tipoSituacion} in ('stock','fechas','hueco')
         )::int`,
         resueltas: sql<number>`count(*) filter (where ${acciones.estado} = 'resuelta')::int`,
+        /**
+         * Resueltas DE LAS SUYAS.
+         *
+         * Sin restringir el numerador al responsable, una acción de Dairy que
+         * cerró el FSM contaba como resolución del GPV y la tasa se iba por
+         * encima del 100 % — que es como se detectó, mirando la tabla pintada.
+         */
+        resueltasPropias: sql<number>`count(*) filter (
+          where ${acciones.estado} = 'resuelta' and ${acciones.responsableActuar} = 'gpv'
+        )::int`,
         /** Lo que el propio GPV podía resolver, frente a lo que escaló. */
         propias: sql<number>`count(*) filter (where ${acciones.responsableActuar} = 'gpv')::int`,
         escaladas: sql<number>`count(*) filter (where ${acciones.responsableActuar} = 'fsm')::int`,
@@ -395,12 +405,13 @@ export class ResultadosService {
     return filas.map((f) => ({
       ...f,
       /**
-       * De lo que el GPV **sí podía resolver**, cuánto resolvió. Medir sobre el
-       * total le penalizaría por lo que escaló al FSM, que es exactamente lo
-       * que debe hacer cuando no puede actuar.
+       * De lo que el GPV **sí podía resolver**, cuánto resolvió. Numerador y
+       * denominador acotados los dos al mismo conjunto: medir sobre el total le
+       * penalizaría por lo que escaló al FSM —que es exactamente lo que debe
+       * hacer cuando no puede actuar— y mezclar ambos da tasas imposibles.
        */
       tasaResolucionPropia:
-        f.propias === 0 ? null : Math.round((f.resueltas / f.propias) * 100),
+        f.propias === 0 ? null : Math.round((f.resueltasPropias / f.propias) * 100),
     }));
   }
 

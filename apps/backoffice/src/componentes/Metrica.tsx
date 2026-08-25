@@ -11,15 +11,21 @@ export function Metrica({
   etiqueta,
   pie,
   tono,
+  sufijo,
 }: {
   valor: number;
   etiqueta: string;
   pie?: string | undefined;
   tono?: "ok" | "curso" | "aviso" | "alerta" | undefined;
+  /** Unidad pegada a la cifra: «48 %» y no un 48 que parece un recuento. */
+  sufijo?: string | undefined;
 }) {
   return (
     <div className={`metrica ${tono ? `metrica--${tono}` : ""}`}>
-      <div className="metrica__valor">{valor}</div>
+      <div className="metrica__valor">
+        {valor}
+        {sufijo && <span className="metrica__sufijo">{sufijo}</span>}
+      </div>
       <div className="metrica__etiqueta">{etiqueta}</div>
       {pie && <div className="metrica__pie">{pie}</div>}
     </div>

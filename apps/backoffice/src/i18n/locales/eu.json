@@ -12,7 +12,8 @@
     "aplicar": "Aplikatu",
     "exportar": "Esportatu CSV",
     "vacio": "Ez dago ezer erakusteko iragazki hauekin.",
-    "todos": "Denak"
+    "todos": "Denak",
+    "sinDato": "Daturik ez"
   },
   "nav": {
     "supervision": "Gainbegiratzea",
@@ -28,7 +29,8 @@
     "catalogos": "Katalogoak",
     "checklists": "Egiaztapen-zerrendak",
     "rutas": "Ibilbideak",
-    "acciones": "Ekintzak"
+    "acciones": "Ekintzak",
+    "resultados": "Emaitzak"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -282,5 +284,63 @@
     "comercial": "GPV",
     "supervisor": "FSM",
     "administrador": "Administrazioa"
+  },
+  "resultados": {
+    "titulo": "Emaitzak",
+    "subtitulo": "Bisitek zer lortu zuten, ez zenbat izan ziren",
+    "embudo": "Antzemandakotik, zer konpondu zen",
+    "baseCohorte": "Aldian antzemandako aukerak eta haien amaiera. Ez ditu aurreko aldietakoak zenbatzen.",
+    "detectadas": "Antzemandakoak",
+    "solucionadas": "Konponduta",
+    "enCurso": "Landuta, konpondu gabe",
+    "sinTocar": "Ukitu gabe",
+    "conversion": "Bihurtzea",
+    "conversionPie": "Antzemandakoaren % emaitza izan zena",
+    "verTabla": "Taula gisa ikusi",
+    "verGrafico": "Grafikoa ikusi",
+    "logros": "Lortutakoa",
+    "facings": "Irabazitako facing-ak",
+    "topPicos": "Top Pico sartuak",
+    "topPicosPendientes": "Top Pico zain",
+    "baseIncorporacion": "Sartze dataren arabera",
+    "facingsPor": "Facing-ak honen arabera",
+    "facingsDetalle": "{{n}} facing {{ops}} eragiketatan",
+    "sinFacings": "Ez da facing-ik irabazi aldi honetan",
+    "dimension": {
+      "gpv": "GPV",
+      "tienda": "Denda",
+      "categoria": "Kategoria",
+      "marca": "Marka",
+      "mes": "Hilabetea"
+    },
+    "equipo": "GPVaren arabera",
+    "equipoNota": "Antzematea eta emaitza batera, nahita: emaitza soilik neurtzeak norberak konpondu ezin duena erregistratzea galarazten du.",
+    "gpv": "GPV",
+    "oportunidades": "Aukerak",
+    "escaladas": "FSMra igoak",
+    "resueltas": "Konponduta",
+    "tasaPropia": "Bereen %",
+    "seguimiento": "Denbora luzez irekita dagoena",
+    "seguimientoNota": "Aldi iragazkirik gabe: irekita dagoena gaur ere irekita dago.",
+    "abiertas": "Irekiak",
+    "estancadas": "Geldituta",
+    "umbral": "{{n}} egun baino gehiago",
+    "diasMedios": "Batez besteko egunak",
+    "masAntigua": "Zaharrena",
+    "patrones": "Errepikatzen dena",
+    "patronesNota": "Aldian {{n}} aldiz gutxienez. Antzemandakoa tipifikatuta dagoelako soilik funtzionatzen du.",
+    "stockRepetido": "Errepikatzen diren produktu faltak",
+    "tiendasRecurrentes": "Gorabehera gehien dituzten dendak",
+    "sinPatrones": "Ezer ez da nahikoa errepikatzen aldi honetan",
+    "tienda": "Denda",
+    "categoria": "Kategoria",
+    "veces": "Aldiz",
+    "incidencias": "Gorabeherak",
+    "sinResolver": "Konpondu gabe",
+    "perdidas": "Non galtzen den potentziala",
+    "perdidasLectura": "Emaitzarik izan ez zuten aukerak: irekita jarraitzen dute edo baztertu ziren.",
+    "facingsNoConseguidos": "Lortu gabeko facing-ak",
+    "deDetectadas": "{{n}} aukeratatik",
+    "sinResultado": "Emaitzarik gabe"
   }
 }

@@ -12,7 +12,8 @@
     "aplicar": "Aplica",
     "exportar": "Exporta CSV",
     "vacio": "No hi ha res per mostrar amb aquests filtres.",
-    "todos": "Tots"
+    "todos": "Tots",
+    "sinDato": "Sense dada"
   },
   "nav": {
     "supervision": "Supervisió",
@@ -28,7 +29,8 @@
     "catalogos": "Catàlegs",
     "checklists": "Checklists",
     "rutas": "Rutes",
-    "acciones": "Accions"
+    "acciones": "Accions",
+    "resultados": "Resultats"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -282,5 +284,63 @@
     "comercial": "GPV",
     "supervisor": "FSM",
     "administrador": "Administració"
+  },
+  "resultados": {
+    "titulo": "Resultats",
+    "subtitulo": "Què van aconseguir les visites, no quantes n'hi va haver",
+    "embudo": "Del que s'ha detectat, què s'ha resolt",
+    "baseCohorte": "Oportunitats detectades al període i què se n'ha fet. No compta el resolt de períodes anteriors.",
+    "detectadas": "Detectades",
+    "solucionadas": "Solucionades",
+    "enCurso": "Treballades, sense resoldre",
+    "sinTocar": "Sense tocar",
+    "conversion": "Conversió",
+    "conversionPie": "% del detectat que va acabar en resultat",
+    "verTabla": "Veure com a taula",
+    "verGrafico": "Veure el gràfic",
+    "logros": "El que s'ha aconseguit",
+    "facings": "Facings guanyats",
+    "topPicos": "Top Picos incorporats",
+    "topPicosPendientes": "Top Picos pendents",
+    "baseIncorporacion": "Per data d'incorporació",
+    "facingsPor": "Facings per",
+    "facingsDetalle": "{{n}} facings en {{ops}} operacions",
+    "sinFacings": "Cap facing guanyat en aquest període",
+    "dimension": {
+      "gpv": "GPV",
+      "tienda": "Botiga",
+      "categoria": "Categoria",
+      "marca": "Marca",
+      "mes": "Mes"
+    },
+    "equipo": "Per GPV",
+    "equipoNota": "Detecció i resultat junts a propòsit: mesurar només el resultat desincentiva registrar el que un no pot resoldre.",
+    "gpv": "GPV",
+    "oportunidades": "Oportunitats",
+    "escaladas": "Escalades al FSM",
+    "resueltas": "Resoltes",
+    "tasaPropia": "% de les seves",
+    "seguimiento": "El que fa temps que és obert",
+    "seguimientoNota": "Sense filtre de període: el que és obert continua obert avui.",
+    "abiertas": "Obertes",
+    "estancadas": "Encallades",
+    "umbral": "Més de {{n}} dies",
+    "diasMedios": "Dies de mitjana",
+    "masAntigua": "La més antiga",
+    "patrones": "El que es repeteix",
+    "patronesNota": "A partir de {{n}} vegades al període. Només funciona perquè el detectat està tipificat.",
+    "stockRepetido": "Faltes de producte que es repeteixen",
+    "tiendasRecurrentes": "Botigues amb més incidències",
+    "sinPatrones": "Res es repeteix prou en aquest període",
+    "tienda": "Botiga",
+    "categoria": "Categoria",
+    "veces": "Vegades",
+    "incidencias": "Incidències",
+    "sinResolver": "Sense resoldre",
+    "perdidas": "On es perd potencial",
+    "perdidasLectura": "Oportunitats detectades que no van acabar en resultat: segueixen obertes o es van descartar.",
+    "facingsNoConseguidos": "Facings no aconseguits",
+    "deDetectadas": "de {{n}} oportunitats",
+    "sinResultado": "Sense resultat"
   }
 }

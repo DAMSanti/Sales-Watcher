@@ -92,3 +92,193 @@
   color: var(--texto-suave);
   font-style: italic;
 }
+
+/* ── Gráficos ──────────────────────────────────────────────────────── */
+/*
+ * Las marcas son lo único que puede ser llamativo. Rejilla y ejes, si los
+ * hubiera, van un paso por encima de la superficie y en pelo de 1 px.
+ */
+
+.grafico {
+  margin: var(--e3) 0 var(--e4);
+}
+
+/*
+ * Barra apilada: los segmentos se separan con 2 px de SUPERFICIE, no con un
+ * borde. Un trazo alrededor de la marca añadiría tinta que no es dato.
+ */
+.barra-apilada {
+  display: flex;
+  gap: 2px;
+  height: 24px; /* Tope de grosor: la marca nunca llena su hueco. */
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--superficie-alt);
+}
+
+.barra-apilada__segmento {
+  display: grid;
+  place-items: center;
+  min-width: 2px;
+  transition: filter 120ms ease;
+}
+
+.barra-apilada__segmento:hover {
+  filter: brightness(1.08);
+}
+
+/* El valor va en tinta blanca sobre la marca, no del color de la serie: el
+   texto nunca lleva el color del dato. */
+.barra-apilada__valor {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 0 4px;
+}
+
+/* ── Leyenda ───────────────────────────────────────────────────────── */
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e3);
+  margin: var(--e3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leyenda__entrada {
+  display: flex;
+  align-items: center;
+  gap: var(--e1);
+  font-size: 0.8rem;
+}
+
+.leyenda__marca {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.leyenda__texto {
+  color: var(--texto-suave);
+}
+
+.leyenda__valor {
+  font-weight: 700;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Barras horizontales ───────────────────────────────────────────── */
+
+.barras {
+  display: grid;
+  gap: var(--e2);
+  margin-top: var(--e3);
+}
+
+.barras__fila {
+  display: grid;
+  grid-template-columns: minmax(80px, 160px) 1fr auto;
+  align-items: center;
+  gap: var(--e3);
+}
+
+.barras__etiqueta {
+  font-size: 0.85rem;
+  color: var(--texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barras__pista {
+  height: 20px;
+  background: var(--superficie-alt);
+  border-radius: 4px;
+}
+
+/* Cuadrada en la base, redondeada en el extremo del dato. */
+.barras__marca {
+  height: 100%;
+  min-width: 3px;
+  border-radius: 0 4px 4px 0;
+  transition: filter 120ms ease;
+}
+
+.barras__marca:hover {
+  filter: brightness(1.08);
+}
+
+.barras__valor {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* ── Notas de las tarjetas ─────────────────────────────────────────── */
+/*
+ * Aquí van las bases temporales y las lecturas declaradas. No es letra
+ * pequeña decorativa: es lo que impide comparar dos cifras que no comparten
+ * base y concluir que no cuadran.
+ */
+.tarjeta__nota {
+  margin: 0 0 var(--e3);
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  line-height: 1.45;
+}
+
+.tarjeta__subtitulo {
+  margin: var(--e4) 0 var(--e2);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.campo--enlinea {
+  margin: 0;
+}
+
+.tabla__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La unidad, más pequeña que la cifra: acompaña sin competir con ella. */
+.metrica__sufijo {
+  font-size: 0.5em;
+  font-weight: 600;
+  margin-left: 2px;
+  color: var(--texto-suave);
+}
+
+/*
+ * Cabecera de tarjeta: título a la izquierda, control a la derecha.
+ * Sin esto el botón caía debajo del título y parecía parte del contenido.
+ */
+.tarjeta__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  flex-wrap: wrap;
+  margin-bottom: var(--e2);
+}
+
+.tarjeta__cabecera .tarjeta__titulo,
+.tarjeta__cabecera .tarjeta__subtitulo {
+  margin: 0;
+}
+
+/* El selector de dimensión no debe ocupar todo el ancho: es un control
+   pequeño junto a un encabezado, no un filtro de página. */
+.campo--enlinea .campo__control {
+  min-width: 160px;
+  width: auto;
+}

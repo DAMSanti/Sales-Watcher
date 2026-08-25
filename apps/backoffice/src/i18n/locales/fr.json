@@ -12,7 +12,8 @@
     "aplicar": "Appliquer",
     "exportar": "Exporter CSV",
     "vacio": "Rien à afficher avec ces filtres.",
-    "todos": "Tous"
+    "todos": "Tous",
+    "sinDato": "Sans donnée"
   },
   "nav": {
     "supervision": "Supervision",
@@ -28,7 +29,8 @@
     "catalogos": "Catalogues",
     "checklists": "Checklists",
     "rutas": "Tournées",
-    "acciones": "Actions"
+    "acciones": "Actions",
+    "resultados": "Résultats"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -282,5 +284,63 @@
     "comercial": "GPV",
     "supervisor": "FSM",
     "administrador": "Administration"
+  },
+  "resultados": {
+    "titulo": "Résultats",
+    "subtitulo": "Ce que les visites ont obtenu, pas combien il y en a eu",
+    "embudo": "Sur ce qui a été détecté, ce qui a été résolu",
+    "baseCohorte": "Opportunités détectées sur la période et leur devenir. N'inclut pas le résolu des périodes antérieures.",
+    "detectadas": "Détectées",
+    "solucionadas": "Résolues",
+    "enCurso": "Traitées, non résolues",
+    "sinTocar": "Non traitées",
+    "conversion": "Conversion",
+    "conversionPie": "% du détecté ayant abouti",
+    "verTabla": "Voir en tableau",
+    "verGrafico": "Voir le graphique",
+    "logros": "Ce qui a été obtenu",
+    "facings": "Facings gagnés",
+    "topPicos": "Top Picos référencés",
+    "topPicosPendientes": "Top Picos en attente",
+    "baseIncorporacion": "Par date de référencement",
+    "facingsPor": "Facings par",
+    "facingsDetalle": "{{n}} facings en {{ops}} opérations",
+    "sinFacings": "Aucun facing gagné sur la période",
+    "dimension": {
+      "gpv": "GPV",
+      "tienda": "Magasin",
+      "categoria": "Catégorie",
+      "marca": "Marque",
+      "mes": "Mois"
+    },
+    "equipo": "Par GPV",
+    "equipoNota": "Détection et résultat ensemble à dessein : ne mesurer que le résultat dissuade de signaler ce qu'on ne peut pas résoudre.",
+    "gpv": "GPV",
+    "oportunidades": "Opportunités",
+    "escaladas": "Remontées au FSM",
+    "resueltas": "Résolues",
+    "tasaPropia": "% des siennes",
+    "seguimiento": "Ce qui traîne",
+    "seguimientoNota": "Sans filtre de période : ce qui est ouvert l'est encore aujourd'hui.",
+    "abiertas": "Ouvertes",
+    "estancadas": "Enlisées",
+    "umbral": "Plus de {{n}} jours",
+    "diasMedios": "Jours en moyenne",
+    "masAntigua": "La plus ancienne",
+    "patrones": "Ce qui se répète",
+    "patronesNota": "À partir de {{n}} fois sur la période. Ne fonctionne que parce que le détecté est typé.",
+    "stockRepetido": "Ruptures récurrentes",
+    "tiendasRecurrentes": "Magasins avec le plus d'incidents",
+    "sinPatrones": "Rien ne se répète assez sur la période",
+    "tienda": "Magasin",
+    "categoria": "Catégorie",
+    "veces": "Fois",
+    "incidencias": "Incidents",
+    "sinResolver": "Non résolus",
+    "perdidas": "Où le potentiel se perd",
+    "perdidasLectura": "Opportunités détectées sans résultat : encore ouvertes ou écartées.",
+    "facingsNoConseguidos": "Facings non obtenus",
+    "deDetectadas": "sur {{n}} opportunités",
+    "sinResultado": "Sans résultat"
   }
 }

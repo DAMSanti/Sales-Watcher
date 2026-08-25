@@ -239,6 +239,17 @@ try {
     equipo.every((g) => g.oportunidades + g.incidencias <= g.detectadas),
   );
 
+  /**
+   * Una tasa por encima del 100 % delata que numerador y denominador miden
+   * conjuntos distintos. Pasó: `resueltas` contaba también las que cerró el
+   * FSM, y salían GPVs al 127 %.
+   */
+  ok(
+    "ninguna tasa propia supera el 100 %",
+    equipo.every((g) => g.tasaResolucionPropia === null || g.tasaResolucionPropia <= 100),
+    equipo.map((g) => g.tasaResolucionPropia).filter((x) => x !== null).join("% · ") + "%",
+  );
+
   const sumaDetectadas = equipo.reduce((s, g) => s + g.detectadas, 0);
   const [totalAcciones] = await sql`
     select count(*)::int as n from acciones a

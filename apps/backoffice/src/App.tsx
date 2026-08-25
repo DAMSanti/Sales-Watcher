@@ -8,6 +8,7 @@ import { useSesion } from "./auth/sesion";
 import { Marco } from "./componentes/Marco";
 import { Dashboard } from "./paneles/Dashboard";
 import { Acciones } from "./paneles/Acciones";
+import { Resultados } from "./paneles/Resultados";
 import {
   InformeCobertura,
   InformeEjecucion,
@@ -60,6 +61,7 @@ export function App() {
         <Route element={<Marco pendientes={pendientes} />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/acciones" element={<Acciones />} />
+          <Route path="/resultados" element={<Resultados />} />
           <Route path="/justificaciones" element={<Justificaciones />} />
           <Route path="/informes/cobertura" element={<InformeCobertura />} />
           <Route path="/informes/no-realizacion" element={<InformeNoRealizacion />} />

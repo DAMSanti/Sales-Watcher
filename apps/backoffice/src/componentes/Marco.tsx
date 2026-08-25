@@ -57,6 +57,9 @@ export function Marco({ pendientes }: { pendientes: number }) {
           </NavLink>
 
           <div className="lateral__grupo">{t("nav.informes")}</div>
+          <NavLink to="/resultados" className={clase}>
+            {t("nav.resultados")}
+          </NavLink>
           <NavLink to="/informes/cobertura" className={clase}>
             {t("nav.cobertura")}
           </NavLink>
