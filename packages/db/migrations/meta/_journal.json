@@ -29,6 +29,13 @@
       "when": 1787601429513,
       "tag": "0003_curved_mother_askani",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787680042718,
+      "tag": "0004_neat_genesis",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,7 @@ import {
   marcasTiempo,
   prioridadEnum,
   punto,
+  tipoEvidenciaEnum,
 } from "./comunes";
 import { resultadosChecklist } from "./checklist";
 import { usuarios } from "./usuarios";
@@ -79,6 +80,19 @@ export const fotos = pgTable(
       .notNull()
       .references(() => visitas.id),
     ambito: ambitoFotoEnum("ambito").notNull(),
+
+    /**
+     * Foto o vídeo. El boceto añade el vídeo como evidencia (SPECS §8).
+     *
+     * La tabla conserva el nombre `fotos` porque renombrarla a `evidencias`
+     * implica un refactor transversal de un módulo que ya funciona: API, cola
+     * offline, purga y app de campo. Se hará cuando se implemente el flujo de
+     * vídeo y ese código se toque igualmente.
+     *
+     * Ojo al leer código antiguo: un ítem de checklist que "requiere foto" debe
+     * comprobar `tipo = 'foto'`, o un vídeo lo daría por satisfecho.
+     */
+    tipo: tipoEvidenciaEnum("tipo").notNull().default("foto"),
     resultadoChecklistId: uuid("resultado_checklist_id").references(
       () => resultadosChecklist.id,
     ),
@@ -91,6 +105,8 @@ export const fotos = pgTable(
     tamanoBytes: integer("tamano_bytes").notNull(),
     anchoPx: integer("ancho_px"),
     altoPx: integer("alto_px"),
+    /** Solo en vídeo. Se valida contra el máximo de 60 s antes de encolar. */
+    duracionS: integer("duracion_s"),
 
     /** Momento de la captura en el dispositivo, no de la subida. */
     capturadaEn: timestamp("capturada_en", {

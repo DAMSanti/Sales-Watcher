@@ -5,5 +5,6 @@ export * from "./tiendas";
 export * from "./visitas";
 export * from "./checklist";
 export * from "./incidencias";
+export * from "./acciones";
 export * from "./auditoria";
 export * from "./sincronizacion";

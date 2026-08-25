@@ -1,5 +1,14 @@
-import { boolean, integer, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+import {
+  categoriaProductoEnum,
   idPk,
   marcasTiempo,
   prioridadEnum,
@@ -81,6 +90,69 @@ export const categorias = pgTable(
  * ventana de justificación diaria, justificar seis visitas a las 19:50 empuja
  * aún más al primer elemento (ANEXO §4, advertencia de diseño).
  */
+/**
+ * Marcas y segmentos de Danone (Activia, Font Vella, Alpro…).
+ *
+ * ATENCIÓN: `nombre` es `text`, NO `textoI18n`. Las marcas son nombres propios
+ * y no se traducen — «Activia» es Activia en los cinco idiomas. Es la única
+ * entrada de contenido configurable del sistema sin traducción, y es
+ * deliberado, no un olvido (ANEXO §4).
+ *
+ * El catálogo definitivo aún no existe; se arranca con placeholders.
+ */
+export const marcas = pgTable(
+  "marcas",
+  {
+    id: idPk(),
+    nombre: text("nombre").notNull(),
+    codigo: text("codigo").notNull(),
+    categoriaProducto: categoriaProductoEnum("categoria_producto").notNull(),
+    orden: integer("orden").notNull().default(0),
+    activo: boolean("activo").notNull().default(true),
+    ...marcasTiempo,
+  },
+  (t) => ({
+    codigoUnico: uniqueIndex("marcas_codigo_unico").on(t.codigo),
+    porCategoria: index("marcas_categoria_idx").on(t.categoriaProducto),
+  }),
+);
+
+/**
+ * Referencias de producto, de las que el GPV elige al registrar un Top Pico
+ * ausente.
+ *
+ * NO es la base de datos de Top Picos. Qué referencias son Top Pico en qué
+ * tienda vive en otra aplicación del cliente y no se replica aquí. Este
+ * catálogo solo da **nombres estables** a las referencias.
+ *
+ * Y ese es justamente su motivo de existir: con texto libre, «Activia Natural
+ * 4x125» y «activia natural 4x125» serían dos referencias distintas, y
+ * comprobar en la visita siguiente si *la misma* se incorporó dejaría de
+ * funcionar — que es la funcionalidad que el boceto considera más importante
+ * (ANEXO, decisión que cierra P25).
+ *
+ * Tampoco lleva `textoI18n`, por la misma razón que las marcas.
+ */
+export const referenciasProducto = pgTable(
+  "referencias_producto",
+  {
+    id: idPk(),
+    nombre: text("nombre").notNull(),
+    codigo: text("codigo").notNull(),
+    marcaId: uuid("marca_id").references(() => marcas.id),
+    categoriaProducto: categoriaProductoEnum("categoria_producto").notNull(),
+    orden: integer("orden").notNull().default(0),
+    activo: boolean("activo").notNull().default(true),
+    ...marcasTiempo,
+  },
+  (t) => ({
+    codigoUnico: uniqueIndex("referencias_producto_codigo_unico").on(t.codigo),
+    porCategoria: index("referencias_producto_categoria_idx").on(t.categoriaProducto),
+    /** El GPV busca por nombre al elegir la referencia que falta. */
+    porNombre: index("referencias_producto_nombre_idx").on(t.nombre),
+  }),
+);
+
 export const motivosNoRealizacion = pgTable("motivos_no_realizacion", {
   id: idPk(),
   texto: textoI18n("texto").notNull(),

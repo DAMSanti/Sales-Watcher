@@ -13,10 +13,13 @@ import {
   tiposTienda,
   usuarios,
   zonas,
+  marcas,
+  referenciasProducto,
 } from "../schema/index";
 import { CATEGORIAS, MOTIVOS_NO_REALIZACION, TIPOS_TIENDA } from "./catalogos";
 import { PLANTILLAS_CHECKLIST } from "./checklists";
 import { PASSWORD_DEMO, TIENDAS, USUARIOS, ZONAS } from "./demo";
+import { MARCAS, REFERENCIAS } from "./productos";
 
 cargarEnv();
 
@@ -225,6 +228,48 @@ async function principal() {
   }
   console.log(`  Usuarios ....................... ${idsUsuario.size}`);
 
+  // ── Marcas y referencias de producto ───────────────────────────────────
+  //
+  // Ni las marcas ni las referencias llevan `textoI18n`: son nombres propios y
+  // no se traducen. «Activia» es Activia en los cinco idiomas (ANEXO §4).
+  const idsMarca = new Map<string, string>();
+  for (const marca of MARCAS) {
+    const [fila] = await db
+      .insert(marcas)
+      .values({
+        nombre: marca.nombre,
+        codigo: marca.codigo,
+        categoriaProducto: marca.categoria,
+        orden: marca.orden,
+      })
+      .onConflictDoUpdate({
+        target: marcas.codigo,
+        set: { nombre: marca.nombre, categoriaProducto: marca.categoria },
+      })
+      .returning({ id: marcas.id });
+    if (fila) idsMarca.set(marca.codigo, fila.id);
+  }
+  console.log(`  Marcas ......................... ${idsMarca.size}`);
+
+  let nReferencias = 0;
+  for (const ref of REFERENCIAS) {
+    await db
+      .insert(referenciasProducto)
+      .values({
+        nombre: ref.nombre,
+        codigo: ref.codigo,
+        marcaId: idsMarca.get(ref.marcaCodigo) ?? null,
+        categoriaProducto: ref.categoria,
+        orden: ref.orden,
+      })
+      .onConflictDoUpdate({
+        target: referenciasProducto.codigo,
+        set: { nombre: ref.nombre, marcaId: idsMarca.get(ref.marcaCodigo) ?? null },
+      });
+    nReferencias++;
+  }
+  console.log(`  Referencias de producto ........ ${nReferencias}`);
+
   // ── Tiendas ────────────────────────────────────────────────────────────
   const idsTienda = new Map<string, string>();
   for (const tienda of TIENDAS) {
@@ -245,6 +290,7 @@ async function principal() {
       codigoPostal: tienda.codigoPostal,
       zonaId: zonaId ?? null,
       tipoTiendaId: tipoId ?? null,
+      canal: tienda.canal,
       ubicacion: {
         lat: tienda.lat,
         lon: tienda.lon,
@@ -273,14 +319,19 @@ async function principal() {
 
   // ── Rutas del día ──────────────────────────────────────────────────────
   // Sin ruta para hoy, la vista del día aparecería vacía y no habría nada que
-  // probar en la PWA. La fecha se calcula en la zona de cada comercial, no en
-  // la del servidor: para el comercial canario el "hoy" puede ser distinto.
+  // probar en la PWA. La fecha se calcula en la zona de cada GPV y no en la del
+  // servidor: hoy ambas zonas comparten huso, pero el mecanismo es el mismo.
+  //
+  // El reparto sigue los dos canales, como describe el cliente: cada GPV lleva
+  // tiendas de un solo canal, salvo los de costa y poniente, que cubren
+  // territorio.
   const asignaciones: Array<{ trabajador: string; referencias: string[] }> = [
-    { trabajador: "30001", referencias: ["CAT-0101", "CAT-0102", "CAT-0103", "CAT-0104"] },
-    { trabajador: "30002", referencias: ["PV-0201", "PV-0202", "PV-0203", "PV-0204"] },
-    { trabajador: "30003", referencias: ["MAD-0301", "MAD-0302", "MAD-0303"] },
-    { trabajador: "30004", referencias: ["LEV-0401", "LEV-0402", "LEV-0403"] },
-    { trabajador: "30005", referencias: ["CAN-0501", "CAN-0502"] },
+    { trabajador: "30001", referencias: ["350100101", "350100102"] },
+    { trabajador: "30002", referencias: ["350100103", "350100104"] },
+    { trabajador: "30003", referencias: ["350100105", "350100106"] },
+    { trabajador: "30004", referencias: ["350200201", "350200202"] },
+    { trabajador: "30005", referencias: ["350200203", "350200205"] },
+    { trabajador: "30006", referencias: ["350200204", "350200206"] },
   ];
 
   let nRutas = 0;
@@ -312,12 +363,13 @@ async function principal() {
 
     Acceso de desarrollo
       Administrador   10000
-      Supervisores    20001 (ca), 20002 (eu)
-      Comerciales     30001 (ca), 30002 (eu), 30003 (es), 30004 (es), 30005 (fr)
+      FSM             20001 (Granada), 20002 (Almería)
+      GPV             30001-30003 (Granada), 30004-30006 (Almería)
       Contraseña      ${PASSWORD_DEMO}
 
-    Los catálogos son placeholder y las traducciones al euskera necesitan
-    revisión nativa antes del rollout (ANEXO §4).
+    Zonas reales de esta versión: Granada y Almería. Los códigos de tienda
+    siguen el formato del cliente (350…). Marcas y referencias de producto
+    son placeholder hasta que llegue el catálogo real (ANEXO §4).
   `);
 
   await conexion.end();

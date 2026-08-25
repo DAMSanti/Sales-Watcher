@@ -29,7 +29,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 - [x] Confirmar variante de inglés → **`en-GB`**
 - [x] Definir si la justificación caduca → **ventana diaria: se justifica antes de terminar la jornada**
 - [x] Traducción inicial de los catálogos placeholder a los cinco idiomas *(ANEXO sección 4)*
-- [ ] Revisión de las traducciones al euskera por hablante nativo
+- [ ] Revisión de las traducciones al euskera por hablante nativo *(deja de ser urgente: la versión inicial cubre solo Granada y Almería)*
 - [ ] Definir circuito de traducción del contenido creado tras el rollout
 - [ ] Confirmar si hay comerciales en Canarias (huso único o no)
 - [ ] Informar a la plantilla y su representación legal sobre la geolocalización (art. 90 LOPDGDD)
@@ -87,23 +87,32 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 Modelo del ciclo detección → acción → resultado
 
-- [ ] Entidad **`Accion`** con ciclo de vida propio, colgada de la **tienda** y no de la visita
-- [ ] Entidad **`ComprobacionAccion`** como registro de eventos *(cada comprobación se añade; ninguna sobreescribe, o se pierde el «cuánto tardó»)*
-- [ ] Campos **`cerrada_por`** y **`cerrada_por_rol`** en `Accion` *(los dos actores pueden cerrar; sin traza no se sabe quién fue)*
-- [ ] **`estancada`** derivado de la antigüedad, con umbral configurable — **no un estado más**
-- [ ] Detalles tipificados por flujo, **una tabla por flujo**: stock, fechas, huecos, Top Picos, facings, visibilidad, reorganización, extraespacios, neveras
-- [ ] Entidad **`RelacionResponsable`**, una por visita
-- [ ] Catálogo **`MarcaSegmento`** — **sin `textoI18n`**: las marcas son nombres propios y no se traducen
-- [ ] Catálogo **`ReferenciaProducto`** para los Top Picos, con importación CSV
-- [ ] Campo **`canal`** en `Tienda` (Modern / Proximity) — **solo dato, sin bifurcar flujos**
-- [ ] Categorías de producto Dairy / Waters / PBB como enum del dominio
-- [ ] **Motor de reglas del responsable de actuar**, en servidor y en un solo sitio *(no es una elección del usuario: es regla de negocio)*
-- [ ] Extender `Foto` a **`Evidencia`** con tipo foto/vídeo y duración
+- [x] Entidad **`Accion`** con ciclo de vida propio, colgada de la **tienda** y no de la visita
+- [x] Entidad **`ComprobacionAccion`** como registro de eventos *(cada comprobación se añade; ninguna sobreescribe)*
+- [x] Campos **`cerrada_por`** y **`cerrada_por_rol`** en `Accion`
+- [x] **`estancada`** derivado de la antigüedad — **sin columna**, se calcula desde `detectada_en`
+- [x] Detalles tipificados, **una tabla por flujo**: stock, fechas, huecos, Top Picos, facings, visibilidad, reorganización, extraespacios, neveras
+- [x] Entidad **`RelacionResponsable`**, una por visita *(índice único sobre `visita_id`)*
+- [x] Catálogo **`marcas`** — **sin `textoI18n`**: son nombres propios
+- [x] Catálogo **`referencias_producto`** para los Top Picos
+- [x] Campo **`canal`** en `Tienda` (Modern / Proximity) — solo dato, sin bifurcar flujos
+- [x] Categorías de producto Dairy / Waters / PBB como enum del dominio
+- [x] **Motor de reglas del responsable de actuar** en `@sw/shared`, con las reglas derivadas marcadas como tales *(33 tests)*
+- [x] Campos `tipo` y `duracion_s` en evidencias, con enum foto/vídeo
+- [x] Migración `0004` aplicada: 14 tablas y 16 enumeraciones nuevas
+- [x] Datos semilla: **Granada y Almería**, 12 tiendas con códigos `350…` y canal, 11 marcas, 15 referencias
+- [x] `db:verify` amplía sus invariantes al ciclo de acciones
+- [x] `db:acciones` ejercita los nueve flujos contra la base de datos real
+- [ ] Importación CSV de referencias de producto *(el catálogo se siembra; falta la carga masiva)*
+- [ ] Renombrar la tabla `fotos` a `evidencias` *(100 usos en 24 ficheros: se hará al implementar vídeo, cuando ese código se toque igualmente)*
 - [ ] Subir el límite de tamaño a **25 MB** para vídeo y revisar la caducidad de la URL de subida
-- [ ] **Proceso de transcodificación a 720p** (ffmpeg) — la pieza de infraestructura nueva más costosa de esta tanda
-- [ ] Migraciones y datos semilla de los catálogos nuevos, incluidas las listas de opciones de los flujos
-- [ ] Traducir a los cinco idiomas las listas de opciones de los flujos *(ANEXO §4)*
-- [ ] Sustituir las zonas placeholder por **Granada y Almería**, y los datos de prueba por códigos `350…`
+- [ ] **Proceso de transcodificación a 720p** (ffmpeg) — la pieza de infraestructura nueva más costosa
+- [ ] Traducir a los cinco idiomas las etiquetas de las opciones de los flujos *(son enums en base de datos; sus etiquetas van en los ficheros de idioma del cliente, no en el seed)*
+
+### 🆕 Hallazgos del modelado
+
+- [ ] **El FSM del cliente gestiona Granada y Almería, pero el modelo solo admite una zona por usuario.** `usuarios.zona_id` es único y la API acota el alcance del supervisor con él (`incidencias.service.ts`). El seed siembra dos FSM, uno por zona, porque es lo único expresable hoy. Hace falta decidir entre fusionar ambas provincias en una zona o dar alcance multi-zona al supervisor
+- [ ] **Al reducirse la operación a dos provincias andaluzas, el euskera y el catalán se quedan sin hablantes en esta versión.** La infraestructura de cinco idiomas sigue siendo correcta y la operación puede crecer, pero **la revisión nativa del euskera deja de ser urgente** para el arranque *(reordena una tarea de fase 0)*
 
 ## Fase 2 — API backend
 

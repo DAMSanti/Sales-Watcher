@@ -85,6 +85,163 @@ export const ambitoFotoEnum = pgEnum("ambito_foto", [
   "incidencia",
 ]);
 
+// ── El ciclo detección → acción → resultado (SPECS §5.5, §5.8) ─────────
+
+/**
+ * Las tres categorías de producto del boceto, más `transversal` para lo que no
+ * cuelga de ninguna: la relación con el responsable de tienda.
+ */
+export const categoriaProductoEnum = pgEnum("categoria_producto", [
+  "dairy",
+  "waters",
+  "pbb",
+  "transversal",
+]);
+
+/**
+ * Canal comercial de la tienda.
+ *
+ * Se guarda para segmentar informes y dejar preparado el futuro, pero **ningún
+ * flujo se bifurca por canal**: la función es la misma en ambos
+ * (ANEXO, decisión que cierra P27).
+ */
+export const canalEnum = pgEnum("canal", ["modern", "proximity"]);
+
+/**
+ * Situaciones tipificadas que puede detectar el GPV.
+ *
+ * `nevera` se distingue de `extraespacio` aunque el boceto la considere un tipo
+ * de extraespacio, porque **cambia el responsable**: una nevera siempre escala
+ * al FSM y el resto los negocia el GPV.
+ */
+export const tipoSituacionEnum = pgEnum("tipo_situacion", [
+  "stock",
+  "fechas",
+  "hueco",
+  "top_pico",
+  "facings",
+  "visibilidad",
+  "reorganizacion",
+  "extraespacio",
+  "nevera",
+  "relacion_responsable",
+]);
+
+/** Quién debe actuar. Lo calcula el servidor, nunca lo elige el usuario. */
+export const responsableActuarEnum = pgEnum("responsable_actuar", ["gpv", "fsm"]);
+
+/**
+ * Estado de una acción.
+ *
+ * No incluye "estancada" a propósito: eso se deriva de la antigüedad, no es un
+ * estado. Como estado permitiría que algo estuviera estancado y resuelto a la
+ * vez (SPECS §7.1).
+ */
+export const estadoAccionEnum = pgEnum("estado_accion", [
+  "abierta",
+  "en_curso",
+  "resuelta",
+  "descartada",
+]);
+
+/** Desenlace de una comprobación en una visita posterior. */
+export const desenlaceComprobacionEnum = pgEnum("desenlace_comprobacion", [
+  "sigue_pendiente",
+  "resuelta",
+  "no_procede",
+]);
+
+// ── Opciones de los flujos (SPECS §5.5) ────────────────────────────────
+
+/** La tercera opción solo se ofrece en Dairy: es la única con reponedor propio. */
+export const suficienciaStockEnum = pgEnum("suficiencia_stock", [
+  "si",
+  "no",
+  "reponedor_no_ha_pasado",
+]);
+
+export const problemaFechasEnum = pgEnum("problema_fechas", [
+  "fifo_incorrecto",
+  "proximo_caducar",
+  "mal_colocado",
+  "otro",
+]);
+
+/** Resultado de la actuación del propio GPV sobre un hueco (Waters/PBB). */
+export const correccionHuecoEnum = pgEnum("correccion_hueco", ["si", "no_posible"]);
+
+export const tipoExtraespacioEnum = pgEnum("tipo_extraespacio", [
+  "cabecera",
+  "isla",
+  "pila",
+  "nevera",
+  "otro",
+]);
+
+export const motivoExtraespacioEnum = pgEnum("motivo_extraespacio", [
+  "alta_rotacion",
+  "promocion",
+  "potencial_venta",
+  "falta_espacio_lineal",
+  "oportunidad_estacional",
+  "otro",
+]);
+
+export const situacionNeveraEnum = pgEnum("situacion_nevera", [
+  "uso_correcto",
+  "uso_parcial",
+  "uso_incorrecto",
+  "retirada",
+  "vacia_desaprovechada",
+  "necesita_nueva",
+  "necesita_recogida",
+  "otro",
+]);
+
+/** El «palomar» y el «foso» son las posiciones desfavorables del lineal. */
+export const ubicacionLinealEnum = pgEnum("ubicacion_lineal", [
+  "palomar",
+  "zona_intermedia",
+  "altura_ojos",
+  "foso",
+  "otra",
+]);
+
+export const propuestaVisibilidadEnum = pgEnum("propuesta_visibilidad", [
+  "subir_producto",
+  "bajar_producto",
+  "ganar_espacio",
+  "cambiar_ubicacion",
+  "reorganizar_lineal",
+  "otra",
+]);
+
+/**
+ * Valoración de la relación con el responsable de tienda.
+ *
+ * Representa la relación **general**, no cómo fue la conversación de ese día
+ * (SPECS §5.6). El enunciado de la interfaz debe dejarlo claro.
+ */
+export const valoracionRelacionEnum = pgEnum("valoracion_relacion", [
+  "muy_buena",
+  "buena",
+  "correcta",
+  "mejorable",
+  "mala",
+  "no_ha_podido_hablar",
+]);
+
+/**
+ * Tipo de evidencia adjunta.
+ *
+ * La tabla sigue llamándose `fotos` porque renombrarla a `evidencias` implica
+ * un refactor transversal de un módulo que funciona (API, cola offline, purga,
+ * app de campo). Se hará cuando se implemente el flujo de vídeo y ese código se
+ * toque de todos modos; hasta entonces, este enum es el que manda sobre el
+ * nombre de la tabla.
+ */
+export const tipoEvidenciaEnum = pgEnum("tipo_evidencia", ["foto", "video"]);
+
 // ── Geolocalización ────────────────────────────────────────────────────
 
 /**

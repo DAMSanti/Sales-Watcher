@@ -8,7 +8,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { tiposTienda, zonas } from "./catalogos";
-import { idPk, marcasTiempo, origenTiendaEnum, punto } from "./comunes";
+import { canalEnum, idPk, marcasTiempo, origenTiendaEnum, punto } from "./comunes";
 
 /**
  * Catálogo de tiendas.
@@ -40,6 +40,19 @@ export const tiendas = pgTable(
 
     zonaId: uuid("zona_id").references(() => zonas.id),
     tipoTiendaId: uuid("tipo_tienda_id").references(() => tiposTienda.id),
+
+    /**
+     * Canal comercial: Modern (gran superficie) o Proximity (proximidad).
+     *
+     * Se guarda para segmentar informes y dejar preparado el futuro, pero
+     * **ningún flujo se bifurca por canal**: la función del GPV es la misma en
+     * ambos. Si algún día hiciera falta diferenciarlos, se resolvería por
+     * configuración de flujos y no con un `if` en la app
+     * (ANEXO, decisión que cierra P27).
+     *
+     * Nullable porque el catálogo actual se cargó sin este dato.
+     */
+    canal: canalEnum("canal"),
 
     // ── Preparación para el ERP (sin uso funcional en v1) ──────────────
     /** Clave en el sistema de origen. Es la que usará el ERP para casar fichas. */

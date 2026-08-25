@@ -23,77 +23,42 @@ type SemillaZona = {
 };
 
 /**
- * Zonas comerciales.
+ * Zonas comerciales reales de esta versión inicial.
  *
- * Incluyen País Vasco y Cataluña a propósito: son las que justifican el
- * euskera y el catalán, y las que hacen que el calendario de festivos
- * regionales sea un problema real y no teórico (ANEXO §3).
+ * El cliente confirma que la puesta en marcha cubre **solo Granada y Almería**
+ * (ANEXO, decisión que cierra P29). Ambas peninsulares, así que el cierre de
+ * jornada es de huso único y la complicación de zonas horarias no llega a
+ * darse — el mecanismo por zona sigue construido y no estorba.
+ *
+ * ⚠️ Ojo con una consecuencia que conviene tener presente: al reducirse la
+ * operación a dos provincias andaluzas, **el euskera y el catalán se quedan sin
+ * hablantes en esta versión**. La infraestructura de cinco idiomas sigue siendo
+ * correcta y la operación puede crecer, pero la revisión nativa del euskera
+ * deja de ser urgente para el arranque.
  */
 export const ZONAS: SemillaZona[] = [
   {
-    codigo: "cat",
-    region: "Cataluña",
+    codigo: "gra",
+    region: "Andalucía",
     zonaHoraria: "Europe/Madrid",
     nombre: {
-      es: "Cataluña",
-      eu: "Katalunia",
-      ca: "Catalunya",
-      fr: "Catalogne",
-      en: "Catalonia",
+      es: "Granada",
+      eu: "Granada",
+      ca: "Granada",
+      fr: "Grenade",
+      en: "Granada",
     },
   },
   {
-    codigo: "pv",
-    region: "País Vasco",
+    codigo: "alm",
+    region: "Andalucía",
     zonaHoraria: "Europe/Madrid",
     nombre: {
-      es: "País Vasco",
-      eu: "Euskadi",
-      ca: "País Basc",
-      fr: "Pays basque",
-      en: "Basque Country",
-    },
-  },
-  {
-    codigo: "mad",
-    region: "Madrid",
-    zonaHoraria: "Europe/Madrid",
-    nombre: {
-      es: "Madrid",
-      eu: "Madril",
-      ca: "Madrid",
-      fr: "Madrid",
-      en: "Madrid",
-    },
-  },
-  {
-    codigo: "lev",
-    region: "Levante",
-    zonaHoraria: "Europe/Madrid",
-    nombre: {
-      es: "Levante",
-      eu: "Levante",
-      ca: "Llevant",
-      fr: "Levant",
-      en: "Levante",
-    },
-  },
-  {
-    /**
-     * Canarias está aquí para que el segundo huso horario exista en desarrollo.
-     * Si no hay comerciales reales en Canarias (P17, sin confirmar), sobra;
-     * pero teniéndola, el proceso de cierre de jornada se prueba de verdad en
-     * lugar de asumir huso único y descubrir el fallo en producción.
-     */
-    codigo: "can",
-    region: "Canarias",
-    zonaHoraria: "Atlantic/Canary",
-    nombre: {
-      es: "Canarias",
-      eu: "Kanariak",
-      ca: "Canàries",
-      fr: "Canaries",
-      en: "Canary Islands",
+      es: "Almería",
+      eu: "Almeria",
+      ca: "Almeria",
+      fr: "Almería",
+      en: "Almeria",
     },
   },
 ];
@@ -123,60 +88,80 @@ export const USUARIOS: SemillaUsuario[] = [
     idiomaPreferido: "es",
     email: "admin@example.invalid",
   },
+
+  // ── FSM (supervisores) ───────────────────────────────────────────────
+  //
+  // ⚠️ El cliente describe UN FSM que gestiona Granada y Almería. El modelo
+  // actual solo admite una zona por usuario (`usuarios.zona_id`), así que aquí
+  // se siembran dos supervisores, uno por zona. Es lo único expresable hoy.
+  // Ver la tarea de fase 2 sobre alcance multi-zona del FSM.
   {
     numeroTrabajador: "20001",
-    nombre: "Supervisora Cataluña",
+    nombre: "FSM Granada",
     rol: "supervisor",
-    zonaCodigo: "cat",
-    idiomaPreferido: "ca",
+    zonaCodigo: "gra",
+    idiomaPreferido: "es",
   },
   {
     numeroTrabajador: "20002",
-    nombre: "Supervisor País Vasco",
+    nombre: "FSM Almería",
     rol: "supervisor",
-    zonaCodigo: "pv",
-    idiomaPreferido: "eu",
+    zonaCodigo: "alm",
+    idiomaPreferido: "es",
   },
+
+  // ── GPVs, repartidos entre los dos canales ───────────────────────────
+  //
+  // Los idiomas preferidos se mantienen variados a propósito. No es que haya
+  // GPVs catalanohablantes en Granada: es que el idioma es una preferencia de
+  // interfaz por usuario, independiente de la zona (decisión que cierra P13), y
+  // el juego de datos tiene que seguir ejercitando los cinco idiomas.
   {
     numeroTrabajador: "30001",
-    nombre: "Comercial Barcelona Nord",
+    nombre: "GPV Granada Modern",
     rol: "comercial",
-    zonaCodigo: "cat",
-    idiomaPreferido: "ca",
+    zonaCodigo: "gra",
+    idiomaPreferido: "es",
   },
   {
     numeroTrabajador: "30002",
-    nombre: "Comercial Bilbao",
+    nombre: "GPV Granada Proximity",
     rol: "comercial",
-    zonaCodigo: "pv",
-    idiomaPreferido: "eu",
+    zonaCodigo: "gra",
+    idiomaPreferido: "ca",
   },
   {
     numeroTrabajador: "30003",
-    nombre: "Comercial Madrid Centro",
+    nombre: "GPV Granada Costa",
     rol: "comercial",
-    zonaCodigo: "mad",
+    zonaCodigo: "gra",
     idiomaPreferido: "es",
   },
   {
     numeroTrabajador: "30004",
-    nombre: "Comercial Valencia",
+    nombre: "GPV Almería Modern",
     rol: "comercial",
-    zonaCodigo: "lev",
-    idiomaPreferido: "es",
+    zonaCodigo: "alm",
+    idiomaPreferido: "en",
   },
   {
-    // Idioma minoritario en la operación, pero presente: fuerza a que la
-    // interfaz en francés se pruebe con un usuario real y no solo en QA.
     numeroTrabajador: "30005",
-    nombre: "Comercial Las Palmas",
+    nombre: "GPV Almería Proximity",
     rol: "comercial",
-    zonaCodigo: "can",
+    zonaCodigo: "alm",
     idiomaPreferido: "fr",
+  },
+  {
+    numeroTrabajador: "30006",
+    nombre: "GPV Almería Poniente",
+    rol: "comercial",
+    zonaCodigo: "alm",
+    idiomaPreferido: "eu",
   },
 ];
 
 type SemillaTienda = {
+  /** Código Danone del punto de venta. Empieza por 350 y es lo que teclea el GPV. */
   numeroReferencia: string;
   nombre: string;
   direccion: string;
@@ -184,41 +169,35 @@ type SemillaTienda = {
   codigoPostal: string;
   zonaCodigo: string;
   tipoTiendaCodigo: string;
+  /** Modern (gran superficie) o Proximity (proximidad). Solo dato: no bifurca flujos. */
+  canal: "modern" | "proximity";
   lat: number;
   lon: number;
 };
 
 /**
- * Tiendas placeholder con coordenadas reales aproximadas de cada localidad.
+ * Tiendas de Granada y Almería con coordenadas reales aproximadas.
  *
- * Las coordenadas importan aunque las tiendas sean ficticias: sin ellas no se
- * puede probar la comparación entre el check-in del comercial y la ubicación
- * registrada, que es la señal de alerta al supervisor (SPECS §11).
+ * Los códigos siguen el formato del cliente: **empiezan por `350…`**, que es lo
+ * que el GPV teclea para iniciar la visita (SPECS §5.3). Los nombres son
+ * ficticios; las coordenadas no, porque sin ellas no se puede probar la
+ * comparación entre el check-in del GPV y la ubicación registrada, que es la
+ * señal de alerta al FSM.
  */
 export const TIENDAS: SemillaTienda[] = [
-  // Cataluña
-  { numeroReferencia: "CAT-0101", nombre: "Hiper Diagonal", direccion: "Av. Diagonal 555", localidad: "Barcelona", codigoPostal: "08029", zonaCodigo: "cat", tipoTiendaCodigo: "hipermercado", lat: 41.3915, lon: 2.1385 },
-  { numeroReferencia: "CAT-0102", nombre: "Super Gràcia", direccion: "Carrer Gran de Gràcia 120", localidad: "Barcelona", codigoPostal: "08012", zonaCodigo: "cat", tipoTiendaCodigo: "supermercado", lat: 41.4045, lon: 2.1540 },
-  { numeroReferencia: "CAT-0103", nombre: "Proximitat Sants", direccion: "Carrer de Sants 200", localidad: "Barcelona", codigoPostal: "08028", zonaCodigo: "cat", tipoTiendaCodigo: "proximidad", lat: 41.3752, lon: 2.1320 },
-  { numeroReferencia: "CAT-0104", nombre: "Botiga Sabadell Centre", direccion: "Rambla 45", localidad: "Sabadell", codigoPostal: "08201", zonaCodigo: "cat", tipoTiendaCodigo: "tradicional", lat: 41.5463, lon: 2.1086 },
+  // ── Granada ──────────────────────────────────────────────────────────
+  { numeroReferencia: "350100101", nombre: "Hiper Granada Nevada", direccion: "Av. de Europa 12", localidad: "Armilla", codigoPostal: "18100", zonaCodigo: "gra", tipoTiendaCodigo: "hipermercado", canal: "modern", lat: 37.1440, lon: -3.6270 },
+  { numeroReferencia: "350100102", nombre: "Super Camino de Ronda", direccion: "Camino de Ronda 110", localidad: "Granada", codigoPostal: "18003", zonaCodigo: "gra", tipoTiendaCodigo: "supermercado", canal: "modern", lat: 37.1760, lon: -3.6050 },
+  { numeroReferencia: "350100103", nombre: "Proximidad Realejo", direccion: "Calle Molinos 25", localidad: "Granada", codigoPostal: "18009", zonaCodigo: "gra", tipoTiendaCodigo: "proximidad", canal: "proximity", lat: 37.1710, lon: -3.5920 },
+  { numeroReferencia: "350100104", nombre: "Autoservicio Albaicín", direccion: "Calle Elvira 88", localidad: "Granada", codigoPostal: "18010", zonaCodigo: "gra", tipoTiendaCodigo: "autoservicio", canal: "proximity", lat: 37.1795, lon: -3.5975 },
+  { numeroReferencia: "350100105", nombre: "Super Motril Costa", direccion: "Av. Salobreña 30", localidad: "Motril", codigoPostal: "18600", zonaCodigo: "gra", tipoTiendaCodigo: "supermercado", canal: "modern", lat: 36.7500, lon: -3.5200 },
+  { numeroReferencia: "350100106", nombre: "Tienda Baza Centro", direccion: "Calle Mayor 4", localidad: "Baza", codigoPostal: "18800", zonaCodigo: "gra", tipoTiendaCodigo: "tradicional", canal: "proximity", lat: 37.4900, lon: -2.7700 },
 
-  // País Vasco
-  { numeroReferencia: "PV-0201", nombre: "Hiper Bilbao Abando", direccion: "Gran Vía 40", localidad: "Bilbao", codigoPostal: "48009", zonaCodigo: "pv", tipoTiendaCodigo: "hipermercado", lat: 43.2620, lon: -2.9350 },
-  { numeroReferencia: "PV-0202", nombre: "Super Deusto", direccion: "Avenida Lehendakari Aguirre 15", localidad: "Bilbao", codigoPostal: "48014", zonaCodigo: "pv", tipoTiendaCodigo: "supermercado", lat: 43.2710, lon: -2.9480 },
-  { numeroReferencia: "PV-0203", nombre: "Denda Donostia Gros", direccion: "Zabaleta kalea 30", localidad: "Donostia", codigoPostal: "20002", zonaCodigo: "pv", tipoTiendaCodigo: "proximidad", lat: 43.3220, lon: -1.9760 },
-  { numeroReferencia: "PV-0204", nombre: "Autoservicio Vitoria Sur", direccion: "Calle Portal de Castilla 22", localidad: "Vitoria-Gasteiz", codigoPostal: "01007", zonaCodigo: "pv", tipoTiendaCodigo: "autoservicio", lat: 42.8420, lon: -2.6840 },
-
-  // Madrid
-  { numeroReferencia: "MAD-0301", nombre: "Hiper Chamartín", direccion: "Calle Mauricio Legendre 8", localidad: "Madrid", codigoPostal: "28046", zonaCodigo: "mad", tipoTiendaCodigo: "hipermercado", lat: 40.4700, lon: -3.6870 },
-  { numeroReferencia: "MAD-0302", nombre: "Super Malasaña", direccion: "Calle Fuencarral 90", localidad: "Madrid", codigoPostal: "28004", zonaCodigo: "mad", tipoTiendaCodigo: "supermercado", lat: 40.4270, lon: -3.7020 },
-  { numeroReferencia: "MAD-0303", nombre: "Proximidad Chueca", direccion: "Calle Hortaleza 55", localidad: "Madrid", codigoPostal: "28004", zonaCodigo: "mad", tipoTiendaCodigo: "proximidad", lat: 40.4235, lon: -3.6990 },
-
-  // Levante
-  { numeroReferencia: "LEV-0401", nombre: "Hiper València Nord", direccion: "Avinguda de les Corts Valencianes 50", localidad: "València", codigoPostal: "46015", zonaCodigo: "lev", tipoTiendaCodigo: "hipermercado", lat: 39.4880, lon: -0.3960 },
-  { numeroReferencia: "LEV-0402", nombre: "Super Ruzafa", direccion: "Carrer de Cuba 30", localidad: "València", codigoPostal: "46006", zonaCodigo: "lev", tipoTiendaCodigo: "supermercado", lat: 39.4610, lon: -0.3760 },
-  { numeroReferencia: "LEV-0403", nombre: "Tienda Alicante Centro", direccion: "Calle Mayor 12", localidad: "Alicante", codigoPostal: "03002", zonaCodigo: "lev", tipoTiendaCodigo: "tradicional", lat: 38.3450, lon: -0.4810 },
-
-  // Canarias
-  { numeroReferencia: "CAN-0501", nombre: "Hiper Las Palmas Puerto", direccion: "Calle Albareda 40", localidad: "Las Palmas de Gran Canaria", codigoPostal: "35008", zonaCodigo: "can", tipoTiendaCodigo: "hipermercado", lat: 28.1360, lon: -15.4300 },
-  { numeroReferencia: "CAN-0502", nombre: "Super Triana", direccion: "Calle Triana 80", localidad: "Las Palmas de Gran Canaria", codigoPostal: "35002", zonaCodigo: "can", tipoTiendaCodigo: "supermercado", lat: 28.1010, lon: -15.4160 },
+  // ── Almería ──────────────────────────────────────────────────────────
+  { numeroReferencia: "350200201", nombre: "Hiper Almería Mediterráneo", direccion: "Av. del Mediterráneo 200", localidad: "Almería", codigoPostal: "04007", zonaCodigo: "alm", tipoTiendaCodigo: "hipermercado", canal: "modern", lat: 36.8390, lon: -2.4530 },
+  { numeroReferencia: "350200202", nombre: "Super Zapillo", direccion: "Calle Poeta Paco Aquino 15", localidad: "Almería", codigoPostal: "04007", zonaCodigo: "alm", tipoTiendaCodigo: "supermercado", canal: "modern", lat: 36.8340, lon: -2.4470 },
+  { numeroReferencia: "350200203", nombre: "Proximidad Cabo de Gata", direccion: "Carretera de Cabo de Gata 40", localidad: "Almería", codigoPostal: "04007", zonaCodigo: "alm", tipoTiendaCodigo: "proximidad", canal: "proximity", lat: 36.8180, lon: -2.4300 },
+  { numeroReferencia: "350200204", nombre: "Super El Ejido", direccion: "Av. Oasis 60", localidad: "El Ejido", codigoPostal: "04700", zonaCodigo: "alm", tipoTiendaCodigo: "supermercado", canal: "modern", lat: 36.7760, lon: -2.8150 },
+  { numeroReferencia: "350200205", nombre: "Tienda Roquetas Centro", direccion: "Calle Juan Bonachera 8", localidad: "Roquetas de Mar", codigoPostal: "04740", zonaCodigo: "alm", tipoTiendaCodigo: "tradicional", canal: "proximity", lat: 36.7640, lon: -2.6150 },
+  { numeroReferencia: "350200206", nombre: "Autoservicio Adra", direccion: "Calle Natalio Rivas 22", localidad: "Adra", codigoPostal: "04770", zonaCodigo: "alm", tipoTiendaCodigo: "autoservicio", canal: "proximity", lat: 36.7480, lon: -3.0200 },
 ];
