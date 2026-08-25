@@ -29,14 +29,27 @@ const ok = (etiqueta, condicion, detalle = "") => {
   if (!condicion) fallos++;
 };
 
-async function entrar(numero) {
+/**
+ * El login lleva throttle por IP a propósito, así que encadenar varios scripts
+ * seguidos puede toparse con un 429. Es la protección funcionando, no un fallo:
+ * se espera y se reintenta en vez de bajarle el listón a la API.
+ */
+async function entrar(numero, intento = 0) {
   const r = await fetch(`${BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ numeroTrabajador: numero, password: PASSWORD }),
   });
+
+  if (r.status === 429 && intento < 3) {
+    const espera = (intento + 1) * 20_000;
+    console.log(`  (throttle de login; esperando ${espera / 1000}s)`);
+    await new Promise((listo) => setTimeout(listo, espera));
+    return entrar(numero, intento + 1);
+  }
+
   const cuerpo = await r.json();
-  if (!cuerpo.token) throw new Error(`login de ${numero} falló: ${JSON.stringify(cuerpo)}`);
+  if (!cuerpo.token) throw new Error(`login de ${numero}: ${JSON.stringify(cuerpo)}`);
   return cuerpo.token;
 }
 
@@ -346,7 +359,7 @@ try {
   // ── Panel del FSM ────────────────────────────────────────────────────
   console.log("\nPanel del FSM");
 
-  const bandeja = await pedir(fsm, "/acciones?limite=100");
+  const bandeja = await pedir(fsm, "/acciones?limite=200");
   ok("bandeja del FSM", bandeja.estado === 200 && bandeja.datos.length > 0, `${bandeja.datos?.length} acciones`);
   ok(
     "lo más antiguo primero",
@@ -355,7 +368,9 @@ try {
     ),
   );
 
-  const conNevera = bandeja.datos.find((a) => a.tipoSituacion === "nevera");
+  // Por su código, no por tipo: la bandeja trae también las neveras de
+  // `db:pruebas`, y buscar por tipo devolvería cualquiera de ellas.
+  const conNevera = bandeja.datos.find((a) => a.codigoNevera === "NV-0442-GRA");
   ok(
     "el código de nevera llega al panel",
     conNevera?.codigoNevera === "NV-0442-GRA",

@@ -183,13 +183,17 @@ try {
   // ── Estancada: se deriva de la antigüedad, no hay columna ────────────
   const antigua = accionesCreadas["hueco/dairy"];
   await sql`update acciones set detectada_en = now() - interval '20 days' where id = ${antigua}`;
+  // Acotado a las acciones de esta prueba: la base tiene además las que genera
+  // `db:pruebas`, y contar globalmente haría depender el resultado de ellas.
   const estancadas = await sql`
     select id from acciones
-    where estado = 'abierta' and detectada_en < now() - (${14} || ' days')::interval`;
+    where visita_origen_id = ${visita.id}
+      and estado = 'abierta'
+      and detectada_en < now() - (${14} || ' days')::interval`;
   ok(
     "estancada se deriva por antigüedad",
-    estancadas.some((e) => e.id === antigua) && estancadas.length === 1,
-    `${estancadas.length} estancada(s) de ${Object.keys(ESPERADO).length}`,
+    estancadas.length === 1 && estancadas[0].id === antigua,
+    `${estancadas.length} estancada(s) de las ${Object.keys(ESPERADO).length} creadas`,
   );
 
   const columnaEstancada = await sql`
@@ -198,12 +202,16 @@ try {
   ok("no existe columna estancada", columnaEstancada.length === 0);
 
   // ── La acción pertenece a la tienda, no a la visita ──────────────────
+  // La consulta que hace la app de campo es por tienda; aquí se comprueba que
+  // las creadas aparecen en ella, sin exigir que sean las únicas.
   const abiertasDeTienda = await sql`
-    select count(*)::int n from acciones where tienda_id = ${tienda.id} and estado = 'abierta'`;
+    select count(*)::int n from acciones
+    where tienda_id = ${tienda.id} and estado = 'abierta'
+      and visita_origen_id = ${visita.id}`;
   ok(
     "las acciones abiertas se consultan por tienda",
     abiertasDeTienda[0].n === Object.keys(ESPERADO).length - 1,
-    `${abiertasDeTienda[0].n} abiertas`,
+    `${abiertasDeTienda[0].n} de las creadas siguen abiertas`,
   );
 
   // ── Idempotencia offline ─────────────────────────────────────────────

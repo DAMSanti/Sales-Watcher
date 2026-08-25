@@ -152,8 +152,12 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Al iniciar una visita fuera de ruta, **incorporarla a la ruta del día conservando `planificada = false`**
 - [ ] Cierre de visita **sin mínimos obligatorios** *(revisar que `incompleta` deja de marcarse)*
 - [ ] **Aviso al FSM cuando un GPV cierra una acción que le estaba asignada** *(el dato ya se registra; falta destacarlo)*
-- [ ] Agregados de resultado: facings por GPV/tienda/categoría/marca/mes, Top Picos incorporados, embudo detectado → trabajado → solucionado
-- [ ] Agregados de patrón: incidencias de stock repetidas, tiendas con problemas recurrentes, acciones abiertas demasiado tiempo
+- [x] Agregados de resultado: facings por GPV/tienda/categoría/marca/mes, Top Picos incorporados, embudo detectado → trabajado → solucionado
+- [x] Agregados de patrón: incidencias de stock repetidas, tiendas con problemas recurrentes, acciones abiertas demasiado tiempo
+- [x] Las once preguntas del dashboard *(`GET /resultados` y siete endpoints de detalle)*
+- [x] Detección y resultado por GPV **en la misma fila**, para no crear un incentivo torcido
+- [x] `db:pruebas` genera acciones, comprobaciones y relación con el responsable, con gradiente de antigüedad
+- [x] `api:resultados` contrasta cada agregado con SQL independiente *(40 comprobaciones)*
 - [ ] Subida, confirmación y **normalización de vídeo** a 720p MP4
 - [ ] **Retirar la duración de visita** de respuestas, informes y exportaciones *(no basta con ocultarla en la interfaz: el dato se registra, pero no sale de la base de datos)*
 - [ ] Incluir los flujos nuevos en el endpoint de sincronización por lotes

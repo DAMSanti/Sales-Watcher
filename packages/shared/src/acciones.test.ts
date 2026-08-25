@@ -4,6 +4,7 @@ import {
   TIPOS_SITUACION,
   diasAbierta,
   estaEstancada,
+  grupoSituacion,
   opcionesSuficienciaStock,
   preguntaHueco,
   resolverResponsable,
@@ -106,6 +107,41 @@ describe("resolverResponsable — reglas derivadas", () => {
         expect(["gpv", "fsm"]).toContain(regla.responsable);
         expect(regla.motivo.length).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe("clasificación en tres grupos", () => {
+  /**
+   * La lista sale del boceto, no de nuestro criterio. El §7 divide cada
+   * categoría en incidencias, oportunidades y extraespacios, y el resumen de
+   * visita muestra extraespacios en su propio bloque.
+   */
+  it("las incidencias son los problemas que requieren actuación", () => {
+    for (const tipo of ["stock", "fechas", "hueco"] as const) {
+      expect(grupoSituacion(tipo)).toBe("incidencia");
+    }
+  });
+
+  it("las oportunidades incluyen Top Picos, que el boceto lista como tal", () => {
+    for (const tipo of ["top_pico", "facings", "visibilidad", "reorganizacion"] as const) {
+      expect(grupoSituacion(tipo)).toBe("oportunidad");
+    }
+  });
+
+  /**
+   * Extraespacios es un grupo propio, no un subconjunto de oportunidades.
+   * Colapsarlos haría que «nos han retirado la nevera» contase como
+   * oportunidad detectada y ensuciaría el embudo del dashboard.
+   */
+  it("los extraespacios son grupo propio, neveras incluidas", () => {
+    expect(grupoSituacion("extraespacio")).toBe("extraespacio");
+    expect(grupoSituacion("nevera")).toBe("extraespacio");
+  });
+
+  it("todo tipo tiene grupo", () => {
+    for (const tipo of TIPOS_SITUACION) {
+      expect(["incidencia", "oportunidad", "extraespacio"]).toContain(grupoSituacion(tipo));
     }
   });
 });

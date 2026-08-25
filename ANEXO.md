@@ -791,6 +791,19 @@ fuera.
 
 ---
 
+### Dos bases temporales en el dashboard
+
+Los agregados de resultado no comparten base de tiempo, y conviene saberlo antes de comparar dos cifras y concluir que no cuadran.
+
+- **El embudo y los facings son una cohorte por fecha de detección.** Se toma lo detectado en el periodo y se mira qué fue de ello: «de lo que vimos en agosto, cuánto convertimos». Contar «solucionadas en el periodo» por separado permitiría que solucionadas superase a detectadas —cerrando cosas viejas— y el embudo dejaría de leerse como embudo.
+- **Los Top Picos incorporados van por fecha de incorporación.** Es un logro con fecha propia: uno detectado en marzo e incorporado en abril es un resultado de abril, y meterlo en la cohorte de marzo lo escondería.
+
+Cada respuesta declara su base en el propio JSON (`base: "cohorte por fecha de detección"`), para que quien lea el dato no tenga que deducirla.
+
+**«Trabajada» tiene una definición concreta:** una acción sobre la que alguien se ha pronunciado — tiene al menos una comprobación, o alguien la movió de estado desde el panel. Es un juicio de valor, no un dato del boceto, y por eso queda escrito.
+
+**La pregunta 11 es la más abierta del cliente** («¿dónde estamos perdiendo oportunidades de venta?»), así que la respuesta declara su lectura: oportunidades detectadas que no acabaron en resultado —siguen abiertas o se descartaron—, agrupadas por tienda y categoría. Si el cliente quería otra cosa, al menos se ve cuál se eligió.
+
 ### Puertos de desarrollo
 
 Todos los servicios locales viven en un bloque contiguo **3900–3907**, no en los

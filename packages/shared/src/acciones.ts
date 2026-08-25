@@ -196,6 +196,41 @@ export function resolverResponsable(
       };
 }
 
+// ── Clasificación de las situaciones ───────────────────────────────────
+
+/**
+ * Los tres grupos en los que el boceto divide cada categoría (§7):
+ * incidencias, oportunidades y extraespacios.
+ *
+ * Son **tres**, no dos. Es fácil colapsar extraespacios dentro de
+ * oportunidades —el §13 los menciona en esa lista— pero el menú de cada
+ * categoría los separa, y el resumen de visita del boceto los muestra en su
+ * propio bloque. Colapsarlos haría que «nos han retirado la nevera» contase
+ * como oportunidad detectada, y ensuciaría el embudo del dashboard.
+ */
+export type GrupoSituacion = "incidencia" | "oportunidad" | "extraespacio";
+
+const GRUPOS: Record<TipoSituacion, GrupoSituacion> = {
+  // Problemas que requieren actuación.
+  stock: "incidencia",
+  fechas: "incidencia",
+  hueco: "incidencia",
+  // Potencial de mejorar venta, espacio, surtido o ejecución.
+  top_pico: "oportunidad",
+  facings: "oportunidad",
+  visibilidad: "oportunidad",
+  reorganizacion: "oportunidad",
+  // Espacios adicionales, con la nevera como caso propio.
+  extraespacio: "extraespacio",
+  nevera: "extraespacio",
+  // Transversal: ni se abre ni se cierra, se acumula como histórico.
+  relacion_responsable: "oportunidad",
+};
+
+export function grupoSituacion(tipo: TipoSituacion): GrupoSituacion {
+  return GRUPOS[tipo] ?? "incidencia";
+}
+
 // ── Disponibilidad de flujos y opciones por categoría ──────────────────
 
 /**

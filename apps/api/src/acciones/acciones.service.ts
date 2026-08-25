@@ -31,6 +31,7 @@ import {
   UMBRAL_ESTANCADA_DIAS,
   diasAbierta,
   estaEstancada,
+  grupoSituacion,
   resolverResponsable,
   type CategoriaProducto,
   type TipoSituacion,
@@ -652,6 +653,12 @@ export class AccionesService {
       );
     const pendientesPrevias = previas[0]?.pendientesPrevias ?? 0;
 
+    /**
+     * El boceto divide cada categoría en tres bloques —incidencias,
+     * oportunidades y extraespacios— y muestra los extraespacios en su propio
+     * apartado del resumen, fuera de las categorías. La clasificación vive en
+     * `@sw/shared` para que el dashboard cuente lo mismo que el resumen.
+     */
     const porCategoria: Record<string, {
       incidencias: number;
       oportunidades: number;
@@ -660,11 +667,19 @@ export class AccionesService {
       situaciones: Record<string, number>;
     }> = {};
 
-    // Qué cuenta como incidencia y qué como oportunidad. El boceto separa
-    // ambas en el menú de cada categoría, y el resumen debe reflejarlo.
-    const OPORTUNIDADES = new Set(["facings", "visibilidad", "reorganizacion", "extraespacio"]);
+    let extraespaciosTotal = 0;
+    const extraespaciosPorTipo: Record<string, number> = {};
 
     for (const fila of registradas) {
+      const grupo = grupoSituacion(fila.tipoSituacion);
+
+      if (grupo === "extraespacio") {
+        extraespaciosTotal += fila.total;
+        extraespaciosPorTipo[fila.tipoSituacion] =
+          (extraespaciosPorTipo[fila.tipoSituacion] ?? 0) + fila.total;
+        continue;
+      }
+
       const clave = fila.categoriaProducto;
       porCategoria[clave] ??= {
         incidencias: 0,
@@ -673,21 +688,22 @@ export class AccionesService {
         facingsGanados: 0,
         situaciones: {},
       };
-      const grupo = porCategoria[clave]!;
+      const acumulado = porCategoria[clave]!;
 
-      if (OPORTUNIDADES.has(fila.tipoSituacion)) grupo.oportunidades += fila.total;
-      else grupo.incidencias += fila.total;
+      if (grupo === "oportunidad") acumulado.oportunidades += fila.total;
+      else acumulado.incidencias += fila.total;
 
-      if (fila.responsableActuar === "fsm") grupo.paraElFsm += fila.total;
-      grupo.facingsGanados += fila.facings;
-      grupo.situaciones[fila.tipoSituacion] =
-        (grupo.situaciones[fila.tipoSituacion] ?? 0) + fila.total;
+      if (fila.responsableActuar === "fsm") acumulado.paraElFsm += fila.total;
+      acumulado.facingsGanados += fila.facings;
+      acumulado.situaciones[fila.tipoSituacion] =
+        (acumulado.situaciones[fila.tipoSituacion] ?? 0) + fila.total;
     }
 
     return {
       visitaId,
       estado: visita.estado,
       porCategoria,
+      extraespacios: { total: extraespaciosTotal, porTipo: extraespaciosPorTipo },
       relacionResponsable: relacion
         ? {
             haHablado: relacion.haHablado,

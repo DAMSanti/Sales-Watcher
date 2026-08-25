@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { fechaLocal } from "@sw/shared";
+import { fechaLocal, resolverResponsable, type TipoSituacion } from "@sw/shared";
 import { cargarEnv } from "../cargar-env";
 import { crearCliente } from "../index";
 import {
@@ -16,6 +16,20 @@ import {
   usuarios,
   visitas,
   zonas,
+  acciones,
+  comprobacionesAccion,
+  deteccionesFechas,
+  deteccionesHueco,
+  deteccionesStock,
+  extraespacios,
+  gananciasFacings,
+  marcas,
+  neveras,
+  oportunidadesReorganizacion,
+  oportunidadesVisibilidad,
+  referenciasProducto,
+  relacionesResponsable,
+  topPicosPendientes,
 } from "../schema/index";
 
 cargarEnv();
@@ -65,6 +79,23 @@ function crearAzar(semilla: number) {
 }
 
 const azar = crearAzar(20260824);
+
+/** Elección ponderada: devuelve la situación según los pesos de arriba. */
+function elegirSituacion(): TipoSituacion {
+  const total = PESOS_SITUACION.reduce((suma, [, peso]) => suma + peso, 0);
+  let punto = azar() * total;
+  for (const [tipo, peso] of PESOS_SITUACION) {
+    punto -= peso;
+    if (punto <= 0) return tipo;
+  }
+  return "stock";
+}
+
+/** Las tres categorías, con Dairy algo más presente por volumen de surtido. */
+function elegirCategoria(): "dairy" | "waters" | "pbb" {
+  const r = azar();
+  return r < 0.45 ? "dairy" : r < 0.75 ? "waters" : "pbb";
+}
 const elegir = <T>(lista: T[]): T => lista[Math.floor(azar() * lista.length)]!;
 const entre = (min: number, max: number) => min + Math.floor(azar() * (max - min + 1));
 
@@ -106,6 +137,33 @@ const DESCRIPCIONES: Record<string, string[]> = {
   ],
 };
 
+/**
+ * Reparto de situaciones detectadas.
+ *
+ * No es uniforme a propósito: el stock y los huecos son lo que un GPV ve a
+ * diario, y una reorganización de lineal se propone de tarde en tarde. Un
+ * reparto plano daría un dashboard con la misma altura en todas las barras,
+ * que es justo lo que no se parece a la realidad.
+ */
+const PESOS_SITUACION: Array<[TipoSituacion, number]> = [
+  ["stock", 26],
+  ["hueco", 20],
+  ["top_pico", 14],
+  ["facings", 12],
+  ["fechas", 9],
+  ["visibilidad", 8],
+  ["extraespacio", 6],
+  ["nevera", 3],
+  ["reorganizacion", 2],
+];
+
+const PROPUESTAS = [
+  "Agrupar todo el vegetal en un solo bloque, hoy está partido.",
+  "Subir Activia a altura de ojos y bajar marca blanca al foso.",
+  "Reordenar el lineal por formato en vez de por marca.",
+  "Juntar bebidas vegetales con lácteos refrigerados.",
+];
+
 async function principal() {
   const { db, sql: conexion } = crearCliente();
   console.log("\nGenerando datos de prueba...\n");
@@ -142,6 +200,36 @@ async function principal() {
     .from(motivosNoRealizacion)
     .where(eq(motivosNoRealizacion.activo, true));
 
+  /**
+   * Supervisores por zona, para saber quién cierra lo que escala al FSM.
+   *
+   * Sin esto, todo lo cerrado saldría cerrado por el propio GPV y la traza de
+   * `cerrada_por_rol` no distinguiría nada — que es justo el dato que el panel
+   * necesita para avisar cuando un GPV cierra algo asignado al FSM.
+   */
+  const supervisores = await db
+    .select({ id: usuarios.id, zonaId: usuarios.zonaId })
+    .from(usuarios)
+    .where(and(eq(usuarios.rol, "supervisor"), eq(usuarios.activo, true)));
+
+  const supervisorDe = (comercial: { id: string; zonaId: string | null }): string =>
+    supervisores.find((s) => s.zonaId === comercial.zonaId)?.id ??
+    supervisores[0]?.id ??
+    // Sin supervisor en la zona, cierra el propio GPV. Devolver null obligaría
+    // a tratar el caso en cada punto de uso para algo que no ocurre en la
+    // práctica, y `usuario_id` de una comprobación no admite nulos.
+    comercial.id;
+
+  const catalogoMarcas = await db
+    .select()
+    .from(marcas)
+    .where(eq(marcas.activo, true));
+
+  const catalogoReferencias = await db
+    .select()
+    .from(referenciasProducto)
+    .where(eq(referenciasProducto.activo, true));
+
   const plantillas = await db.select().from(plantillasChecklist);
   const items = await db.select().from(itemsChecklist).where(eq(itemsChecklist.activo, true));
 
@@ -173,10 +261,34 @@ async function principal() {
   await db.delete(justificaciones);
   await db.delete(incidencias);
   await db.delete(resultadosChecklist);
+
+  /**
+   * El ciclo de acciones se borra de dentro hacia fuera, igual que las fotos:
+   * `neveras` cuelga de `extraespacios`, los detalles cuelgan de `acciones`, y
+   * `comprobaciones_accion` referencia acción y visita a la vez. Invertir
+   * cualquiera de estos pasos revienta con violación de integridad.
+   */
+  await db.delete(neveras);
+  await db.delete(extraespacios);
+  await db.delete(deteccionesStock);
+  await db.delete(deteccionesFechas);
+  await db.delete(deteccionesHueco);
+  await db.delete(topPicosPendientes);
+  await db.delete(gananciasFacings);
+  await db.delete(oportunidadesVisibilidad);
+  await db.delete(oportunidadesReorganizacion);
+  await db.delete(comprobacionesAccion);
+  await db.delete(acciones);
+  await db.delete(relacionesResponsable);
+
   await db.delete(visitas);
   await db.delete(rutasDiarias);
 
   // ── Generación ─────────────────────────────────────────────────────
+  let nAcciones = 0;
+  let nComprobaciones = 0;
+  let nRelaciones = 0;
+  let nFacings = 0;
   let nRutas = 0;
   let nVisitas = 0;
   let nResultados = 0;
@@ -359,6 +471,214 @@ async function principal() {
           }
         }
 
+        // ── El ciclo de acciones ───────────────────────────────────
+        //
+        // Lo que hace útil este bloque para probar el dashboard no es el
+        // volumen, sino el GRADIENTE: las acciones antiguas están mayormente
+        // resueltas y las recientes abiertas. Sin él, el embudo saldría plano
+        // y las métricas de "estancada" no tendrían nada que encontrar.
+        if (estado === "finalizada" && azar() < 0.5) {
+          const cuantas = azar() < 0.25 ? 2 : 1;
+
+          for (let i = 0; i < cuantas; i++) {
+            const tipo = elegirSituacion();
+            // Las fechas solo existen en Dairy: es la única con reponedor.
+            const categoria = tipo === "fechas" ? "dairy" : elegirCategoria();
+            const { responsable } = resolverResponsable(tipo, categoria);
+
+            const detectadaEn = new Date(inicio.getTime() + entre(5, 45) * 60_000);
+            const antiguedad = atras / DIAS_HISTORIAL;
+
+            /**
+             * Lo viejo se resuelve; lo reciente sigue abierto. Y un residuo de
+             * lo viejo se queda abierto a propósito: es lo que alimenta la
+             * pregunta "¿qué lleva demasiado tiempo abierto?".
+             */
+            const estadoAccion =
+              antiguedad > 0.55
+                ? azar() < 0.75
+                  ? "resuelta"
+                  : azar() < 0.5
+                    ? "abierta"
+                    : "descartada"
+                : azar() < 0.6
+                  ? "abierta"
+                  : azar() < 0.75
+                    ? "en_curso"
+                    : "resuelta";
+
+            const cerrada = estadoAccion === "resuelta" || estadoAccion === "descartada";
+            const quienCierra =
+              responsable === "fsm" || azar() < 0.3 ? supervisorDe(comercial) : comercial.id;
+
+            const [accion] = await db
+              .insert(acciones)
+              .values({
+                tiendaId: tienda.id,
+                visitaOrigenId: visita.id,
+                categoriaProducto: categoria,
+                tipoSituacion: tipo,
+                responsableActuar: responsable,
+                estado: estadoAccion as "abierta" | "en_curso" | "resuelta" | "descartada",
+                detectadaEn,
+                resueltaEn: cerrada
+                  ? new Date(detectadaEn.getTime() + entre(1, 12) * 86_400_000)
+                  : null,
+                cerradaPor: cerrada ? quienCierra : null,
+                cerradaPorRol: cerrada
+                  ? quienCierra === comercial.id
+                    ? "comercial"
+                    : "supervisor"
+                  : null,
+              })
+              .returning({ id: acciones.id });
+
+            const accionId = accion!.id;
+            nAcciones++;
+
+            // Detalle tipificado, uno por flujo.
+            if (tipo === "stock") {
+              await db.insert(deteccionesStock).values({
+                accionId,
+                suficiencia:
+                  categoria === "dairy" && azar() < 0.4 ? "reponedor_no_ha_pasado" : "no",
+                comunicadoAlResponsable: categoria === "dairy" ? null : azar() < 0.7,
+              });
+            } else if (tipo === "fechas") {
+              await db.insert(deteccionesFechas).values({
+                accionId,
+                problema: elegir(["fifo_incorrecto", "proximo_caducar", "mal_colocado"] as const),
+              });
+            } else if (tipo === "hueco") {
+              await db.insert(deteccionesHueco).values({
+                accionId,
+                existeHueco: true,
+                cubiertoConAdyacente: categoria === "dairy" ? azar() < 0.35 : null,
+                correccion:
+                  categoria === "dairy" ? null : azar() < 0.6 ? "si" : "no_posible",
+              });
+            } else if (tipo === "top_pico") {
+              const posibles = catalogoReferencias.filter(
+                (r) => r.categoriaProducto === categoria,
+              );
+              if (posibles.length > 0) {
+                const referencia = elegir(posibles);
+                await db.insert(topPicosPendientes).values({
+                  accionId,
+                  referenciaId: referencia.id,
+                  incorporada: estadoAccion === "resuelta",
+                  incorporadaEn:
+                    estadoAccion === "resuelta"
+                      ? new Date(detectadaEn.getTime() + entre(1, 12) * 86_400_000)
+                      : null,
+                });
+              }
+            } else if (tipo === "facings") {
+              const posibles = catalogoMarcas.filter(
+                (m) => m.categoriaProducto === categoria,
+              );
+              const conseguido = azar() < 0.55;
+              const ganados = conseguido ? entre(1, 3) : 0;
+              await db.insert(gananciasFacings).values({
+                accionId,
+                marcaId: posibles.length > 0 ? elegir(posibles).id : null,
+                conseguido,
+                facingsGanados: ganados,
+              });
+              nFacings += ganados;
+            } else if (tipo === "visibilidad") {
+              const posibles = catalogoMarcas.filter(
+                (m) => m.categoriaProducto === categoria,
+              );
+              await db.insert(oportunidadesVisibilidad).values({
+                accionId,
+                marcaId: posibles.length > 0 ? elegir(posibles).id : null,
+                ubicacionActual: elegir(["palomar", "foso", "zona_intermedia"] as const),
+                propuesta: elegir(["subir_producto", "ganar_espacio", "cambiar_ubicacion"] as const),
+              });
+            } else if (tipo === "reorganizacion") {
+              await db.insert(oportunidadesReorganizacion).values({
+                accionId,
+                propuesta: elegir(PROPUESTAS),
+              });
+            } else if (tipo === "extraespacio" || tipo === "nevera") {
+              const esNevera = tipo === "nevera";
+              const [extra] = await db
+                .insert(extraespacios)
+                .values({
+                  accionId,
+                  tipo: esNevera ? "nevera" : elegir(["cabecera", "isla", "pila"] as const),
+                  motivo: elegir(["alta_rotacion", "promocion", "potencial_venta"] as const),
+                })
+                .returning({ id: extraespacios.id });
+
+              if (esNevera) {
+                const situacion = elegir([
+                  "uso_parcial",
+                  "vacia_desaprovechada",
+                  "necesita_recogida",
+                  "necesita_nueva",
+                ] as const);
+                await db.insert(neveras).values({
+                  extraespacioId: extra!.id,
+                  situacion,
+                  // El código solo existe donde hay que mover una unidad concreta.
+                  codigoNevera:
+                    situacion === "necesita_recogida"
+                      ? `NV-${String(entre(100, 999))}-${categoria.slice(0, 3).toUpperCase()}`
+                      : null,
+                });
+              }
+            }
+
+            /**
+             * Comprobaciones en visitas posteriores. Se generan sobre lo que ya
+             * no está abierto, porque una acción cerrada sin rastro de cómo se
+             * cerró deja el historial cojo justo donde el cliente quiere mirar.
+             */
+            if (estadoAccion !== "abierta") {
+              const vueltas = estadoAccion === "resuelta" ? entre(1, 2) : 1;
+              for (let v = 0; v < vueltas; v++) {
+                const ultima = v === vueltas - 1;
+                await db.insert(comprobacionesAccion).values({
+                  accionId,
+                  visitaId: visita.id,
+                  usuarioId: cerrada && ultima ? quienCierra : comercial.id,
+                  desenlace: !ultima
+                    ? "sigue_pendiente"
+                    : estadoAccion === "resuelta"
+                      ? "resuelta"
+                      : estadoAccion === "descartada"
+                        ? "no_procede"
+                        : "sigue_pendiente",
+                  comprobadaEn: new Date(
+                    detectadaEn.getTime() + (v + 1) * entre(3, 9) * 86_400_000,
+                  ),
+                });
+                nComprobaciones++;
+              }
+            }
+          }
+        }
+
+        // ── Relación con el responsable de tienda ──────────────────
+        // Una por visita, y no siempre: el GPV no habla con el encargado en
+        // todas las visitas, y forzarlo daría un histórico irrealmente denso.
+        if (estado === "finalizada" && azar() < 0.55) {
+          const haHablado = azar() < 0.8;
+          await db.insert(relacionesResponsable).values({
+            visitaId: visita.id,
+            haHablado,
+            valoracion: haHablado
+              ? elegir(["muy_buena", "buena", "buena", "correcta", "mejorable"] as const)
+              : "no_ha_podido_hablar",
+            cuestionPendiente: haHablado && azar() < 0.2,
+            comentario:
+              haHablado && azar() < 0.2 ? "Pendiente de confirmar la cabecera de temporada." : null,
+          });
+          nRelaciones++;
+        }
+
         // ── Justificaciones ────────────────────────────────────────
         if (estado === "no_realizada" && justificada) {
           const motivo = elegir(catalogoMotivos);
@@ -388,6 +708,10 @@ async function principal() {
   Resultados de checklist ........ ${nResultados}
   Incidencias y oportunidades .... ${nIncidencias}
   Justificaciones ................ ${nJustificaciones}
+  Acciones ....................... ${nAcciones}
+    comprobaciones ............... ${nComprobaciones}
+    facings ganados .............. ${nFacings}
+  Relación con el responsable .... ${nRelaciones}
 
   Historial de ${DIAS_HISTORIAL} días. El día de hoy queda a medias a propósito:
   una visita cerrada, una en curso y el resto pendientes.
