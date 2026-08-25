@@ -9,7 +9,7 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 >
 > Reparto del impacto: **fases 1 y 2 aguantan bien** (son infraestructura), **la fase 3 se rehace en su mayor parte** (la pantalla de visita cambia entera) y **la fase 4 se amplía** más que se rehace. El balance completo está en [ANEXO.md](ANEXO.md) sección 1-bis.
 >
-> **P19 bloquea el arranque de la fase 3**: hasta saber qué se hace con el checklist ya construido, no conviene empezar a sustituirlo.
+> **Reencuadre cerrado (ronda 5).** El cliente ha respondido a las doce preguntas y ha delegado dos decisiones. **Nada bloquea ya el arranque.** Quedan abiertas P31 (audio en vídeo) y P32 (origen del catálogo de referencias), ninguna de las cuales impide diseñar ni construir — pero P31 conviene resolverla antes de implementar el flujo de vídeo, porque después sale caro.
 
 > **Actualizado tras tres rondas de respuestas de negocio (2026-08-24).** Multi-idioma en el MVP con cinco idiomas de interfaz, flujo de visita no realizada con ventana diaria de justificación, y catálogo de tiendas preparado para un ERP futuro. Fase 0 casi cerrada.
 
@@ -41,18 +41,21 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 
 Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de escribir código nuevo.
 
-- [ ] **P19 — ¿Qué se hace con el checklist ya construido?** ¿Se retira, o se reutiliza para configurar los flujos tipificados? *(bloquea el alcance de la fase 3)*
-- [ ] **P20 — Límites del vídeo**: duración, formato, resolución, compresión en dispositivo *(bloquea el dimensionado de almacenamiento y la cola offline)*
-- [ ] **P22 — Catálogo de marcas/segmentos** *(el boceto solo cita Activia, Alpro y Actimel como ejemplos)*
-- [ ] **P23 — ¿Quién cierra una acción y puede caducar?** GPV en la siguiente visita, FSM desde el panel, o ambos según tipo
-- [ ] **P25 — ¿La referencia de Top Pico es texto libre o catálogo?** *(con texto libre, el seguimiento entre visitas se degrada solo)*
-- [ ] P21 — ¿El RSM es un rol con acceso propio o solo un nivel organizativo?
-- [ ] P24 — Confirmar el modelo de tabla por flujo frente a JSONB genérico *(hay recomendación en SPECS 7.1)*
-- [ ] P27 — ¿Modern y Proximity cambian los flujos o solo segmentan informes?
-- [ ] P28 — ¿Se mantiene la ruta planificada, si el GPV entra por código de tienda?
-- [ ] P26 — ¿Todas las neveras tienen código visible?
-- [ ] P29 — ¿Las zonas reales son solo Granada y Almería?
-- [ ] **P30 — Revisión legal del registro de tiempo de permanencia** *(extensión de P18; hasta cerrarla, la duración no se muestra)*
+- [x] P19 — Checklist → **se conserva como capa de configuración de los flujos + sección opcional corta, nunca obligatoria** *(delegada)*
+- [x] P20 — Vídeo → **720p · 60 s · MP4 H.264 · AAC 128 kbps · 25 MB**, captura nativa y normalización en servidor *(delegada)*
+- [x] P24 — Modelo → **tabla por flujo**, no JSONB genérico *(delegada)*
+- [x] P22 — Marcas → **sin catálogo definitivo aún; se arranca con placeholders** *(ANEXO §4)*
+- [x] P23 — Cierre de acciones → **ambos, GPV y FSM. Sin caducidad: se marcan como estancadas**
+- [x] P25 — Top Picos → **catálogo de referencias**, no texto libre
+- [x] P21 — RSM → **sin acceso en esta versión; el rol no se implementa**
+- [x] P26 — Código de nevera → **sí, todas lo llevan dentro; es un puente a la aplicación de neveras del FSM**
+- [x] P27 — Canales → **se guarda `canal`, no se bifurca ningún flujo**
+- [x] P28 — Ruta → **la visita se incorpora, conservando `planificada = false`**
+- [x] P29 — Zonas → **solo Granada y Almería** *(cierra también P17: huso único)*
+- [x] P30 — Duración de visita → **sin acción pendiente: se registra, no se muestra**
+- [x] Navegación confirmada por el cliente: código **o nombre** → categorías → incidencias/oportunidades/extraespacios
+- [ ] **P31 — Audio en los vídeos y grabación de voz de terceros** *(resolver antes de implementar vídeo)*
+- [ ] **P32 — Origen y mantenimiento del catálogo de referencias de producto**
 - [ ] Validar con el cliente la tabla de responsable de actuar por situación *(SPECS 5.4)*
 - [ ] Confirmar si el resumen de cierre debe poder corregirse o es solo lectura
 
@@ -86,17 +89,21 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 - [ ] Entidad **`Accion`** con ciclo de vida propio, colgada de la **tienda** y no de la visita
 - [ ] Entidad **`ComprobacionAccion`** como registro de eventos *(cada comprobación se añade; ninguna sobreescribe, o se pierde el «cuánto tardó»)*
-- [ ] Detalles tipificados por flujo: stock, fechas, huecos, Top Picos, facings, visibilidad, reorganización, extraespacios, neveras *(sujeto a P24)*
+- [ ] Campos **`cerrada_por`** y **`cerrada_por_rol`** en `Accion` *(los dos actores pueden cerrar; sin traza no se sabe quién fue)*
+- [ ] **`estancada`** derivado de la antigüedad, con umbral configurable — **no un estado más**
+- [ ] Detalles tipificados por flujo, **una tabla por flujo**: stock, fechas, huecos, Top Picos, facings, visibilidad, reorganización, extraespacios, neveras
 - [ ] Entidad **`RelacionResponsable`**, una por visita
-- [ ] Catálogo **`MarcaSegmento`** por categoría de producto *(depende de P22)*
-- [ ] Campo **`canal`** en `Tienda` (Modern / Proximity)
-- [ ] Rol **`rsm`** en `Usuario` *(depende de P21)*
+- [ ] Catálogo **`MarcaSegmento`** — **sin `textoI18n`**: las marcas son nombres propios y no se traducen
+- [ ] Catálogo **`ReferenciaProducto`** para los Top Picos, con importación CSV
+- [ ] Campo **`canal`** en `Tienda` (Modern / Proximity) — **solo dato, sin bifurcar flujos**
 - [ ] Categorías de producto Dairy / Waters / PBB como enum del dominio
 - [ ] **Motor de reglas del responsable de actuar**, en servidor y en un solo sitio *(no es una elección del usuario: es regla de negocio)*
 - [ ] Extender `Foto` a **`Evidencia`** con tipo foto/vídeo y duración
-- [ ] Revisar límites de tamaño y caducidad de URL de subida para vídeo *(depende de P20)*
-- [ ] Migraciones y datos semilla de los catálogos nuevos
-- [ ] Datos de prueba con zonas reales (Granada, Almería) y códigos `350…` *(depende de P29)*
+- [ ] Subir el límite de tamaño a **25 MB** para vídeo y revisar la caducidad de la URL de subida
+- [ ] **Proceso de transcodificación a 720p** (ffmpeg) — la pieza de infraestructura nueva más costosa de esta tanda
+- [ ] Migraciones y datos semilla de los catálogos nuevos, incluidas las listas de opciones de los flujos
+- [ ] Traducir a los cinco idiomas las listas de opciones de los flujos *(ANEXO §4)*
+- [ ] Sustituir las zonas placeholder por **Granada y Almería**, y los datos de prueba por códigos `350…`
 
 ## Fase 2 — API backend
 
@@ -119,10 +126,13 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 API del ciclo de acciones
 
-- [ ] Búsqueda de tienda **por código `350…` entre las asignadas al GPV**
+- [ ] Búsqueda de tienda **por código `350…` o por nombre**, entre las asignadas al GPV *(las dos vías al mismo nivel)*
+- [ ] Al iniciar una visita fuera de ruta, **incorporarla a la ruta del día conservando `planificada = false`**
 - [ ] Endpoints de registro por flujo, con el responsable derivado en servidor
 - [ ] Endpoint de **acciones abiertas de una tienda**, para traerlas al iniciar la visita
 - [ ] Endpoint de **comprobación** de una acción pendiente (sigue pendiente / resuelta)
+- [ ] Cierre de acción **desde ambos lados**, registrando quién y cuándo
+- [ ] Marcado de acciones **estancadas** por antigüedad, sin cerrarlas
 - [ ] Endpoint de **Top Picos pendientes** por tienda
 - [ ] Endpoint de **relación con el responsable**, una por visita
 - [ ] Endpoint de **resumen de visita** previo al cierre
@@ -130,8 +140,8 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Bandeja de **acciones pendientes del FSM**, con antigüedad y priorización
 - [ ] Agregados de resultado: facings por GPV/tienda/categoría/marca/mes, Top Picos incorporados, embudo detectado → trabajado → solucionado
 - [ ] Agregados de patrón: incidencias de stock repetidas, tiendas con problemas recurrentes, acciones abiertas demasiado tiempo
-- [ ] Subida y confirmación de **vídeo** *(depende de P20)*
-- [ ] **Retirar la duración de visita** de respuestas, informes y exportaciones *(no basta con ocultarla en la interfaz — P30)*
+- [ ] Subida, confirmación y **normalización de vídeo** a 720p MP4
+- [ ] **Retirar la duración de visita** de respuestas, informes y exportaciones *(no basta con ocultarla en la interfaz: el dato se registra, pero no sale de la base de datos)*
 - [ ] Incluir los flujos nuevos en el endpoint de sincronización por lotes
 
 ## Fase 3 — App del comercial (PWA) — MVP
@@ -160,29 +170,31 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 Rehacer la pantalla de visita
 
-> **Bloqueado por P19.** El checklist es hoy el núcleo de esta pantalla y el boceto lo desautoriza; empezar antes de esa decisión es arriesgarse a construir dos veces.
+> **Desbloqueada.** El checklist se conserva como capa de configuración y como sección opcional corta, así que los flujos nuevos no sustituyen la maquinaria: se apoyan en ella.
 
-- [ ] Inicio de visita **tecleando el código del punto de venta**, con confirmación visual del nombre
+- [ ] Inicio de visita **por código o por nombre de tienda**, con confirmación visual antes de iniciar
 - [ ] Pantalla principal con las **tres categorías** (Dairy / Waters / PBB) + **responsable de tienda** transversal
 - [ ] Menú por categoría: **Incidencias · Oportunidades · Extraespacios**
 - [ ] Flujo de **falta de stock** *(la opción «el reponedor todavía no ha pasado» solo en Dairy)*
 - [ ] Flujo de **fechas** *(solo Dairy, sin evidencia)*
 - [ ] Flujo de **huecos** *(Dairy: ¿cubierto con adyacente? · Waters/PBB: ¿lo has corregido?)*
-- [ ] Flujo de **Top Picos**: registro de referencias que faltan
+- [ ] Flujo de **Top Picos**: selección de referencias ausentes **desde el catálogo**, no tecleadas
 - [ ] **Top Picos pendientes** al entrar en la tienda, con comprobación 🟢/🔴
 - [ ] Flujo de **ganancia de facings** *(sin contar el lineal: solo el incremento)*
 - [ ] Flujo de **visibilidad** *(ubicación actual → propuesta)*
 - [ ] Flujo de **reorganización** *(texto libre + foto)*
 - [ ] Flujo de **extraespacios** *(categoría → tipo → motivo)*
-- [ ] Flujo de **neveras**, con **código de nevera** y foto en las retiradas
+- [ ] Flujo de **neveras**, con **código de nevera** y foto del propio código *(está dentro de la nevera: la interfaz no debe sugerir que se ve de lejos)*
 - [ ] Sección de **responsable de tienda**, con la valoración enunciada como **relación general, no conversación del día**
 - [ ] **Acciones pendientes de visitas anteriores**, presentadas como contexto y no como reproche
 - [ ] **Resumen de visita** antes de cerrar, agrupado por categoría
 - [ ] Cierre **sin mínimos obligatorios**
-- [ ] Captura de **vídeo** con los límites que fije P20
+- [ ] Captura de **vídeo** con cámara nativa, validando duración y tamaño en el dispositivo
+- [ ] **Aviso visible de que se está grabando audio** *(según lo que resuelva P31)*
+- [ ] **Resultados propios del GPV visibles para él** — facings ganados, Top Picos incorporados *(«la idea es que los GPVs generen más oportunidades»)*
 - [ ] Todos los flujos nuevos operativos **offline** y en la cola de sincronización
 - [ ] Traducción de los flujos nuevos a los cinco idiomas
-- [ ] Decidir qué ocurre con la pantalla de checklist actual *(depende de P19)*
+- [ ] Convertir el checklist en **sección opcional, desactivada por defecto** y nunca obligatoria para cerrar
 
 ## Fase 4 — Backoffice — MVP
 
@@ -206,9 +218,13 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 ### 🆕 Panel del FSM y dashboard de resultados
 
 - [ ] **Panel de acciones pendientes**: categoría · tienda · situación · **antigüedad**, priorizable
-- [ ] Cambio de estado y cierre de acciones desde el panel *(depende de P23)*
+- [ ] Cambio de estado y cierre de acciones desde el panel
+- [ ] **Aviso cuando un GPV cierra una acción asignada al FSM**, para que no se entere por casualidad
+- [ ] Acciones **estancadas** destacadas por antigüedad
+- [ ] **Código de nevera prominente y copiable** — es el dato que el FSM teclea en su aplicación de neveras
+- [ ] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
 - [ ] Detalle de visita **organizado por categoría de producto**, con evidencias
-- [ ] **Ocultar la duración de visita** en el detalle y en los informes *(P30)*
+- [ ] **Ocultar la duración de visita** en el detalle y en los informes
 - [ ] Dashboard de resultados — las once preguntas de SPECS 6.4:
   - [ ] Embudo: oportunidades detectadas → trabajadas → solucionadas
   - [ ] **Facings ganados**, agregables por GPV, tienda, categoría, marca y mes
@@ -218,8 +234,10 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
   - [ ] Detección y resultado **por GPV, presentados juntos** *(mostrar solo uno crea un incentivo torcido)*
 - [ ] Histórico de la **relación con el responsable** por tienda
 - [ ] Reproducción de **vídeo** en el detalle
-- [ ] Vista agregada para el RSM *(depende de P21)*
-- [ ] Gestión del catálogo de **marcas/segmentos** *(depende de P22)*
+- [ ] Gestión del catálogo de **marcas/segmentos** y de **referencias de producto**, con importación CSV
+- [ ] Configuración de flujos por categoría, tipo de tienda y canal *(reutiliza el editor de plantillas)*
+- [ ] **Aviso en el editor al superar unos pocos ítems de checklist** — el guardarraíl contra el cuestionario
+- [ ] Segmentación de informes **por canal** (Modern / Proximity)
 
 ## Fase 5 — Endurecimiento y piloto
 
@@ -253,6 +271,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Catálogos definitivos de categorías y motivos, sustituyendo placeholders
 - [ ] 🆕 Catálogo definitivo de **marcas/segmentos**
 - [ ] 🆕 Alta de la estructura real: zonas (Granada, Almería), FSMs, GPVs y su reparto por canal
+- [ ] 🆕 Carga del catálogo definitivo de **referencias de producto** *(depende de P32)*
 - [ ] Traducciones completas revisadas
 - [ ] Alta de todos los comerciales y zonas
 - [ ] Formación a supervisores
@@ -264,7 +283,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 ## Fase 7 — Post-MVP
 
 - [ ] 🆕 **Requisitos mínimos para cerrar una visita** *(el cliente los aplazó explícitamente del MVP, no los descartó)*
-- [ ] 🆕 **Tiempo de permanencia como métrica**, solo si la revisión legal lo autoriza (P30)
+- [ ] 🆕 **Tiempo de permanencia como métrica** — solo si el cliente llega a pedirlo, y entonces con revisión legal previa (art. 90 LOPDGDD)
 - [ ] 🆕 Extender el seguimiento al resto de tipos de acción *(el cliente lo plantea como incorporación progresiva)*
 - [ ] 🆕 Alertas al FSM por acciones que superan un umbral de antigüedad
 - [ ] 🆕 Detección automática de tiendas con incidencias recurrentes

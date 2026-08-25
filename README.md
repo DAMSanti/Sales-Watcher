@@ -14,7 +14,7 @@ VISITA  →  DETECCIÓN  →  ACCIÓN  →  SEGUIMIENTO  →  RESULTADO
 
 **Cliente:** DANONE — fabricante de gran consumo. Los GPVs visitan tiendas de terceros donde la marca no controla el punto de venta, así que el trabajo real es negociar espacio y visibilidad con el encargado, no vender en mostrador. Eso condiciona buena parte del diseño.
 
-> **Estado (2026-08-25):** fases 0 a 4 implementadas sobre la especificación v0.4. El cliente ha entregado un **boceto funcional que reencuadra el producto**, ya incorporado a la documentación: la infraestructura sobrevive, la pantalla de visita se rehace y el backoffice se amplía. El balance de impacto está en [ANEXO.md](ANEXO.md) §1-bis, las tareas nuevas en [ROADMAP.md](ROADMAP.md) marcadas con 🆕, y el detalle funcional en [SPECS.md](SPECS.md) v0.5.
+> **Estado (2026-08-25):** fases 0 a 4 implementadas sobre la especificación v0.4. El cliente ha entregado un **boceto funcional que reencuadra el producto** y ha respondido a las doce preguntas que abría, así que **el reencuadre está cerrado y nada bloquea el arranque**: la infraestructura sobrevive, la pantalla de visita se rehace y el backoffice se amplía. El balance de impacto está en [ANEXO.md](ANEXO.md) §1-bis, las tareas en [ROADMAP.md](ROADMAP.md) marcadas con 🆕, y el detalle funcional en [SPECS.md](SPECS.md) v0.6.
 
 ---
 
@@ -49,7 +49,7 @@ En Dairy hay un reponedor de Danone, así que casi todo escala al FSM. En Waters
 - **Inicio por código de punto de venta**: el GPV teclea el código `350…`, la aplicación resuelve el nombre y él confirma que es la tienda correcta. No escribe nada más.
 - **Detalle de visita** con ciclo de vida explícito — *Comenzar visita* registra hora y geolocalización de inicio, *Finalizar visita* la de cierre, y a partir de ahí la visita queda en solo lectura.
 - **Tres categorías** — Dairy, Waters y PBB — cada una con incidencias, oportunidades y extraespacios. Más una sección transversal de **responsable de tienda**, que se registra una sola vez por visita porque en cada tienda hay un único encargado.
-- **Flujos tipificados y cortos**: falta de stock, fechas, huecos en el lineal, Top Picos que faltan, ganancia de facings, visibilidad, reorganización, extraespacios y neveras. Cada uno pregunta lo justo y deriva solo el responsable que corresponde.
+- **Flujos tipificados y cortos**: falta de stock, fechas, huecos en el lineal, Top Picos que faltan, ganancia de facings, visibilidad, reorganización, extraespacios y neveras. Cada uno pregunta lo justo y deriva solo el responsable que corresponde. Qué flujos aparecen, en qué orden y con qué opciones **se configura desde el backoffice**, no está cableado en el código.
 - **Lo pendiente reaparece**: al volver a una tienda, la aplicación trae lo que quedó abierto y pide al GPV que se pronuncie. Es la pieza que convierte el registro en seguimiento.
 - **Justificar lo que no se hizo**: una visita planificada que no se realiza no desaparece ni se reprograma sola. Pasa a *No realizada* y exige un motivo del GPV, el mismo día, antes de cerrar la jornada.
 - **Evidencia** en foto y vídeo, capturada desde cámara, con fecha, hora y geolocalización, comprimida en el dispositivo antes de subir.
@@ -211,15 +211,12 @@ Los catálogos de categorías y de motivos de no realización están en negociac
 
 Queda por decidir la **hora de cierre de jornada**, el **circuito de traducción** del contenido que se cree después del rollout, y la **política de retención de fotos** — esta última pospuesta a conciencia, con el matiz de que conviene construir el mecanismo aunque el plazo se configure más tarde. Antes de desplegar hay que **informar a la plantilla y a su representación legal** sobre el sistema de geolocalización (art. 90 LOPDGDD).
 
-**Abiertas por el boceto funcional**, con las cinco primeras bloqueando trabajo:
+**Las doce preguntas que abrió el boceto están cerradas.** Quedan dos, y ninguna bloquea el diseño:
 
-1. **Qué se hace con el checklist ya construido** (P19). Es la que más trabajo desbloquea o desperdicia: la maquinaria de plantillas funciona, pero el enfoque de cuestionario está desautorizado. La vía que merece explorarse primero es reutilizar las plantillas para *configurar* los flujos, en lugar de como lista de tareas para el GPV.
-2. **Límites del vídeo** (P20) — sin ellos no se puede dimensionar almacenamiento ni cola offline.
-3. **Catálogo de marcas/segmentos** (P22) — el boceto solo da ejemplos.
-4. **Quién cierra una acción y si caduca** (P23) — sin caducidad, el panel del FSM se convierte en un cementerio.
-5. **Si la referencia de Top Pico es texto libre o catálogo** (P25) — con texto libre, el seguimiento se degrada solo.
+- **El audio de los vídeos** (P31). El cliente pide que se oigan bien, lo cual es razonable —el GPV narra lo que enseña—, pero grabar la voz de una persona no equivale a fotografiar un lineal, y el caso de uso previsto implica que el encargado puede quedar grabado. Conviene resolverla **antes** de implementar vídeo: aviso de grabación, encuadre sobre el lineal, o audio opcional son salidas baratas ahora y caras con vídeos ya grabados.
+- **El origen del catálogo de referencias de producto** (P32). Es un problema de datos, no de diseño. El riesgo real es que envejezca: si el GPV no encuentra la referencia que busca, vuelve al texto libre por la puerta de atrás.
 
-La lista completa (P19–P30) está en [ANEXO.md](ANEXO.md) §2.
+El registro completo de decisiones, con su justificación, está en [ANEXO.md](ANEXO.md) §1.
 
 ## Antes del rollout
 

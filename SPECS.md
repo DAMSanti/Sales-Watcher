@@ -1,9 +1,28 @@
 # SPECS.md — Aplicación de gestión y rentabilidad de visitas GPV
 
-**Versión:** 0.5
+**Versión:** 0.6
 **Fecha:** 2026-08-25
 **Cliente:** DANONE
-**Estado:** Reencuadre funcional en curso. El cliente ha entregado un *Primer boceto funcional* que redefine el núcleo del producto; este documento lo incorpora, pero varias piezas necesitan confirmación antes de construir.
+**Estado:** Reencuadre cerrado. El cliente ha respondido a las doce preguntas que abrió el boceto funcional; quedan dos abiertas (audio en vídeo y origen del catálogo de referencias), ninguna de las cuales bloquea el diseño. **Listo para construir.**
+
+**Cambios respecto a v0.5 — se cierra el reencuadre.** Doce decisiones, dos de ellas delegadas por el cliente:
+
+| Decisión | Resultado |
+|---|---|
+| **Checklist** | Se conserva, pero **deja de ser el centro**: pasa a ser la capa de configuración de los flujos, más una sección opcional y corta. *(delegada)* |
+| **Modelo de datos** | **Tabla por flujo**, confirmada la recomendación de la v0.5. *(delegada)* |
+| **Vídeo** | 720p · 60 s · MP4 H.264 · audio AAC · 25 MB, con captura nativa y normalización en servidor. *(delegada)* |
+| **Cierre de acciones** | GPV y FSM, ambos. Sin caducidad: se marcan como **estancadas**, no se cierran solas. |
+| **Top Picos** | **Catálogo** de referencias, no texto libre. |
+| **RSM** | Sin acceso en esta versión. **No se añade el rol.** |
+| **Canales** | Se guarda `canal` en la tienda; **no se bifurca ningún flujo**. |
+| **Ruta** | La visita por código **se incorpora a la ruta**, conservando `planificada = false`. |
+| **Código de nevera** | Existe en todas y es un **puente a la aplicación de neveras del FSM**. |
+| **Zonas** | Solo **Granada y Almería**. Cierra también la duda de Canarias. |
+| **Duración de visita** | Sin acción pendiente: se registra, no se muestra. |
+| **Marcas** | Sin catálogo definitivo aún; se arranca con placeholders. |
+
+El registro completo con su justificación está en [ANEXO.md](ANEXO.md), ronda 5.
 
 **Cambios respecto a v0.4 — reencuadre, no incremento.** El boceto funcional del cliente cambia el propósito de la aplicación. No es un registro de actividad con checklist: es una **herramienta de gestión de incidencias y oportunidades comerciales** cuyo ciclo es
 
@@ -95,7 +114,7 @@ Cada GPV tiene **asignadas sus tiendas** y trabaja con un rutero de visitas. La 
 |---|---|---|---|
 | **Comercial** | **GPV** | Usuario de campo que visita los puntos de venta asignados | App móvil (nº de trabajador + contraseña) |
 | **Supervisor de zona** | **FSM** | Gestiona un equipo de GPVs. **Destinatario de las acciones que el GPV no puede resolver.** Prioriza, hace seguimiento y mide resultados | Backoffice web (su equipo y zona) |
-| **Dirección regional** | **RSM** | Nivel por encima del FSM. Visión agregada de varias zonas | Backoffice web (lectura agregada) — *alcance pendiente de confirmar, P21* |
+| **Dirección regional** | **RSM** | Nivel por encima del FSM | **Sin acceso en esta versión.** El sistema es para el FSM; el rol `rsm` **no se implementa** — un rol que no da acceso a nada es código muerto. Las zonas ya tienen `region`, que es el eje que necesitaría una vista de RSM, así que añadirla más adelante es aditivo |
 | **Administrador** | — | Gestiona catálogos, usuarios, tiendas, traducciones e informes globales | Backoffice web (acceso total) |
 | **Encargado de tienda** | Responsable / encargado | Interlocutor del GPV durante la visita. **No es usuario del sistema** y no tiene login en v1. Es, además, el destinatario de las gestiones en Waters y PBB | Sin acceso |
 | **Reponedor** | — | Repone en Dairy. **No es usuario del sistema**: recibe las instrucciones a través del FSM | Sin acceso |
@@ -104,8 +123,8 @@ Cada GPV tiene **asignadas sus tiendas** y trabaja con un rutero de visitas. La 
 
 ### Ámbito inicial
 
-- **Geografía:** el FSM de referencia gestiona **Granada y Almería**.
-- **Canales:** los GPVs se reparten entre **Modern** y **Proximity**. *(Si el canal condiciona los flujos o solo segmenta informes está pendiente de confirmar — P27.)*
+- **Geografía:** **Granada y Almería**, y solo esas dos en esta versión inicial. Ambas peninsulares, así que el cierre de jornada es de huso único.
+- **Canales:** los GPVs se reparten entre **Modern** y **Proximity**. La función es la misma en ambos: **se guarda el canal de cada tienda, pero ningún flujo se bifurca por él**. El campo habilita segmentar informes desde el primer día y deja preparada cualquier diferencia futura, que además podría resolverse por configuración sin tocar código.
 - **Códigos de punto de venta:** cada tienda tiene un código de Danone que **comienza por `350…`** y va asociado a un nombre de tienda. Es el identificador que el GPV teclea al empezar la visita.
 
 > **Decidido:** el encargado de tienda no tendrá acceso propio. Es el interlocutor del comercial en la visita, no un usuario del sistema. El "front desde el que recibir la información" es el **backoffice para supervisores y administradores**. Un eventual portal para encargados queda en fase 3 (sección 10).
@@ -218,8 +237,10 @@ CÓDIGO DEL PUNTO DE VENTA
 
 - La búsqueda se hace **entre las tiendas asignadas al GPV**, no sobre el catálogo completo.
 - El GPV **nunca teclea el nombre**: lo resuelve la aplicación a partir del código, y lo muestra para que confirme visualmente que es la tienda correcta antes de iniciar.
-- La visita puede corresponder a una tienda del rutero del día o ser **no planificada**. En el segundo caso se etiqueta como tal, para que el backoffice distinga cobertura planificada de oportunista.
-- Se mantiene además el buscador por nombre como alternativa: el código es la vía rápida, no la única. Un GPV que no recuerda el código no debe quedarse bloqueado en la puerta de la tienda.
+- **Buscar por nombre está al mismo nivel que buscar por código**, no es una alternativa de respaldo. El cliente lo confirma: se entra *«por número de punto de venta o nombre de la tienda»*. El código es más rápido cuando se conoce; el nombre no debe presentarse como el camino de segunda.
+- La visita puede corresponder a una tienda del rutero del día o no. **En ambos casos se incorpora a la ruta del día** y aparece como una más, para que el GPV vea una lista coherente de su jornada.
+
+> ⚠️ **La visita incorporada conserva `planificada = false`.** Si toda visita entrase en la ruta sin distinguirse, la cobertura planificada saldría siempre al 100 % y la métrica dejaría de medir nada. El campo ya existe en el modelo, así que no cuesta nada: el GPV ve su día completo, y el FSM sigue distinguiendo cobertura planificada de oportunista. Son dos preguntas distintas y ambas conservan respuesta.
 
 > **Nota de implementación.** El código `350…` es el `numero_referencia` de la tienda. Sigue **sin ser clave primaria** por las razones de la sección 7: cuando llegue el ERP, la correspondencia se hará por `id_externo`.
 
@@ -287,7 +308,12 @@ El patrón es consistente: **en Dairy hay un reponedor de Danone** y el GPV no l
 - **Notas libres** — observaciones que no encajan en ninguna situación tipificada.
 - **Pendientes de visitas anteriores** — lo que quedó abierto en esta tienda y sigue sin resultado (sección 5.8). No es un resumen informativo: es una lista sobre la que el GPV debe pronunciarse.
 
-> **Sobre el checklist de la v0.4.** La v0.4 organizaba la visita como una lista de tareas configurable. El boceto rechaza expresamente ese enfoque (*«no queremos crear otro cuestionario»*). Los flujos de la sección 5.5 lo sustituyen como núcleo de la visita. Qué se hace con la maquinaria de plantillas ya construida —retirarla, o reutilizarla como mecanismo de configuración de los propios flujos— está **pendiente de decidir con el cliente (P19)**. No se retira nada hasta que esa decisión exista.
+**El checklist se conserva, con otro papel.** El cliente confirma que le interesan los checklists editables desde el backoffice, y el boceto rechaza el cuestionario. No es contradictorio: lo que el boceto rechaza es un interrogatorio **obligatorio y exhaustivo**, no que haya contenido configurable. El checklist pasa por tanto a tener dos funciones, ninguna de ellas la de antes:
+
+1. **Capa de configuración de los flujos.** Las plantillas definen **qué flujos aparecen en cada categoría, en qué orden, con qué opciones y para qué tipo de tienda o canal**. Sin esto, los nueve flujos de la sección 5.5 quedarían cableados en el código y cambiar una opción sería un despliegue.
+2. **Sección opcional y corta dentro de la visita**, para lo que los flujos no cubren: una comprobación de campaña estacional, una acción puntual del trimestre. **Nunca obligatoria** para cerrar la visita.
+
+> ⚠️ **Guardarraíles, no opcionales.** Un checklist editable sin freno crece hasta convertirse en el cuestionario que el boceto rechaza — y crecerá, porque añadir una pregunta siempre parece barato para quien no la responde en una tienda con una mano ocupada. Por eso: la sección opcional **se desactiva por defecto**, el editor del backoffice **avisa al superar unos pocos ítems**, y el piloto **mide el tiempo real de una visita sin incidencias**. Si ese tiempo sube, el checklist es el primer sospechoso.
 
 ### 5.5 Flujos de detección por categoría
 
@@ -351,7 +377,11 @@ Esto separa tres cosas que conviene no mezclar: **problema detectado → actuaci
 
 Los **Top Picos** son referencias que Danone considera prioritarias y que deberían estar en el surtido de determinados puntos de venta. El GPV ya consulta en otra aplicación cuáles corresponden a cada tienda: **esta aplicación no duplica esa base de datos**, solo registra las que faltan.
 
-El GPV indica las referencias Top Pico **no incorporadas** al lineal o al surtido (Referencia 1, Referencia 2, Referencia 3…).
+El GPV indica las referencias Top Pico **no incorporadas** al lineal o al surtido, **eligiéndolas de un catálogo de referencias de producto**, no escribiéndolas a mano.
+
+> **El catálogo es lo que hace posible el seguimiento.** Con texto libre, «Activia Natural 4×125» y «activia natural 4x125» son dos referencias distintas, y comprobar en la visita siguiente si *la misma* referencia se incorporó deja de funcionar. Como el seguimiento es, según el propio boceto, la funcionalidad más importante del sistema, la elección es catálogo.
+>
+> **Esto no duplica la base de datos de Top Picos.** Qué referencias son Top Pico en qué tienda sigue viviendo en la otra aplicación del cliente y no se replica. Aquí solo hace falta que las referencias tengan un nombre estable para poder reconocerlas entre visitas. De dónde sale y cómo se mantiene ese catálogo está abierto (P32), pero no bloquea el diseño del flujo.
 
 - **Dairy** → la incidencia va al **FSM**, que habla con el reponedor para que las incorpore.
 - **Waters / PBB** → el GPV habla **directamente con el encargado**.
@@ -374,7 +404,7 @@ Es una **oportunidad**, no una incidencia.
 
 Si existe:
 
-1. **Marca / segmento** — Activia, Alpro, Actimel, etc. *(catálogo pendiente de cerrar, P22)*
+1. **Marca / segmento** — de catálogo. El definitivo aún no existe; se arranca con placeholders (ANEXO §4)
 2. **¿Se ha conseguido ganar espacio?** No / Sí
 3. Si se ha conseguido: **¿cuántos facings se han ganado?** +1 / +2 / +3 …
 
@@ -430,6 +460,14 @@ Las neveras son un **tipo de extraespacio**. El GPV indica la situación:
 > **Cuando haya que retirar una nevera**, es especialmente importante poder adjuntar **fotografía** y registrar el **CÓDIGO DE NEVERA**. Sirve para identificar exactamente qué unidad debe recogerse y **evitar que se retire otra**.
 
 Toda gestión de nevera genera una **acción para el FSM**.
+
+**El código de nevera es un puente a otro sistema, no un dato interno.** El cliente lo explica así: *«todas las neveras tienen que tener un código visible que está dentro de la nevera. Es un código que me permite saber cuál es la que está mal para yo informarlo en mi propia aplicación de neveras»*. El FSM tiene su propia aplicación de neveras, y nuestro papel es que allí llegue el código correcto. De ahí cinco consecuencias de diseño:
+
+- El código se guarda **tal cual se escribe**. Normalizarlo agresivamente podría romper la correspondencia con la otra aplicación, y el objetivo declarado es evitar que se retire la unidad equivocada.
+- En el panel del FSM el código debe ser **prominente y copiable**: es el dato que va a teclear en otro sistema.
+- Conviene **foto del código**, no solo el código transcrito, para poder verificar una lectura dudosa sin volver a la tienda.
+- Está **dentro** de la nevera, así que leerlo exige abrirla. La interfaz no debe dar a entender que se ve de lejos.
+- **Cerrar una acción de nevera significa «informado en la aplicación de neveras»**, no «nevera recogida». Redactarlo de otro modo haría creer que el problema físico está resuelto cuando solo se ha trasladado.
 
 ### 5.6 Responsable de tienda
 
@@ -514,6 +552,16 @@ Implicaciones de diseño:
 - Cada comprobación es un **evento con fecha**, no una sobreescritura: el valor está en poder reconstruir cuánto tardó en resolverse algo, y eso se pierde si solo se guarda el último estado.
 - El cliente indica que el seguimiento **se aplicará progresivamente** a los distintos tipos de acción. No todos tienen que soportarlo desde el primer día, pero el modelo de datos sí debe admitirlo desde el principio: añadirlo después obliga a migrar histórico.
 
+**Quién cierra una acción: los dos.** Tanto el GPV, al comprobarlo en la siguiente visita, como el FSM desde su panel. Se registra siempre **quién la cerró y cuándo**: con dos actores capaces de cerrar, sin traza no hay forma de saber si una acción de Dairy la cerró el FSM tras hablar con el reponedor o el GPV al ver el hueco ya cubierto. Y el panel del FSM debe **señalar cuando un GPV ha cerrado una acción que le estaba asignada**, para que no se entere por casualidad.
+
+**Las acciones no caducan.** Cerrarlas automáticamente destruiría en silencio el seguimiento que da sentido al sistema. En su lugar, al superar un umbral configurable de antigüedad una acción se marca como **estancada**: sigue abierta, pero sube en el panel del FSM. Así se responde a *«¿qué acciones llevan demasiado tiempo abiertas?»* sin falsear el dato.
+
+> **Directriz de producto del cliente: «la idea es que los GPVs generen más oportunidades».** No es un comentario al margen, orienta decisiones concretas:
+>
+> - Lo pendiente se presenta como **contexto útil, no como lista de deberes**. Si detectar cosas hace que la próxima visita empiece con una lista de reproches, el GPV deja de detectar — y entonces el sistema se queda sin materia prima.
+> - Los resultados del propio GPV —facings ganados, Top Picos incorporados— deben ser **visibles para él**, no solo para el FSM.
+> - **Detección y resultado se miden por separado.** Premiar solo el resultado desincentiva registrar lo que uno no puede resolver, que es justamente lo que debe escalar al FSM.
+
 ### 5.9 Visitas planificadas no realizadas
 
 Si al final de la jornada una visita planificada sigue en estado `Pendiente`, **no se reprograma automáticamente**: pasa a estado **`No realizada`** y **requiere justificación obligatoria** del comercial.
@@ -540,8 +588,9 @@ Aplicación web para supervisores y administradores.
 
 - **Tiendas:** alta/baja/edición, número de referencia, dirección, geolocalización, zona/región, tipo de tienda (para checklist específico). En v1 la gestión es **manual**; el modelo incluye ya los campos necesarios para una futura sincronización con ERP (`id_externo`, `origen`, `sincronizado_en`) y el backoffice debe marcar visualmente el origen de cada ficha. Se incluye **importación por CSV** como paso intermedio antes de la integración real.
 - **Usuarios/comerciales:** alta/baja, asignación de zona, nº de trabajador, **regeneración de contraseña** (genera una temporal que fuerza cambio en el siguiente login), idioma preferido.
-- **Checklists:** creación y edición de plantillas, asignables por tipo de tienda o globalmente, con textos traducibles. *(Su continuidad depende de P19: el boceto sustituye el checklist por los flujos tipificados de la sección 5.5.)*
-- **Marcas / segmentos:** catálogo para los flujos de facings y visibilidad *(pendiente, P22)*.
+- **Configuración de flujos (antes «checklists»):** qué flujos aparecen en cada categoría, en qué orden, con qué opciones y para qué tipo de tienda o canal. Reutiliza la maquinaria de plantillas traducibles ya construida. Incluye además la **sección opcional de checklist**, desactivada por defecto y **con aviso al superar unos pocos ítems** — el guardarraíl que evita que vuelva a crecer hasta ser un cuestionario.
+- **Marcas / segmentos:** catálogo para los flujos de facings y visibilidad. **Las marcas no se traducen**: son nombres propios, y es la primera entrada de contenido configurable sin `textoI18n`.
+- **Referencias de producto:** catálogo del que el GPV elige las referencias Top Pico ausentes. Con importación CSV, como el de tiendas *(origen y mantenimiento abiertos, P32)*.
 - **Acciones:** el FSM gestiona el estado de las acciones abiertas desde su panel (sección 6.2), no desde la gestión maestra.
 - **Categorías de incidencia/oportunidad:** catálogo configurable (no fijo en código), con tipo asociado (incidencia u oportunidad), prioridad por defecto y textos traducibles. El catálogo definitivo está pendiente de cerrar con el cliente, por lo que la pantalla de gestión es un requisito, no un lujo.
 - **Motivos de no realización:** catálogo configurable de motivos para justificar visitas no realizadas.
@@ -577,7 +626,9 @@ Cada línea debe permitir distinguir de un vistazo **categoría, tienda, tipo de
 - Métricas clave: nº de visitas realizadas vs. planificadas, **tasa de no realización y desglose por motivo**, acciones por tipo/categoría/tienda/periodo, ranking de cobertura por zona.
 - Métricas de **resultado**, que son las que dan sentido al sistema: facings ganados, Top Picos incorporados, acciones resueltas y tiempo hasta la resolución (sección 6.4).
 
-> La **duración media de visita** desaparece de los informes por la razón legal explicada en 6.2. La tasa de cumplimiento de checklist queda condicionada a lo que se decida sobre el checklist (P19).
+> La **duración media de visita** desaparece de los informes por la razón explicada en 6.2, y no hay acción pendiente al respecto: el dato se registra, no se muestra, y solo volvería a plantearse si el cliente pidiera exponerlo. La tasa de cumplimiento de checklist deja de ser una métrica principal: el checklist ya no es el núcleo de la visita.
+
+Los informes pueden **segmentarse por canal** (Modern / Proximity) desde el primer día, aunque los flujos sean idénticos en ambos.
 - Exportación a PDF/Excel, respetando el idioma seleccionado.
 - Informes automáticos periódicos por email a supervisores (ej. resumen semanal), en el idioma preferido del destinatario.
 
@@ -630,9 +681,10 @@ Los campos marcados con 🌐 son **traducibles**: se almacenan como JSONB con un
 
 El núcleo del reencuadre. La pieza central es **Acción**, que existe **por encima de la visita**: la visita es el momento en que algo se detecta o se comprueba, pero lo detectado pertenece a la **tienda** y sobrevive al cierre de la visita.
 
-- **Acción** (id, **tienda_id**, visita_origen_id, **categoria_producto** [`dairy`/`waters`/`pbb`/`transversal`], **tipo_situacion**, **responsable_actuar** [`gpv`/`fsm`], **estado** [`abierta`/`en_curso`/`resuelta`/`descartada`], prioridad, detectada_en, resuelta_en, 🚫 resultado)
+- **Acción** (id, **tienda_id**, visita_origen_id, **categoria_producto** [`dairy`/`waters`/`pbb`/`transversal`], **tipo_situacion**, **responsable_actuar** [`gpv`/`fsm`], **estado** [`abierta`/`en_curso`/`resuelta`/`descartada`], **`estancada`** [derivado de la antigüedad, no un estado], prioridad, detectada_en, resuelta_en, **`cerrada_por`** + **`cerrada_por_rol`**, 🚫 resultado)
 - **ComprobacionAccion** (id, accion_id, **visita_id**, comprobada_en, **desenlace** [`sigue_pendiente`/`resuelta`/`no_procede`], comentario)
-- **MarcaSegmento** (id, nombre, categoria_producto, activo) — Activia, Alpro, Actimel… *(catálogo pendiente, P22)*
+- **MarcaSegmento** (id, nombre, categoria_producto, activo) — **el nombre no es traducible**: las marcas son nombres propios *(catálogo definitivo pendiente; placeholders en el ANEXO)*
+- **ReferenciaProducto** (id, nombre, marca_id, categoria_producto, activo) — para que el GPV elija en lugar de teclear *(origen abierto, P32)*
 
 **Detalles tipificados por flujo.** Cada uno cuelga de una `Acción` y guarda solo lo suyo:
 
@@ -641,7 +693,7 @@ El núcleo del reencuadre. La pieza central es **Acción**, que existe **por enc
 | **DeteccionStock** | suficiente [`si`/`no`/`reponedor_no_ha_pasado`], comunicado_al_responsable |
 | **DeteccionFechas** | problema [`fifo`/`proximo_caducar`/`mal_colocado`/`otro`] — solo Dairy |
 | **DeteccionHueco** | existe_hueco, cubierto_con_adyacente *(Dairy)*, corregido [`si`/`no_posible`] *(Waters/PBB)* |
-| **TopPicoPendiente** | referencia (texto), incorporada, fecha_incorporacion |
+| **TopPicoPendiente** | **referencia_id** *(del catálogo, no texto libre)*, incorporada, fecha_incorporacion |
 | **GananciaFacings** | marca_segmento_id, conseguido, **facings_ganados** (entero) |
 | **OportunidadVisibilidad** | marca_segmento_id, ubicacion_actual, propuesta |
 | **OportunidadReorganizacion** | propuesta (texto libre) |
@@ -649,17 +701,16 @@ El núcleo del reencuadre. La pieza central es **Acción**, que existe **por enc
 | **Nevera** | situacion, **codigo_nevera**, extraespacio_id |
 | **RelacionResponsable** | visita_id, ha_hablado, **valoracion**, cuestion_pendiente, comentario |
 
-**Decisión de diseño pendiente: tabla por flujo o tabla genérica con JSONB.** Los flujos comparten ciclo de vida pero no campos. Las dos opciones razonables:
+**Decidido: tabla por flujo, no JSONB genérico.** Los flujos comparten ciclo de vida pero no campos, y las dos opciones eran una tabla por flujo o una `Acción` con `detalle` en JSONB.
 
-- **Una tabla por flujo** (lo de arriba) — consultas directas y comprobables por la base de datos; añadir un flujo nuevo es una migración.
-- **Una `Acción` con `detalle` en JSONB** — flexible ante flujos nuevos, pero las preguntas 6 y 7 del dashboard (repetición por tienda) pasan a depender de consultas sobre JSON sin garantías de forma.
+El motivo decisivo es el dashboard: `facings_ganados` hay que **sumarlo**, y las preguntas de repetición («¿qué tiendas tienen problemas recurrentes?») exigen comparar campos concretos entre visitas. Con JSONB eso depende de consultas sobre estructuras sin garantías de forma, y el primer flujo guardado con una clave mal escrita rompe un agregado en silencio. La flexibilidad compensaría si los flujos fueran imprevisibles; el boceto los tipifica con precisión, así que no lo son.
 
-**Recomendación: tabla por flujo.** El boceto tipifica los flujos con precisión y el dashboard exige agregar por sus campos concretos — `facings_ganados` tiene que sumarse, no leerse. La flexibilidad del JSONB serviría si los flujos fueran imprevisibles, y no lo son. Conviene confirmarlo con el cliente antes de migrar (P24).
+**Coste asumido, explícito:** añadir un flujo nuevo es una migración. A cambio, la base de datos garantiza la forma de lo que guarda.
 
 **Cambios en entidades existentes:**
 
 - **Tienda** — añadir **`canal`** [`modern`/`proximity`]. El `numero_referencia` pasa a ser el **código Danone** (`350…`), con la búsqueda por código como vía principal de entrada a la visita.
-- **Usuario** — el rol admite **`rsm`** además de comercial/supervisor/administrador. Alcance de acceso pendiente (P21).
+- **Usuario** — **sin cambios.** El rol `rsm` **no se añade**: no tendría acceso a nada en esta versión, y las zonas ya tienen `region`, que es el eje de agregación que necesitaría una vista de RSM más adelante.
 - **Visita** — el flag `incompleta` **queda sin uso en el MVP**: no hay mínimos obligatorios para cerrar (sección 5.7). No se elimina el campo, porque el propio cliente anticipa definir esos mínimos más adelante.
 
 **Notas de diseño del ciclo:**
@@ -667,7 +718,8 @@ El núcleo del reencuadre. La pieza central es **Acción**, que existe **por enc
 - **`ComprobacionAccion` es un registro de eventos, no un campo de estado.** Guardar solo el último estado de una acción haría imposible responder cuánto tardó en resolverse, que es la pregunta 8 del dashboard. Cada comprobación se añade; ninguna sobreescribe.
 - **`responsable_actuar` se deriva por reglas**, no lo elige el GPV. Se calcula en el servidor a partir de categoría y tipo de situación, según la tabla de la sección 5.4. Dejarlo a elección del usuario permitiría que la misma situación escalara de forma distinta según quién la registrase, y rompería los agregados.
 - **`facings_ganados` es un entero acumulable.** Es la única cifra del sistema que se suma directamente para producir un resultado de negocio, y debe poder agregarse por GPV, tienda, categoría, marca y mes.
-- **`codigo_nevera` es texto libre** y debe conservarse tal cual se escribe: existe para que nadie retire la nevera equivocada, y normalizarlo agresivamente podría destruir esa correspondencia.
+- **`codigo_nevera` es texto libre** y debe conservarse tal cual se escribe: es la clave de correspondencia con la **aplicación de neveras del FSM**, y normalizarlo agresivamente podría destruir esa correspondencia.
+- **`estancada` se deriva de la antigüedad, no es un estado más.** Una acción estancada sigue abierta; solo sube en el panel. Convertirlo en estado permitiría que algo estuviera «estancado» y «resuelto» a la vez, o que dejara de estarlo sin que nadie hiciera nada.
 
 **Notas de diseño:**
 - El `nº_referencia` de tienda **no debe ser la clave primaria**. Cuando llegue el ERP, la clave de correspondencia será `id_externo`, y el número de referencia puede cambiar o duplicarse durante la transición.
@@ -696,7 +748,29 @@ El boceto añade el vídeo junto a la fotografía. No es una extensión trivial 
 - **Offline.** Un vídeo en la cola de sincronización ocupa en el dispositivo un espacio que la cola actual no está dimensionada para asumir.
 - **Retención.** La política de retención sin decidir (P7) pesa mucho más con vídeo que con foto.
 
-> **Pendiente de definir (P20):** duración máxima, formato, resolución y si el vídeo se comprime en el dispositivo. Sin esos límites no se puede dimensionar el almacenamiento ni fijar el comportamiento de la cola offline.
+**Límites fijados.** El cliente define el requisito por su resultado —*«se tienen que ver y oír bien»*— y delega lo técnico:
+
+| Parámetro | Valor | Por qué |
+|---|---|---|
+| Duración máxima | **60 s** | Suficiente para recorrer un lineal y narrarlo; el tope acota el almacenamiento |
+| Resolución | **720p** (1280×720) | Permite leer etiquetas de producto. 1080p multiplica por 2,25 los píxeles para muy poca ganancia real en una toma de lineal |
+| Fotogramas | **30 fps** | Estándar de captura de móvil |
+| Vídeo | **H.264, ~2,5 Mbps** | Contenido de poco movimiento; reproducción universal |
+| Audio | **AAC 128 kbps** | *«Oír bien»* es requisito explícito: el audio **no se elimina** para ahorrar espacio |
+| Contenedor | **MP4** | Se reproduce en todas partes, incluido Safari/iOS |
+| Tamaño máximo | **25 MB** | 60 s a esos bitrates son ~20 MB; el resto es margen |
+
+**La captura de vídeo en una PWA no funciona como la de foto**, y conviene no diseñar como si sí. Una foto se redimensiona en un `canvas` con tres líneas. Para vídeo no hay equivalente barato: `MediaRecorder` produce WebM/VP9 en Chrome y MP4/H.264 en Safari, y **Safari no reproduce WebM con fiabilidad** — un FSM con iPhone no podría ver el vídeo grabado por un GPV con Android.
+
+Camino elegido:
+
+1. **Captura con la cámara nativa** (`<input type="file" accept="video/*" capture>`), que produce MP4/H.264 con codificación por hardware en ambas plataformas y no castiga la batería.
+2. **Validación de duración y tamaño en el dispositivo** antes de encolar, con mensaje claro si se pasa.
+3. **Normalización a 720p en el servidor**, que uniforma la reproducción y acota el almacenamiento.
+
+> **Implicación de infraestructura:** el paso 3 necesita un proceso de transcodificación (ffmpeg). Es la pieza nueva más costosa de esta tanda. Si se prefiere evitarla al principio, la alternativa es almacenar el original y asumir tanto el coste de almacenamiento como el riesgo de compatibilidad — pero conviene que sea una decisión a la vista, no por omisión.
+
+> ⚠️ **El vídeo lleva audio, y eso abre una cuestión que la fotografía no planteaba (P31).** El caso de uso previsto por el boceto —documentar una falta de stock repetida para *«hablar con el responsable del establecimiento o escalar el problema»*— implica que el encargado puede quedar grabado, y que la grabación puede usarse en una conversación sobre él. Grabar la voz de una persona no equivale a fotografiar un lineal. No es motivo para descartar el vídeo ni bloquea diseñar el flujo, pero las salidas baratas —aviso visible de grabación, encuadre sobre el lineal y no sobre personas, o audio opcional— solo son baratas si se deciden antes de tener vídeos grabados.
 
 ## 9. Notificaciones
 
@@ -772,17 +846,7 @@ Las preguntas de la v0.1, el set de idiomas y la ventana de justificación queda
 - **¿Se ha informado ya a la plantilla y a su representación legal sobre la geolocalización** (art. 90 LOPDGDD)? Es requisito previo al despliegue.
 - **¿Cuánto tiempo se conservan las fotos?** Pospuesta por decisión de negocio. Hasta cerrarla, el sistema conserva indefinidamente, lo que implica que habrá que ejecutar un borrado retroactivo cuando se decida.
 
-**Derivadas del boceto funcional (v0.5):**
+**Abiertas tras la ronda 5.** Las doce que abrió el boceto (P19–P30) quedaron cerradas; sus respuestas están en [ANEXO.md](ANEXO.md). Estas dos surgen de ellas, y **ninguna bloquea el diseño**:
 
-- **P19 — ¿Qué se hace con el checklist ya construido?** El boceto rechaza el enfoque de cuestionario, pero la maquinaria de plantillas configurables existe y funciona. Puede retirarse o reutilizarse para configurar los propios flujos. **Bloquea el alcance de la fase 3.**
-- **P20 — ¿Qué límites tiene el vídeo?** Duración, formato, resolución, compresión en dispositivo. Bloquea el dimensionado de almacenamiento y el comportamiento de la cola offline.
-- **P21 — ¿El RSM es un rol con acceso propio o solo un nivel organizativo?** Determina si hay una cuarta vista de backoffice.
-- **P22 — ¿Cuál es el catálogo de marcas/segmentos?** El boceto cita Activia, Alpro y Actimel como ejemplos, no como lista. Lo necesitan los flujos de facings y visibilidad.
-- **P23 — ¿Quién cierra una acción, y puede caducar?** Si la cierra el GPV en la siguiente visita, el FSM desde el panel, o ambos según el tipo. Y si una acción abierta indefinidamente debe caducar o escalarse.
-- **P24 — ¿Se confirma el modelo de tabla por flujo?** Ver la recomendación en la sección 7.1.
-- **P25 — ¿La referencia de Top Pico es texto libre o catálogo?** El boceto la trata como texto que el GPV introduce, pero el seguimiento entre visitas exige poder comparar la misma referencia a lo largo del tiempo, y el texto libre lo dificulta.
-- **P26 — ¿Todas las neveras tienen código visible?** El flujo de retirada depende de ello.
-- **P27 — ¿Los canales Modern y Proximity cambian los flujos o solo segmentan informes?**
-- **P28 — ¿Se mantiene la ruta planificada?** Si el GPV entra por código de tienda, hay que confirmar que el rutero sigue siendo la referencia de cobertura.
-- **P29 — ¿Las zonas reales son solo Granada y Almería?** Los datos de prueba usan zonas placeholder.
-- **P30 — ¿Cuándo se cierra la revisión legal del tiempo de permanencia?** Está registrado técnicamente pero oculto. Es una extensión de P18.
+- **P31 — El vídeo lleva audio: ¿se ha valorado grabar la voz de terceros?** El encargado de tienda puede quedar grabado, y la grabación puede acabar usándose en una conversación sobre él. Conviene resolverla **antes** de implementar vídeo: las salidas son baratas ahora y caras con vídeos ya grabados.
+- **P32 — ¿De dónde sale el catálogo de referencias de producto, y cómo se mantiene?** Es un problema de datos, no de diseño: el flujo es idéntico se llene como se llene. El camino está ensayado con la importación CSV de tiendas. El riesgo real es que envejezca: si el GPV no encuentra la referencia que busca, vuelve al texto libre por la puerta de atrás.

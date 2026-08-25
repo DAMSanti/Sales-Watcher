@@ -276,6 +276,143 @@ El boceto aporta los primeros datos reales, que hasta ahora eran placeholder:
 - **Categorías de producto:** Dairy, Waters y PBB.
 - **Marcas citadas:** Activia, Alpro, Actimel — como ejemplos, no como catálogo cerrado (P22).
 
+### Respuestas de negocio — ronda 5 *(2026-08-25)*
+
+Cierran P19–P30. Dos de ellas —P19 y P24— el cliente las delega expresamente, así que la decisión y su justificación son nuestras.
+
+### 2026-08-25 — El checklist se conserva, pero deja de ser el centro · **[cierra P19]** · *decisión delegada*
+
+El cliente confirma que **los checklists editables desde el backoffice le interesan**. El boceto, a la vez, rechaza el cuestionario. No es contradictorio si se lee con cuidado qué rechaza exactamente el boceto:
+
+> *«No queremos que el GPV tenga que entrar en una tienda y contestar obligatoriamente a decenas de preguntas aunque no haya ningún problema.»*
+
+La objeción es a un interrogatorio **obligatorio y exhaustivo**, no a que haya contenido configurable. Así que el checklist se conserva con dos papeles distintos, y ninguno de los dos es el de antes:
+
+**1. Capa de configuración de los flujos tipificados.** Las plantillas dejan de ser listas de tareas para el GPV y pasan a definir **qué flujos aparecen en cada categoría, en qué orden, con qué opciones y para qué tipo de tienda o canal**. Es donde el backoffice ya sabe editar contenido traducible, y es exactamente lo que hace falta para que los nueve flujos del boceto no queden cableados en el código.
+
+**2. Sección opcional y corta dentro de la visita.** Para lo que los flujos no cubren: una comprobación de campaña estacional, una acción puntual del trimestre. **Nunca obligatoria** para cerrar la visita, coherente con que el MVP no exige mínimos.
+
+**Por qué esta salida y no las otras dos.** Retirar el checklist tiraría trabajo construido y probado, y dejaría los flujos cableados en el código —cada cambio de una opción sería un despliegue—. Mantenerlo como estaba produciría las dos aplicaciones a la vez, que es el riesgo ya registrado. Reutilizarlo como capa de configuración aprovecha lo hecho y respeta el boceto.
+
+> ⚠️ **El riesgo se traslada, no desaparece.** Un checklist editable sin freno crece hasta convertirse en el cuestionario que el boceto rechaza — y crecerá, porque añadir una pregunta siempre parece barato para quien no la responde en una tienda con una mano ocupada. Mitigaciones que conviene construir desde el principio: la sección opcional **se desactiva por defecto**, el editor **avisa al superar unos pocos ítems**, y el piloto **mide el tiempo real de una visita sin incidencias** (fase 5). Si esa medición sube, el checklist es el primer sospechoso.
+
+### 2026-08-25 — Tabla por flujo, confirmada · **[cierra P24]** · *decisión delegada*
+
+Se confirma la recomendación de SPECS 7.1: **una tabla por flujo**, no una `Accion` con `detalle` en JSONB.
+
+El motivo decisivo es el dashboard. `facings_ganados` hay que **sumarlo**, y las preguntas de repetición («¿qué tiendas tienen problemas recurrentes?») exigen comparar campos concretos entre visitas. Con JSONB eso depende de consultas sobre estructuras sin garantías de forma, y el primer flujo que se guarde con una clave mal escrita rompe un agregado en silencio. La flexibilidad del JSONB compensaría si los flujos fueran imprevisibles; el boceto los tipifica con precisión, así que no lo son.
+
+El coste asumido es explícito: **añadir un flujo nuevo es una migración**. A cambio, la base de datos puede garantizar la forma de lo que guarda.
+
+### 2026-08-25 — Límites del vídeo · **[cierra P20]** · *decisión delegada*
+
+El cliente fija el requisito en términos de resultado —*«se tienen que ver y oír bien»*— y delega lo técnico. Los números elegidos:
+
+| Parámetro | Valor | Por qué |
+|---|---|---|
+| Duración máxima | **60 s** | Suficiente para recorrer un lineal y narrarlo; el tope acota el almacenamiento |
+| Resolución | **720p** (1280×720) | Permite leer etiquetas de producto. 1080p multiplica por 2,25 los píxeles para muy poca ganancia real en una toma de lineal |
+| Fotogramas | **30 fps** | Estándar de captura de móvil |
+| Vídeo | **H.264, ~2,5 Mbps** | Contenido de poco movimiento; universal en reproducción |
+| Audio | **AAC 128 kbps** | *«Oír bien»* es un requisito explícito: el audio **no se elimina** para ahorrar espacio |
+| Contenedor | **MP4** | Se reproduce en todas partes, incluido Safari/iOS |
+| Tamaño máximo | **25 MB** | 60 s a esos bitrates son ~20 MB; el resto es margen |
+
+**La captura de vídeo en una PWA no es como la de foto, y conviene no pretender que sí.** Una foto se redimensiona en un `canvas` con tres líneas. Para vídeo no hay equivalente barato: `MediaRecorder` produce WebM/VP9 en Chrome y MP4/H.264 en Safari, y **Safari no reproduce WebM con fiabilidad** — un FSM con iPhone no podría ver el vídeo de un GPV con Android.
+
+Camino elegido: **captura con la cámara nativa** (`<input type="file" accept="video/*" capture>`), que da MP4/H.264 con codificación por hardware en ambas plataformas y no castiga la batería; **validación de duración y tamaño en el dispositivo** antes de encolar; y **normalización a 720p en el servidor**.
+
+> **Implicación de infraestructura:** la normalización necesita un proceso de transcodificación (ffmpeg). Es la pieza nueva más costosa de esta tanda. Si se quiere evitar al principio, la alternativa es guardar el original y aceptar tanto el coste de almacenamiento como el riesgo de compatibilidad — pero conviene decidirlo a la vista, no por omisión.
+
+**Consecuencia legal no prevista, ver P31.** Grabar audio no es lo mismo que fotografiar un lineal.
+
+### 2026-08-25 — Cualquiera de los dos cierra una acción · **[cierra P23]**
+
+**GPV y FSM pueden cerrar acciones**, y el cliente añade la intención de diseño: *«la idea es que los GPVs generen más oportunidades»*.
+
+Esa frase es una directriz de producto, no un detalle. Orienta decisiones concretas:
+
+- Lo pendiente se presenta como **contexto útil, no como lista de deberes**. Es el riesgo de «deuda acumulada» ya registrado, y ahora tiene respuesta: si detectar cosas hace que la próxima visita empiece con una lista de reproches, el GPV deja de detectar.
+- Los resultados del propio GPV —facings ganados, Top Picos incorporados— deben ser **visibles para él**, no solo para el FSM.
+- **Detección y resultado se miden por separado.** Premiar solo el resultado desincentiva registrar lo que uno no puede resolver, que es justamente lo que debe escalar al FSM.
+
+**Se registra siempre quién cerró y cuándo.** Con dos actores capaces de cerrar, sin traza no se puede saber si una acción de Dairy la cerró el FSM tras hablar con el reponedor o el GPV al ver el hueco cubierto. El panel del FSM debe además **señalar cuando un GPV ha cerrado una acción que le estaba asignada**, para que no se entere por casualidad.
+
+**Caducidad: no la hay, y es deliberado.** El cliente no se pronunció, y cerrar acciones automáticamente destruiría en silencio justo el seguimiento que da sentido al sistema. En su lugar, una acción supera un umbral configurable de antigüedad y se marca como **estancada** — sigue abierta, pero sube en el panel del FSM. Responde a *«¿qué acciones llevan demasiado tiempo abiertas?»* sin falsear nada.
+
+### 2026-08-25 — Las referencias Top Pico son un catálogo · **[cierra P25]**
+
+Se elige catálogo frente a texto libre, que era la opción que evitaba degradar el seguimiento.
+
+**Esto no contradice el «no dupliques la base de datos de Top Picos» del boceto**, y merece la pena precisar por qué. Lo que vive en la otra aplicación es **qué Top Picos aplican a qué tienda** — esa correspondencia no se replica. Aquí solo hace falta un **catálogo de referencias de producto** para que el GPV *elija* en lugar de *teclear*. Sin él, «Activia Natural 4x125» y «activia natural 4x125» son dos referencias distintas y el seguimiento entre visitas se rompe solo.
+
+Queda abierto de dónde sale y cómo se mantiene ese catálogo (P32).
+
+### 2026-08-25 — El RSM no tendrá acceso en esta versión · **[cierra P21]**
+
+*«De momento es solo para el FSM, aunque si esto crece sí que podría requerir acceso.»*
+
+**No se añade el rol `rsm`.** Un rol que no da acceso a nada es código muerto que hay que mantener y probar. Y no hace falta anticiparlo: las zonas ya tienen campo `region`, que es el eje de agregación que necesitaría una vista de RSM. Añadir el rol más adelante es puramente aditivo.
+
+### 2026-08-25 — Modern y Proximity: se guarda el canal, no se bifurcan los flujos · **[cierra P27]**
+
+*«Son dos canales diferentes pero la función es la misma […] sería interesante, como mínimo de cara al futuro, depende la dificultad que veas.»*
+
+El coste está muy repartido, y por eso la respuesta se parte en dos:
+
+- **Guardar el canal en la tienda es trivial** — una columna y un enum. Habilita desde el primer día segmentar informes por canal y deja preparada cualquier diferencia futura.
+- **Bifurcar los flujos por canal es caro** — duplica combinaciones a diseñar, traducir y probar, cruzándose además con las tres categorías.
+
+Así que **se añade el campo y no se bifurca nada**. Es la opción que compra la opción de futuro casi gratis. Si algún día un canal necesita un flujo distinto, la capa de configuración del checklist (P19) ya permite asignar flujos por canal sin tocar código.
+
+### 2026-08-25 — La visita por código entra en la ruta del día · **[cierra P28]**
+
+*«Se mete dentro de la ruta la visita nueva.»*
+
+La visita a una tienda fuera del rutero **se incorpora a la ruta del día** y aparece como una más.
+
+> ⚠️ **Con un matiz que no conviene perder.** Si toda visita se incorpora a la ruta, la cobertura planificada sale siempre al 100% y la métrica deja de medir nada. La solución no cuesta nada porque el campo ya existe: la visita se incorpora a la ruta, pero **conserva `planificada = false`**. El GPV ve una lista coherente de su día; el FSM sigue pudiendo distinguir cobertura planificada de oportunista. Son dos preguntas distintas y ahora ambas tienen respuesta.
+
+Encaja además con el mecanismo de **adopción** que ya existe: al materializar una ruta, una visita preexistente se enlaza en lugar de duplicarse.
+
+### 2026-08-25 — El código de nevera es un puente a otra aplicación · **[cierra P26]**
+
+*«Todas las neveras tienen que tener un código visible que está dentro de la nevera. Es un código que me permite saber cuál es la que está mal para yo informarlo en mi propia aplicación de neveras.»*
+
+Esto cambia lo que significa el flujo de neveras: **no es un registro, es un traspaso**. El FSM tiene su propia aplicación de neveras y nuestro papel es que llegue allí el código correcto.
+
+Consecuencias concretas:
+
+- El código se guarda **tal cual se escribe**. Normalizarlo agresivamente podría destruir la correspondencia con la otra aplicación, y el objetivo declarado es *evitar que se retire la nevera equivocada*.
+- En el panel del FSM el código debe ser **prominente y copiable**. Es el dato que va a teclear en otro sistema.
+- Conviene **foto del código**, no solo el código: permite verificar una transcripción dudosa sin volver a la tienda.
+- Está **dentro** de la nevera, así que leerlo exige abrirla. La interfaz no debe sugerir que se ve de lejos.
+- **Cerrar una acción de nevera significa «informado en la aplicación de neveras»**, no «nevera recogida». Confundirlo haría creer que el problema físico está resuelto cuando solo se ha trasladado.
+
+### 2026-08-25 — Solo Granada y Almería · **[cierra P29]**
+
+*«Ahora mismo, esta versión de iniciación sí, va a ser solo Granada y Almería.»*
+
+Las zonas placeholder se sustituyen por las dos reales. Ambas están en la España peninsular, lo que **cierra también P17** (Canarias): huso único, sin complicación de cierre de jornada por zona horaria. El mecanismo por zona ya construido sigue valiendo y no estorba.
+
+### 2026-08-25 — La duración de visita: sin acción pendiente · **[cierra P30]**
+
+La pregunta estaba mal formulada por mi parte. En claro:
+
+El boceto dice que la aplicación *puede* registrar cuándo empieza y acaba una visita, pero que **no quiere usar el tiempo de permanencia** —cuánto rato estuvo el GPV en la tienda— ni como métrica visible ni como forma de controlar al GPV, y que antes de plantearlo habría que revisar la parte legal. Yo preguntaba quién hace esa revisión y cuándo.
+
+**No bloquea nada, así que se cierra sin acción.** El dato se sigue registrando; simplemente no se muestra en ninguna parte. La revisión legal solo haría falta si algún día el cliente pidiera mostrarlo, y en ese momento se abriría la pregunta con un motivo concreto. Registrarla ahora era anticipar un problema que puede no llegar nunca.
+
+### 2026-08-25 — Navegación confirmada por el cliente
+
+El cliente confirma la jerarquía de la app de campo:
+
+1. **Número de punto de venta o nombre de la tienda** para entrar
+2. **Dairy · Waters · PBB**, más **responsable en tienda**
+3. Dentro de cada categoría: **incidencias, oportunidades, extraespacios**
+
+Coincide con lo documentado, con un matiz: **buscar por nombre está al mismo nivel que el código**, no es una alternativa de respaldo. La v0.5 lo describía como salida para quien no recuerda el código; en realidad son dos vías igual de válidas y así debe presentarse.
+
 ---
 
 ## 1-bis. Impacto sobre lo ya construido
@@ -333,29 +470,20 @@ Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuest
 | 18 | ¿Se ha informado ya a la plantilla y a su representación legal sobre la geolocalización (art. 90 LOPDGDD)? | Requisito legal previo al despliegue | **Abierta** |
 | 10 | ¿Cuál es el catálogo definitivo de categorías de incidencia/oportunidad? | Datos, no código: la pantalla de gestión no depende de esto | **En curso** — en negociación con el cliente; se arranca con placeholders traducidos (sección 4) |
 | 11 | ¿Cuál es el catálogo de motivos de no realización? | Datos, no código | **Abierta** — propuesta inicial traducida en sección 4 |
-| 17 | ¿Hay comerciales en Canarias? | Si no, el cierre de jornada es de huso único | **Abierta** — menor |
 | 7 | ¿Cuánto tiempo se conservan las fotos? | Política RGPD, coste de almacenamiento | **Pospuesta** — decisión consciente de negocio (ver nota abajo) |
 
-**Derivadas del boceto funcional (ronda 4).** Ordenadas por lo que bloquean:
+**Abiertas tras la ronda 5.** P19–P30 quedaron cerradas; estas dos surgen de sus respuestas:
 
 | # | Pregunta | Bloquea | Estado |
 |---|---|---|---|
-| 19 | ¿Qué se hace con el checklist ya construido: se retira o se reutiliza para configurar los flujos? | **Alcance de la fase 3** — es la pieza más afectada | **Abierta — la más urgente** |
-| 20 | ¿Qué límites tiene el vídeo (duración, formato, resolución, compresión en dispositivo)? | Dimensionado de almacenamiento y comportamiento de la cola offline | **Abierta** |
-| 22 | ¿Cuál es el catálogo de marcas/segmentos? | Flujos de facings y visibilidad | **Abierta** — el boceto solo da ejemplos |
-| 23 | ¿Quién cierra una acción (GPV en la siguiente visita, FSM desde el panel, ambos), y caduca? | Ciclo de vida de la acción | **Abierta** |
-| 25 | ¿La referencia de Top Pico es texto libre o catálogo? | Seguimiento entre visitas | **Abierta** — ver nota |
-| 21 | ¿El RSM es un rol con acceso propio o solo un nivel organizativo? | Si hay una cuarta vista de backoffice | **Abierta** |
-| 24 | ¿Se confirma el modelo de tabla por flujo frente a JSONB genérico? | Migraciones | **Abierta** — hay recomendación en SPECS 7.1 |
-| 27 | ¿Modern y Proximity cambian los flujos o solo segmentan informes? | Diseño de los flujos | **Abierta** |
-| 28 | ¿Se mantiene la ruta planificada si el GPV entra por código de tienda? | Métrica de cobertura | **Abierta** |
-| 26 | ¿Todas las neveras tienen código visible? | Flujo de retirada | **Abierta** — menor |
-| 29 | ¿Las zonas reales son solo Granada y Almería? | Datos de prueba y alta de zonas | **Abierta** — menor |
-| 30 | ¿Cuándo se cierra la revisión legal del tiempo de permanencia? | Si la duración puede mostrarse alguna vez | **Abierta** — extensión de P18 |
+| 31 | El vídeo lleva **audio**. ¿Se ha valorado grabar la voz de terceros (encargado de tienda) en el punto de venta? | Cumplimiento RGPD del flujo de vídeo | **Abierta — conviene resolverla antes de implementar vídeo** |
+| 32 | ¿De dónde sale el **catálogo de referencias de producto** para Top Picos, y cómo se mantiene al día? | Alta del catálogo, no el diseño del flujo | **Abierta** |
 
-**Nota sobre P25 (referencia de Top Pico).** El boceto la trata como texto que el GPV introduce («Referencia 1, Referencia 2…»), y eso encaja con no duplicar la base de datos de Top Picos que ya existe en otra aplicación. Pero el seguimiento entre visitas exige comparar *la misma referencia* a lo largo del tiempo, y con texto libre «Activia Natural 4x125» y «activia natural 4x125» son dos referencias distintas. Sin resolverlo, la funcionalidad que el cliente considera más importante se degrada sola. Las salidas razonables son un catálogo mínimo de referencias, o normalizar el texto y aceptar el margen de error — pero conviene elegir a conciencia, no por omisión.
+**Nota sobre P31 (audio y terceros).** Surge de la decisión de vídeo, y no estaba prevista. El cliente pide que los vídeos *«se vean y se oigan bien»*, y eso es razonable: el GPV narra lo que enseña. Pero fotografiar un lineal y **grabar la voz de una persona** no son lo mismo a efectos de protección de datos, y el caso de uso previsto —dejar constancia de una falta de stock repetida para *«hablar con el responsable del establecimiento o escalar el problema»*— implica que el encargado puede aparecer en la grabación, y que esa grabación puede usarse en una conversación sobre él.
 
-**Nota sobre P19 (el checklist).** Es la pregunta que más trabajo desbloquea o desperdicia, y conviene plantearla al cliente en esos términos: la maquinaria de plantillas configurables está construida, probada y funcionando. Retirarla es perder trabajo hecho; mantenerla junto a los nuevos flujos es arriesgarse al cuestionario largo que el boceto quiere evitar. La tercera vía —usar las plantillas como mecanismo de configuración de los flujos tipificados, en lugar de como lista de tareas para el GPV— aprovecha lo construido sin contradecir el boceto, y es la que merece la pena explorar primero.
+No es motivo para descartar el vídeo, y no bloquea diseñar el flujo. Sí conviene decidir a conciencia, y hay salidas baratas si se toman antes y no después: que la interfaz recuerde que se está grabando audio, que el vídeo documente **el lineal y no a las personas**, o que el audio sea opcional y el GPV decida. Añadirlo luego, con vídeos ya grabados, es bastante más caro.
+
+**Nota sobre P32 (catálogo de referencias).** No bloquea el diseño: el flujo es idéntico se llene el catálogo como se llene. Es un problema de datos, y el camino ya está ensayado —la importación CSV de tiendas hizo exactamente esto—. Lo que conviene evitar es que quede desatendido: un catálogo de referencias que envejece produce que el GPV no encuentre la que busca, y entonces vuelve al texto libre por la puerta de atrás.
 
 **Nota sobre P16.** Las traducciones iniciales están hechas (sección 4), pero el contenido configurable es *vivo*: el administrador añadirá categorías nuevas en producción. Sin un circuito definido, esas categorías saldrán solo en castellano y el resto de idiomas irá degradándose por acumulación. Conviene decidirlo antes del rollout, no después. La opción más barata es que el editor de traducciones del backoffice marque lo que falta y alguien lo revise periódicamente.
 
@@ -363,7 +491,11 @@ Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuest
 
 ### Preguntas cerradas
 
-P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no realizada), P5 (multi-idioma), P6 (categorías → reconvertida en P10), P8 (contraseñas), P9 (set de idiomas), P12 (ventana de justificación), P13 (solo idioma de interfaz), P14 (`en-GB`), P15 (traducción inicial → deja abierta P16). Sus respuestas están en la sección 1.
+P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no realizada), P5 (multi-idioma), P6 (categorías → reconvertida en P10), P8 (contraseñas), P9 (set de idiomas), P12 (ventana de justificación), P13 (solo idioma de interfaz), P14 (`en-GB`), P15 (traducción inicial → deja abierta P16).
+
+**Cerradas en la ronda 5:** P17 (Canarias → no, solo Granada y Almería), P19 (checklist → se conserva como capa de configuración), P20 (vídeo → límites técnicos fijados), P21 (RSM → sin acceso, no se añade el rol), P23 (cierre de acciones → ambos, sin caducidad), P24 (modelo → tabla por flujo), P25 (Top Picos → catálogo), P26 (código de nevera → sí, es un puente a otra aplicación), P27 (canales → se guarda, no se bifurca), P28 (ruta → la visita se incorpora conservando `planificada = false`), P29 (zonas → Granada y Almería), P30 (duración → sin acción pendiente).
+
+Sus respuestas están en la sección 1.
 
 ---
 
@@ -380,7 +512,19 @@ P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no re
 | **Top Pico como texto libre rompe el seguimiento** | **Alto — degrada la funcionalidad que el cliente considera más importante** | Resolver P25: catálogo mínimo de referencias, o normalización explícita del texto asumiendo su margen de error |
 | **El vídeo desborda almacenamiento y cola offline** | Alto — decenas de MB por evidencia frente a ~250 KB de una foto | Fijar límites antes de implementar (P20); compresión en dispositivo; revisar caducidad de la URL de subida y el espacio que la cola ocupa en el móvil |
 | **La regla de responsable queda desactualizada** | Medio — si alguna tienda de Dairy no tiene reponedor, la incidencia escala a quien no puede resolverla | Mantener la regla en servidor y en un solo sitio, para poder corregirla sin tocar la app; revisar los supuestos en el piloto |
-| **El registro de tiempo se usa antes de la revisión legal** | Medio — el dato existe en base de datos aunque no se muestre | Mantenerlo fuera de API, informes y exportaciones, no solo oculto en la interfaz; reabrir solo tras cerrar P30 |
+| **El registro de tiempo se usa antes de la revisión legal** | Medio — el dato existe en base de datos aunque no se muestre | Mantenerlo fuera de API, informes y exportaciones, no solo oculto en la interfaz |
+
+**Derivados de la ronda 5 (2026-08-25):**
+
+| Riesgo | Impacto | Mitigación prevista |
+|---|---|---|
+| **El checklist opcional crece hasta ser el cuestionario** | **Alto — reintroduce por la puerta de atrás justo lo que el boceto rechaza** | Desactivado por defecto; aviso en el editor al superar unos pocos ítems; nunca obligatorio para cerrar; **medir en el piloto el tiempo de una visita sin incidencias** — si sube, el checklist es el primer sospechoso |
+| **Grabación de voz de terceros en los vídeos** | Alto — RGPD; el encargado puede quedar grabado y el vídeo usarse en una conversación sobre él | Decidir P31 **antes** de implementar: aviso visible de grabación, encuadre sobre el lineal y no sobre personas, o audio opcional. Retrofitarlo con vídeos ya grabados es mucho más caro |
+| **La transcodificación de vídeo como pieza de infraestructura nueva** | Medio — es lo más costoso de esta tanda, y sin ella hay incompatibilidad entre Android y iOS | Captura nativa en MP4/H.264, que ya cubre el caso común; la normalización a 720p acota además el almacenamiento |
+| **Cobertura planificada inflada al 100 %** | Medio — si toda visita entra en la ruta, la métrica deja de medir | La visita se incorpora a la ruta pero **conserva `planificada = false`**; el campo ya existe |
+| **Catálogo de referencias que envejece** | Medio — el GPV no encuentra la referencia y vuelve al texto libre | Definir origen y mantenimiento (P32); importación CSV como en tiendas |
+| **Cerrar una acción de nevera se confunde con resolverla** | Medio — «informado en la aplicación de neveras» no es «nevera recogida» | Redactar el desenlace en esos términos exactos en la interfaz del FSM |
+| **Dos actores cerrando la misma acción sin traza** | Medio — nadie sabe si la cerró el FSM o el GPV | Registrar siempre `cerrada_por` y momento; avisar al FSM cuando un GPV cierra algo que le estaba asignado |
 
 **Riesgos previos, vigentes:**
 
@@ -465,6 +609,81 @@ Basadas en lo indicado por el cliente.
 | Supermercado de proximidad | Auzoko supermerkatua | Supermercat de proximitat | Supermarché de proximité | Convenience supermarket |
 | Tienda tradicional | Denda tradizionala | Botiga tradicional | Commerce traditionnel | Traditional store |
 | Autoservicio | Autozerbitzua | Autoservei | Libre-service | Self-service store |
+
+### Marcas / segmentos *(placeholder — P22)*
+
+Los necesitan los flujos de ganancia de facings y de visibilidad. El cliente confirma que **el catálogo definitivo aún no existe**, así que se arranca con estos.
+
+> **Las marcas comerciales no se traducen.** Son nombres propios: «Activia» es Activia en los cinco idiomas. Es la primera entrada de contenido configurable del sistema que **no** lleva `textoI18n`, y conviene que sea deliberado y no un olvido. Lo que sí podría traducirse es un eventual campo de *segmento* descriptivo, si el catálogo definitivo lo incorpora.
+
+| Marca | Categoría |
+|---|---|
+| Activia | Dairy |
+| Actimel | Dairy |
+| Danone | Dairy |
+| Danonino | Dairy |
+| Vitalinea | Dairy |
+| Oikos | Dairy |
+| Font Vella | Waters |
+| Lanjarón | Waters |
+| Evian | Waters |
+| Volvic | Waters |
+| Alpro | PBB |
+
+### Referencias de producto *(placeholder — P25, P32)*
+
+Catálogo del que el GPV **elige** una referencia Top Pico ausente, en lugar de teclearla. Es lo que hace posible el seguimiento entre visitas.
+
+> **Esto no es la base de datos de Top Picos.** Qué referencias son Top Pico en qué tienda vive en la otra aplicación del cliente y no se replica aquí. Este catálogo solo da nombres estables a las referencias, para que la misma referencia sea reconocible entre una visita y la siguiente.
+
+| Referencia | Marca | Categoría |
+|---|---|---|
+| Activia Natural 4×125 g | Activia | Dairy |
+| Activia Fibras Cereales 4×120 g | Activia | Dairy |
+| Actimel Original 6×100 g | Actimel | Dairy |
+| Actimel 0% Fresa 6×100 g | Actimel | Dairy |
+| Danone Natural Azucarado 8×125 g | Danone | Dairy |
+| Danonino Fresa-Plátano 6×50 g | Danonino | Dairy |
+| Vitalinea Natural 4×120 g | Vitalinea | Dairy |
+| Oikos Griego Natural 2×110 g | Oikos | Dairy |
+| Font Vella 1,5 L | Font Vella | Waters |
+| Font Vella Sensación Limón 1,25 L | Font Vella | Waters |
+| Lanjarón 1,5 L | Lanjarón | Waters |
+| Evian 1 L | Evian | Waters |
+| Alpro Soja Original 1 L | Alpro | PBB |
+| Alpro Avena Sin Azúcares 1 L | Alpro | PBB |
+| Alpro Almendra Sin Azúcares 1 L | Alpro | PBB |
+
+*(Nombres verosímiles construidos para desarrollar y demostrar. El catálogo real lo aporta el cliente.)*
+
+### Listas de opciones de los flujos *(del boceto, no placeholder)*
+
+A diferencia de las anteriores, **estas salen del boceto funcional y son especificación, no relleno**. Se listan aquí porque son contenido configurable y traducible, y porque conviene tenerlas juntas al sembrar la base de datos.
+
+| Flujo | Opciones |
+|---|---|
+| **Suficiencia de stock** | Sí · No · El reponedor todavía no ha pasado *(solo Dairy)* |
+| **Problema de fechas** *(solo Dairy)* | FIFO incorrecto · Producto próximo a caducar · Producto mal colocado · Otro |
+| **Hueco — Waters/PBB** | Corregido · No ha sido posible |
+| **Tipo de extraespacio** | Cabecera · Isla · Pila · Nevera · Otro |
+| **Motivo de extraespacio** | Alta rotación · Promoción · Potencial de venta · Falta de espacio en lineal · Oportunidad estacional · Otro |
+| **Situación de nevera** | Se utiliza correctamente · Se utiliza parcialmente · Se utiliza incorrectamente · Nos la han retirado · Está vacía / desaprovechada · Se necesita una nueva nevera · Necesita recogida · Otro |
+| **Ubicación actual** *(visibilidad)* | Palomar / parte superior · Zona intermedia · Altura de ojos · Foso / parte inferior · Otra |
+| **Propuesta** *(visibilidad)* | Subir producto · Bajar producto · Ganar espacio · Cambiar ubicación · Reorganizar lineal · Otra |
+| **Valoración de la relación** | Muy buena · Buena · Correcta · Mejorable · Mala · No he podido hablar con él |
+
+Faltan por traducir a los cinco idiomas antes de sembrarlas; es trabajo mecánico pero no trivial, porque incluye la terminología de sector que ya obligó a marcar el euskera para revisión nativa.
+
+### Zonas *(reales — P29)*
+
+Las zonas placeholder se sustituyen por las dos reales de esta versión inicial:
+
+| Zona | Región | Huso |
+|---|---|---|
+| Granada | Andalucía | Europe/Madrid |
+| Almería | Andalucía | Europe/Madrid |
+
+Ambas peninsulares, lo que **cierra también P17**: huso único y cierre de jornada sin complicación. El mecanismo por zona ya construido sigue valiendo y no estorba.
 
 ### Nota sobre el formato de carga
 

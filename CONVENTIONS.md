@@ -137,6 +137,20 @@ Tres reglas que conviene no romper, porque las tres son fáciles de romper sin d
 
 Y una consecuencia de interfaz: **el GPV no habla con el reponedor**. Las incidencias de Dairy van al FSM, que las traslada. Nunca mostrar al GPV que «se ha avisado al reponedor»: prometería una notificación que el sistema no envía, porque el reponedor no es usuario del sistema.
 
+**Los dos actores cierran, así que siempre se registra quién.** GPV y FSM pueden cerrar una acción. Sin `cerrada_por` y `cerrada_por_rol` no hay forma de saber si una acción de Dairy la cerró el FSM tras hablar con el reponedor o el GPV al ver el hueco ya cubierto.
+
+**`estancada` se deriva de la antigüedad; no es un estado.** Una acción estancada sigue abierta y solo sube en el panel del FSM. Convertirlo en estado permitiría que algo estuviera «estancado» y «resuelto» a la vez, o que dejara de estarlo sin que nadie hiciera nada. Y **las acciones no caducan**: cerrarlas solas destruiría en silencio el seguimiento que da sentido al sistema.
+
+### Tres campos que parecen internos y no lo son
+
+- **`codigo_nevera`** es la clave de correspondencia con la **aplicación de neveras del FSM**. Se guarda tal cual se escribe. Normalizarlo —recortar, pasar a mayúsculas, quitar guiones— puede romper la correspondencia, y su razón de existir es que no se retire la nevera equivocada.
+- **`MarcaSegmento.nombre` no lleva `textoI18n`.** Las marcas son nombres propios: «Activia» es Activia en los cinco idiomas. Es la única entrada de contenido configurable sin traducción, y es deliberado.
+- **`Visita.planificada` sigue siendo `false`** cuando el GPV entra por código a una tienda fuera de ruta, aunque la visita **sí** se incorpore a la ruta del día. Si se pusiera a `true`, la cobertura planificada saldría siempre al 100 % y la métrica dejaría de medir nada.
+
+### El canal se guarda, no bifurca
+
+`Tienda.canal` (Modern / Proximity) existe para segmentar informes y dejar preparado el futuro. **Ningún flujo se bifurca por canal.** Si algún día hiciera falta, se resuelve por configuración —qué flujos aplican a qué canal— y no con un `if` en el código de la app.
+
 ## Incidencias
 
 **Las transiciones de estado se declaran explícitamente.** Sin eso, un supervisor podría reabrir una incidencia resuelta hace meses y descuadrar los informes de un periodo ya cerrado. `resuelta` y `descartada` son terminales.
