@@ -13,7 +13,11 @@
     "exportar": "Export CSV",
     "vacio": "Nothing to show with these filters.",
     "todos": "All",
-    "sinDato": "No data"
+    "sinDato": "No data",
+    "si": "Yes",
+    "no": "No",
+    "volver": "Back",
+    "cerrar": "Close"
   },
   "nav": {
     "supervision": "Supervision",
@@ -30,7 +34,8 @@
     "checklists": "Checklists",
     "rutas": "Routes",
     "acciones": "Actions",
-    "resultados": "Results"
+    "resultados": "Results",
+    "productos": "Products"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -120,10 +125,10 @@
     "nuevo": "Nuevo",
     "editar": "Editar",
     "buscar": "Buscar…",
-    "activo": "Activo",
-    "inactivo": "Inactivo",
-    "activar": "Activar",
-    "desactivar": "Desactivar",
+    "activo": "Active",
+    "inactivo": "Inactive",
+    "activar": "Activate",
+    "desactivar": "Deactivate",
     "sinBorrado": "Los elementos se desactivan, no se borran: el histórico que los referencia dejaría de poder leerse.",
     "resultados": "{{n}} resultados",
     "incluirInactivos": "Incluir inactivos",
@@ -131,7 +136,8 @@
     "codigoFijo": "El código no se puede cambiar: es la clave estable que usan los datos semilla y las integraciones.",
     "faltanIdiomas": "Faltan",
     "traducciones": "Traducciones",
-    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde."
+    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde.",
+    "estado": "Status"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -206,7 +212,8 @@
     "orden": "Orden",
     "verItems": "Ver ítems",
     "sinItems": "Esta plantilla no tiene ítems.",
-    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global."
+    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global.",
+    "avisoLargo": "{{n}} items. The checklist is an optional, short section."
   },
   "rutas": {
     "titulo": "Rutas",
@@ -254,7 +261,10 @@
     "avisoCierres": "A GPV closed {{n}} action(s) assigned to you this week.",
     "verCierres": "View them",
     "viendoCierres": "Showing only actions closed by a GPV.",
-    "volverBandeja": "Back to the list"
+    "volverBandeja": "Back to the list",
+    "informado": "Reported",
+    "informadoAyuda": "Reported in your cooler app. It doesn't mean the cooler was collected.",
+    "verVisita": "View visit"
   },
   "estadoAccion": {
     "abierta": "Open",
@@ -346,5 +356,146 @@
     "facingsNoConseguidos": "Facings not gained",
     "deDetectadas": "of {{n}} opportunities",
     "sinResultado": "No result"
+  },
+  "canal": {
+    "modern": "Modern",
+    "proximity": "Proximity"
+  },
+  "informes": {
+    "canal": "Channel"
+  },
+  "detalleVisita": {
+    "gpv": "GPV",
+    "fecha": "Date",
+    "horario": "Times",
+    "tipo": "Type",
+    "planificada": "Planned",
+    "noPlanificada": "Off route",
+    "sinRegistros": "Nothing was recorded on this visit.",
+    "evidenciasGenerales": "Other evidence",
+    "notas": "Notes",
+    "verHistorico": "View relationship history",
+    "sinNormalizar": "not normalised — may not play in every browser"
+  },
+  "detalleFlujo": {
+    "suficiencia": "Enough product",
+    "comunicadoAlResponsable": "Told the manager",
+    "problema": "Problem",
+    "detalle": "Detail",
+    "existeHueco": "Gap present",
+    "cubiertoConAdyacente": "Covered with adjacent",
+    "correccion": "Fixed",
+    "referencia": "Reference",
+    "incorporada": "Added",
+    "incorporadaEn": "Added on",
+    "marca": "Brand",
+    "conseguido": "Achieved",
+    "facingsGanados": "Facings gained",
+    "ubicacionActual": "Current position",
+    "propuesta": "Proposal",
+    "tipo": "Type",
+    "motivo": "Reason",
+    "situacion": "Situation",
+    "codigoNevera": "Cooler code"
+  },
+  "relacion": {
+    "titulo": "Manager relationship",
+    "subtitulo": "How it evolves, visit by visit",
+    "evolucion": "Trend",
+    "nota": "Each dot is a visit. The rating is about the relationship overall, not that day's conversation.",
+    "visitas": "Visit by visit",
+    "cuestion": "Outstanding",
+    "sinHistorico": "The relationship hasn't been recorded for this store yet."
+  },
+  "productos": {
+    "titulo": "Brands and references",
+    "subtitulo": "The catalogue the GPV picks from",
+    "sinTraduccion": "Brands and references aren't translated: they're proper nouns.",
+    "marcas": "Brands",
+    "referencias": "Product references",
+    "notaReferencias": "This is where the GPV picks the missing Top Pico.",
+    "nombre": "Name",
+    "codigo": "Code",
+    "marca": "Brand",
+    "importar": "Import CSV",
+    "formatoCsv": "Columns: nombre, codigo, categoria and optionally marca.",
+    "resultadoCsv": "{{creadas}} created, {{actualizadas}} updated, {{rechazadas}} rejected.",
+    "linea": "Line {{n}}"
+  },
+  "responsable": {
+    "cuestion": "Open issue",
+    "noHablado": "Did not speak to the manager",
+    "sinRegistrar": "Not recorded on this visit",
+    "titulo": "Store manager",
+    "valoracion": "Relationship rating"
+  },
+  "bloque": {
+    "incidencias": "Issues",
+    "oportunidades": "Opportunities",
+    "extraespacios": "Extra spaces"
+  },
+  "flujo": {
+    "valoracion": {
+      "muy_buena": "Very good",
+      "buena": "Good",
+      "correcta": "Fine",
+      "mejorable": "Could be better",
+      "mala": "Poor",
+      "no_ha_podido_hablar": "Couldn't speak to them"
+    },
+    "suficiencia": {
+      "si": "Yes",
+      "no": "No",
+      "reponedor_no_ha_pasado": "The merchandiser hasn't been"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "Incorrect FIFO",
+      "proximo_caducar": "Close to expiry",
+      "mal_colocado": "Badly placed product",
+      "otro": "Other"
+    },
+    "correccion": {
+      "si": "Yes, fixed",
+      "no_posible": "Not possible"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Used correctly",
+      "uso_parcial": "Partly used",
+      "uso_incorrecto": "Used incorrectly",
+      "retirada": "It was removed",
+      "vacia_desaprovechada": "Empty or wasted",
+      "necesita_nueva": "A new one is needed",
+      "necesita_recogida": "Needs collection",
+      "otro": "Other"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "End cap",
+      "isla": "Island",
+      "pila": "Stack",
+      "otro": "Other"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "High rotation",
+      "promocion": "Promotion",
+      "potencial_venta": "Sales potential",
+      "falta_espacio_lineal": "Not enough shelf space",
+      "oportunidad_estacional": "Seasonal opportunity",
+      "otro": "Other"
+    },
+    "ubicacion": {
+      "palomar": "Top shelf",
+      "zona_intermedia": "Middle zone",
+      "altura_ojos": "Eye level",
+      "foso": "Bottom shelf",
+      "otra": "Other"
+    },
+    "propuesta": {
+      "subir_producto": "Move product up",
+      "bajar_producto": "Move product down",
+      "ganar_espacio": "Gain space",
+      "cambiar_ubicacion": "Change position",
+      "reorganizar_lineal": "Reorganise the shelf",
+      "otra": "Other"
+    }
   }
 }

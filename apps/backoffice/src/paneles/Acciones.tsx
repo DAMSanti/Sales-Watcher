@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorApi, pedir } from "../api/cliente";
+import { useNavigate } from "react-router-dom";
 import { useSesion } from "../auth/sesion";
 import { Metrica } from "../componentes/Metrica";
 
@@ -18,6 +19,7 @@ import { Metrica } from "../componentes/Metrica";
 
 type Accion = {
   id: string;
+  visitaOrigenId: string;
   categoriaProducto: string;
   tipoSituacion: string;
   responsableActuar: "gpv" | "fsm";
@@ -52,6 +54,7 @@ const CATEGORIAS = ["dairy", "waters", "pbb"] as const;
 export function Acciones() {
   const { t } = useTranslation();
   const { idioma } = useSesion();
+  const navegar = useNavigate();
 
   const [filas, setFilas] = useState<Accion[]>([]);
   const [estado, setEstado] = useState("");
@@ -348,12 +351,28 @@ export function Acciones() {
                       <div style={{ display: "flex", gap: "var(--e2)", flexWrap: "wrap" }}>
                         {(f.estado === "abierta" || f.estado === "en_curso") && (
                           <>
+                            {/*
+                              En una nevera, cerrar significa «informado en mi
+                              aplicación de neveras», no «nevera recogida». Con
+                              la etiqueta genérica el FSM podría creer que el
+                              problema físico está resuelto cuando solo se ha
+                              trasladado a otro sistema.
+                            */}
                             <button
                               className="boton boton--menudo boton--principal"
                               onClick={() => void cerrar(f.id, "resuelta")}
                               disabled={enCurso === f.id}
+                              title={
+                                f.tipoSituacion === "nevera"
+                                  ? t("acciones.informadoAyuda")
+                                  : undefined
+                              }
                             >
-                              {t("acciones.resolver")}
+                              {t(
+                                f.tipoSituacion === "nevera"
+                                  ? "acciones.informado"
+                                  : "acciones.resolver",
+                              )}
                             </button>
                             <button
                               className="boton boton--menudo boton--secundario"
@@ -369,6 +388,14 @@ export function Acciones() {
                           onClick={() => void verHistorial(f.id)}
                         >
                           {t("acciones.historial", { n: f.comprobaciones })}
+                        </button>
+                        {/* Al detalle de la visita donde se detectó: es donde
+                            están las evidencias y el resto del contexto. */}
+                        <button
+                          className="boton boton--menudo boton--secundario"
+                          onClick={() => navegar(`/visitas/${f.visitaOrigenId}`)}
+                        >
+                          {t("acciones.verVisita")}
                         </button>
                       </div>
                     </td>

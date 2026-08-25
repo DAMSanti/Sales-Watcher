@@ -282,3 +282,212 @@
   min-width: 160px;
   width: auto;
 }
+
+/* ── Detalle de visita ─────────────────────────────────────────────── */
+
+.cabecera-visita {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--e4);
+}
+
+.cabecera-visita > div {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+}
+
+.cabecera-visita__etiqueta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-suave);
+}
+
+.acciones-visita {
+  display: grid;
+  gap: var(--e3);
+}
+
+.accion-registrada {
+  padding: var(--e3);
+  background: var(--superficie-alt);
+  border-radius: var(--radio-sm);
+}
+
+.accion-registrada__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e2);
+  flex-wrap: wrap;
+  margin-bottom: var(--e2);
+}
+
+.accion-registrada__titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Pares dato-valor: la clave recesiva, el valor legible. */
+.detalle-flujo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--e2) var(--e4);
+  margin: 0;
+}
+
+.detalle-flujo__par dt {
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.detalle-flujo__par dd {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+/* ── Evidencias ────────────────────────────────────────────────────── */
+
+.evidencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e3);
+  margin-top: var(--e3);
+}
+
+.evidencia {
+  margin: 0;
+  max-width: 260px;
+}
+
+.evidencia__imagen {
+  display: block;
+  width: 100%;
+  border-radius: var(--radio-sm);
+  border: 1px solid var(--borde);
+}
+
+.evidencia__video {
+  width: 260px;
+  max-width: 100%;
+  border-radius: var(--radio-sm);
+  background: #000;
+}
+
+.evidencia__pie {
+  display: flex;
+  gap: var(--e2);
+  margin-top: var(--e1);
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.evidencia__aviso {
+  color: var(--ambar-700, #92610a);
+}
+
+/* ── Serie de la relación con el responsable ───────────────────────── */
+/*
+ * Sin ejes ni rejilla: con una docena de puntos la forma se lee sola y el
+ * andamiaje solo añadiría tinta que no es dato.
+ */
+
+/* El eje fijo y la pista desplazable, uno al lado del otro. */
+.serie-marco {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e2);
+  padding: var(--e3) 0;
+}
+
+.serie__eje {
+  display: grid;
+  gap: var(--e1);
+  flex: 0 0 auto;
+}
+
+.serie__eje-pista {
+  position: relative;
+  height: 100px;
+  width: 5.5rem;
+}
+
+.serie__eje-etiqueta {
+  position: absolute;
+  right: var(--e1);
+  /* Centrada en su nivel: la etiqueta marca la altura del punto, no la
+     franja que hay encima. */
+  transform: translateY(50%);
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--texto-suave);
+  white-space: nowrap;
+}
+
+.serie {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e2);
+  overflow-x: auto;
+  /* `overflow-x: auto` también recorta arriba, y un punto en el nivel máximo
+     se queda a medias contra el borde. El relleno le deja sitio sin mover la
+     pista: el marco alinea por abajo y el fondo se ancla al borde inferior. */
+  padding-top: 8px;
+  /* La rejilla horizontal, una línea por nivel: sin ella el ojo tiene que
+     viajar hasta el eje para situar un punto del extremo derecho. */
+  background-image: repeating-linear-gradient(
+    to top,
+    var(--borde) 0 1px,
+    transparent 1px 25px
+  );
+  /* 101px, no 100: el patrón se ancla abajo y con 100 la línea del nivel más
+     alto cae justo en el borde y se recorta. El píxel de más se añade arriba,
+     así que los otros cuatro niveles no se mueven. */
+  background-size: 100% 101px;
+  background-position: left calc(100% - 1.1rem);
+  background-repeat: no-repeat;
+}
+
+.serie__columna {
+  display: grid;
+  gap: var(--e1);
+  min-width: 42px;
+  flex: 0 0 auto;
+}
+
+.serie__pista {
+  position: relative;
+  height: 100px;
+  /* Sin línea vertical por columna: la rejilla horizontal ya sitúa el punto,
+     y las dos juntas convertían el gráfico en una cuadrícula que compite con
+     los datos. */
+}
+
+.serie__punto {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-bottom: -5px;
+  background: var(--azul-600);
+  border-radius: 50%;
+  /* Anillo del color de la superficie: los puntos siguen legibles aunque se
+     solapen con la pista o entre sí. */
+  box-shadow: 0 0 0 2px var(--superficie);
+}
+
+.serie__fecha {
+  font-size: 0.7rem;
+  color: var(--texto-suave);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.fila--inactiva {
+  opacity: 0.55;
+}

@@ -22,6 +22,13 @@ const filtrosBase = z.object({
   zonaId: z.string().uuid().optional(),
   usuarioId: z.string().uuid().optional(),
   tiendaId: z.string().uuid().optional(),
+  /**
+   * Canal comercial de la tienda (Modern / Proximity).
+   *
+   * Segmentar por canal es lo que el campo habilitó al guardarse: los flujos no
+   * se bifurcan, pero comparar cómo se comporta cada canal sí interesa.
+   */
+  canal: z.enum(["modern", "proximity"]).optional(),
 });
 
 const rellenarFechas = <T extends { desde?: string; hasta?: string }>(f: T) => ({

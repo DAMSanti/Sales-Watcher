@@ -16,6 +16,7 @@ import { UsuarioActual } from "../auth/decoradores/usuario-actual.decorator";
 import type { PayloadToken } from "../auth/auth.service";
 import { ZodValidationPipe } from "../comun/zod-validation.pipe";
 import { AccionesService } from "./acciones.service";
+import { DetalleVisitaService } from "./detalle-visita.service";
 import {
   bandejaAccionesSchema,
   cambiarEstadoAccionSchema,
@@ -40,7 +41,10 @@ import {
  */
 @Controller()
 export class AccionesController {
-  constructor(private readonly acciones: AccionesService) {}
+  constructor(
+    private readonly acciones: AccionesService,
+    private readonly detalleVisitaService: DetalleVisitaService,
+  ) {}
 
   // ── Catálogos que necesitan los flujos ───────────────────────────────
 
@@ -177,6 +181,37 @@ export class AccionesController {
   }
 
   // ── El FSM, en el panel ──────────────────────────────────────────────
+
+  /**
+   * Detalle completo de una visita, en solo lectura.
+   *
+   * Organizado por categoría de producto y con las evidencias de cada acción.
+   * NO trae la duración: se muestran las horas de inicio y fin, que son parte
+   * del registro, pero no el intervalo entre ellas (SPECS §6.2).
+   */
+  @Roles("supervisor", "administrador")
+  @Get("visitas/:id/detalle")
+  async detalleVisita(
+    @Param("id", ParseUUIDPipe) visitaId: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.detalleVisitaService.detalle(visitaId, usuario);
+  }
+
+  /**
+   * Histórico de la relación con el responsable de una tienda.
+   *
+   * Una valoración suelta no dice nada; la serie enseña si la relación mejora,
+   * se deteriora o depende de quién visite.
+   */
+  @Roles("supervisor", "administrador")
+  @Get("tiendas/:id/relacion-responsable")
+  async historicoResponsable(
+    @Param("id", ParseUUIDPipe) tiendaId: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.detalleVisitaService.historicoResponsable(tiendaId, usuario);
+  }
 
   /**
    * Bandeja de acciones pendientes, lo más antiguo primero.

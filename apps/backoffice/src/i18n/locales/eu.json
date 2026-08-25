@@ -13,7 +13,11 @@
     "exportar": "Esportatu CSV",
     "vacio": "Ez dago ezer erakusteko iragazki hauekin.",
     "todos": "Denak",
-    "sinDato": "Daturik ez"
+    "sinDato": "Daturik ez",
+    "si": "Bai",
+    "no": "Ez",
+    "volver": "Itzuli",
+    "cerrar": "Itxi"
   },
   "nav": {
     "supervision": "Gainbegiratzea",
@@ -30,7 +34,8 @@
     "checklists": "Egiaztapen-zerrendak",
     "rutas": "Ibilbideak",
     "acciones": "Ekintzak",
-    "resultados": "Emaitzak"
+    "resultados": "Emaitzak",
+    "productos": "Produktuak"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -120,10 +125,10 @@
     "nuevo": "Nuevo",
     "editar": "Editar",
     "buscar": "Buscar…",
-    "activo": "Activo",
-    "inactivo": "Inactivo",
-    "activar": "Activar",
-    "desactivar": "Desactivar",
+    "activo": "Aktibo",
+    "inactivo": "Ez aktibo",
+    "activar": "Aktibatu",
+    "desactivar": "Desaktibatu",
     "sinBorrado": "Los elementos se desactivan, no se borran: el histórico que los referencia dejaría de poder leerse.",
     "resultados": "{{n}} resultados",
     "incluirInactivos": "Incluir inactivos",
@@ -131,7 +136,8 @@
     "codigoFijo": "El código no se puede cambiar: es la clave estable que usan los datos semilla y las integraciones.",
     "faltanIdiomas": "Faltan",
     "traducciones": "Traducciones",
-    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde."
+    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde.",
+    "estado": "Egoera"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -206,7 +212,8 @@
     "orden": "Orden",
     "verItems": "Ver ítems",
     "sinItems": "Esta plantilla no tiene ítems.",
-    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global."
+    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global.",
+    "avisoLargo": "{{n}} elementu. Zerrenda aukerakoa eta laburra da."
   },
   "rutas": {
     "titulo": "Rutas",
@@ -254,7 +261,10 @@
     "avisoCierres": "Zuri esleitutako {{n}} ekintza GPV batek itxi ditu aste honetan.",
     "verCierres": "Ikusi",
     "viendoCierres": "GPV batek itxitakoak soilik erakusten.",
-    "volverBandeja": "Itzuli erretilura"
+    "volverBandeja": "Itzuli erretilura",
+    "informado": "Jakinarazita",
+    "informadoAyuda": "Zure hozkailuen aplikazioan jakinarazita. Ez du esan nahi hozkailua jaso denik.",
+    "verVisita": "Bisita ikusi"
   },
   "estadoAccion": {
     "abierta": "Irekia",
@@ -346,5 +356,146 @@
     "facingsNoConseguidos": "Lortu gabeko facing-ak",
     "deDetectadas": "{{n}} aukeratatik",
     "sinResultado": "Emaitzarik gabe"
+  },
+  "canal": {
+    "modern": "Modern",
+    "proximity": "Proximity"
+  },
+  "informes": {
+    "canal": "Kanala"
+  },
+  "detalleVisita": {
+    "gpv": "GPV",
+    "fecha": "Data",
+    "horario": "Ordutegia",
+    "tipo": "Mota",
+    "planificada": "Planifikatua",
+    "noPlanificada": "Ibilbidetik kanpo",
+    "sinRegistros": "Ez zen ezer erregistratu bisita honetan.",
+    "evidenciasGenerales": "Beste frogak",
+    "notas": "Oharrak",
+    "verHistorico": "Harremanaren historia ikusi",
+    "sinNormalizar": "normalizatu gabe — baliteke nabigatzaile guztietan ez erreproduzitzea"
+  },
+  "detalleFlujo": {
+    "suficiencia": "Produktu nahikoa",
+    "comunicadoAlResponsable": "Arduradunari jakinarazita",
+    "problema": "Arazoa",
+    "detalle": "Xehetasuna",
+    "existeHueco": "Hutsunea dago",
+    "cubiertoConAdyacente": "Ondokoarekin estalita",
+    "correccion": "Konponduta",
+    "referencia": "Erreferentzia",
+    "incorporada": "Sartuta",
+    "incorporadaEn": "Sartze data",
+    "marca": "Marka",
+    "conseguido": "Lortuta",
+    "facingsGanados": "Irabazitako facing-ak",
+    "ubicacionActual": "Egungo kokapena",
+    "propuesta": "Proposamena",
+    "tipo": "Mota",
+    "motivo": "Arrazoia",
+    "situacion": "Egoera",
+    "codigoNevera": "Hozkailu kodea"
+  },
+  "relacion": {
+    "titulo": "Arduradunarekiko harremana",
+    "subtitulo": "Nola bilakatzen den, bisitaz bisita",
+    "evolucion": "Bilakaera",
+    "nota": "Puntu bakoitza bisita bat da. Balorazioa harremanari buruzkoa da orokorrean, ez egun hartako elkarrizketari.",
+    "visitas": "Bisitaz bisita",
+    "cuestion": "Gai irekia",
+    "sinHistorico": "Oraindik ez da harremana erregistratu denda honetan."
+  },
+  "productos": {
+    "titulo": "Markak eta erreferentziak",
+    "subtitulo": "GPVak fluxuetan aukeratzen duen katalogoa",
+    "sinTraduccion": "Markak eta erreferentziak ez dira itzultzen: izen propioak dira.",
+    "marcas": "Markak",
+    "referencias": "Produktu erreferentziak",
+    "notaReferencias": "Hemendik aukeratzen du GPVak falta den Top Picoa.",
+    "nombre": "Izena",
+    "codigo": "Kodea",
+    "marca": "Marka",
+    "importar": "CSV inportatu",
+    "formatoCsv": "Zutabeak: nombre, codigo, categoria eta aukeran marca.",
+    "resultadoCsv": "{{creadas}} sortuta, {{actualizadas}} eguneratuta, {{rechazadas}} baztertuta.",
+    "linea": "{{n}}. lerroa"
+  },
+  "responsable": {
+    "cuestion": "Ebazteke dagoen gaia",
+    "noHablado": "Ez zuen arduradunarekin hitz egin",
+    "sinRegistrar": "Bisita honetan erregistratu gabe",
+    "titulo": "Dendako arduraduna",
+    "valoracion": "Harremanaren balorazioa"
+  },
+  "bloque": {
+    "incidencias": "Gorabeherak",
+    "oportunidades": "Aukerak",
+    "extraespacios": "Espazio gehigarriak"
+  },
+  "flujo": {
+    "valoracion": {
+      "muy_buena": "Oso ona",
+      "buena": "Ona",
+      "correcta": "Zuzena",
+      "mejorable": "Hobegarria",
+      "mala": "Txarra",
+      "no_ha_podido_hablar": "Ezin izan dut berarekin hitz egin"
+    },
+    "suficiencia": {
+      "si": "Bai",
+      "no": "Ez",
+      "reponedor_no_ha_pasado": "Hornitzailea ez da pasatu"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO okerra",
+      "proximo_caducar": "Iraungitzear",
+      "mal_colocado": "Produktua gaizki jarrita",
+      "otro": "Bestelakoa"
+    },
+    "correccion": {
+      "si": "Bai, konponduta",
+      "no_posible": "Ez da posible izan"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Ondo erabiltzen da",
+      "uso_parcial": "Partzialki erabiltzen da",
+      "uso_incorrecto": "Gaizki erabiltzen da",
+      "retirada": "Kendu digute",
+      "vacia_desaprovechada": "Hutsik edo aprobetxatu gabe",
+      "necesita_nueva": "Berri bat behar da",
+      "necesita_recogida": "Jasotzea behar du",
+      "otro": "Bestelakoa"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Buruko",
+      "isla": "Uhartea",
+      "pila": "Pila",
+      "otro": "Bestelakoa"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Errotazio handia",
+      "promocion": "Promozioa",
+      "potencial_venta": "Salmenta potentziala",
+      "falta_espacio_lineal": "Apalategian espazio falta",
+      "oportunidad_estacional": "Sasoiko aukera",
+      "otro": "Bestelakoa"
+    },
+    "ubicacion": {
+      "palomar": "Goiko apala",
+      "zona_intermedia": "Erdiko gunea",
+      "altura_ojos": "Begien altuera",
+      "foso": "Beheko apala",
+      "otra": "Bestelakoa"
+    },
+    "propuesta": {
+      "subir_producto": "Produktua igo",
+      "bajar_producto": "Produktua jaitsi",
+      "ganar_espacio": "Espazioa irabazi",
+      "cambiar_ubicacion": "Kokapena aldatu",
+      "reorganizar_lineal": "Apalategia berrantolatu",
+      "otra": "Bestelakoa"
+    }
   }
 }

@@ -26,6 +26,7 @@ export type Filtros = {
   zonaId?: string | undefined;
   usuarioId?: string | undefined;
   tiendaId?: string | undefined;
+  canal?: "modern" | "proximity" | undefined;
 };
 
 @Injectable()
@@ -57,6 +58,20 @@ export class InformesService {
 
     if (filtros.usuarioId) condiciones.push(eq(visitas.usuarioId, filtros.usuarioId));
     if (filtros.tiendaId) condiciones.push(eq(visitas.tiendaId, filtros.tiendaId));
+
+    /**
+     * El canal vive en la tienda, no en la visita, así que se filtra con una
+     * subconsulta en lugar de añadir un join a cada informe: son cinco
+     * consultas distintas y unir en todas por un filtro opcional complicaría
+     * cuatro para servir a una.
+     */
+    if (filtros.canal) {
+      condiciones.push(
+        sql`${visitas.tiendaId} in (
+          select ${tiendas.id} from ${tiendas} where ${tiendas.canal} = ${filtros.canal}
+        )`,
+      );
+    }
 
     return condiciones;
   }
@@ -198,6 +213,22 @@ export class InformesService {
       condiciones.push(eq(usuarios.zonaId, filtros.zonaId));
     }
     if (filtros.usuarioId) condiciones.push(eq(rutasDiarias.usuarioId, filtros.usuarioId));
+
+    /**
+     * El canal se filtra sobre la tienda de la RUTA, no sobre la de la visita.
+     *
+     * `ambito()` lo hace sobre `visitas.tienda_id`, pero aquí eso rompería el
+     * denominador: una ruta que no llegó a materializarse en visita tiene
+     * `visitas.tienda_id` a NULL y quedaría fuera del filtro, que es
+     * exactamente la parada no cubierta que este informe existe para enseñar.
+     */
+    if (filtros.canal) {
+      condiciones.push(
+        sql`${rutasDiarias.tiendaId} in (
+          select ${tiendas.id} from ${tiendas} where ${tiendas.canal} = ${filtros.canal}
+        )`,
+      );
+    }
 
     const porZona = await this.db
       .select({

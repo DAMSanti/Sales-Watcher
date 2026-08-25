@@ -13,7 +13,11 @@
     "exportar": "Exporta CSV",
     "vacio": "No hi ha res per mostrar amb aquests filtres.",
     "todos": "Tots",
-    "sinDato": "Sense dada"
+    "sinDato": "Sense dada",
+    "si": "Sí",
+    "no": "No",
+    "volver": "Torna",
+    "cerrar": "Tanca"
   },
   "nav": {
     "supervision": "Supervisió",
@@ -30,7 +34,8 @@
     "checklists": "Checklists",
     "rutas": "Rutes",
     "acciones": "Accions",
-    "resultados": "Resultats"
+    "resultados": "Resultats",
+    "productos": "Productes"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -120,8 +125,8 @@
     "nuevo": "Nuevo",
     "editar": "Editar",
     "buscar": "Buscar…",
-    "activo": "Activo",
-    "inactivo": "Inactivo",
+    "activo": "Actiu",
+    "inactivo": "Inactiu",
     "activar": "Activar",
     "desactivar": "Desactivar",
     "sinBorrado": "Los elementos se desactivan, no se borran: el histórico que los referencia dejaría de poder leerse.",
@@ -131,7 +136,8 @@
     "codigoFijo": "El código no se puede cambiar: es la clave estable que usan los datos semilla y las integraciones.",
     "faltanIdiomas": "Faltan",
     "traducciones": "Traducciones",
-    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde."
+    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde.",
+    "estado": "Estat"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -206,7 +212,8 @@
     "orden": "Orden",
     "verItems": "Ver ítems",
     "sinItems": "Esta plantilla no tiene ítems.",
-    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global."
+    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global.",
+    "avisoLargo": "{{n}} ítems. El checklist és una secció opcional i curta."
   },
   "rutas": {
     "titulo": "Rutas",
@@ -254,7 +261,10 @@
     "avisoCierres": "{{n}} acció(ns) que tenies assignades les ha tancat un GPV aquesta setmana.",
     "verCierres": "Veure-les",
     "viendoCierres": "Mostrant només les que va tancar un GPV.",
-    "volverBandeja": "Tornar a la safata"
+    "volverBandeja": "Tornar a la safata",
+    "informado": "Informat",
+    "informadoAyuda": "Informat a la teva aplicació de neveres. No vol dir que la nevera s'hagi recollit.",
+    "verVisita": "Veure visita"
   },
   "estadoAccion": {
     "abierta": "Oberta",
@@ -346,5 +356,146 @@
     "facingsNoConseguidos": "Facings no aconseguits",
     "deDetectadas": "de {{n}} oportunitats",
     "sinResultado": "Sense resultat"
+  },
+  "canal": {
+    "modern": "Modern",
+    "proximity": "Proximity"
+  },
+  "informes": {
+    "canal": "Canal"
+  },
+  "detalleVisita": {
+    "gpv": "GPV",
+    "fecha": "Data",
+    "horario": "Horari",
+    "tipo": "Tipus",
+    "planificada": "Planificada",
+    "noPlanificada": "Fora de ruta",
+    "sinRegistros": "No es va registrar res en aquesta visita.",
+    "evidenciasGenerales": "Altres evidències",
+    "notas": "Notes",
+    "verHistorico": "Veure històric de la relació",
+    "sinNormalizar": "sense normalitzar — pot no reproduir-se a tots els navegadors"
+  },
+  "detalleFlujo": {
+    "suficiencia": "Producte suficient",
+    "comunicadoAlResponsable": "Comunicat al responsable",
+    "problema": "Problema",
+    "detalle": "Detall",
+    "existeHueco": "Hi ha buit",
+    "cubiertoConAdyacente": "Cobert amb adjacent",
+    "correccion": "Corregit",
+    "referencia": "Referència",
+    "incorporada": "Incorporada",
+    "incorporadaEn": "Incorporada el",
+    "marca": "Marca",
+    "conseguido": "Aconseguit",
+    "facingsGanados": "Facings guanyats",
+    "ubicacionActual": "Ubicació actual",
+    "propuesta": "Proposta",
+    "tipo": "Tipus",
+    "motivo": "Motiu",
+    "situacion": "Situació",
+    "codigoNevera": "Codi de nevera"
+  },
+  "relacion": {
+    "titulo": "Relació amb el responsable",
+    "subtitulo": "Com evoluciona, visita a visita",
+    "evolucion": "Evolució",
+    "nota": "Cada punt és una visita. La valoració és de la relació en general, no de la conversa d'aquell dia.",
+    "visitas": "Visita a visita",
+    "cuestion": "Qüestió pendent",
+    "sinHistorico": "Encara no s'ha registrat la relació en aquesta botiga."
+  },
+  "productos": {
+    "titulo": "Marques i referències",
+    "subtitulo": "El catàleg del qual el GPV tria als fluxos",
+    "sinTraduccion": "Les marques i referències no es tradueixen: són noms propis.",
+    "marcas": "Marques",
+    "referencias": "Referències de producte",
+    "notaReferencias": "D'aquí tria el GPV el Top Pico que falta.",
+    "nombre": "Nom",
+    "codigo": "Codi",
+    "marca": "Marca",
+    "importar": "Importar CSV",
+    "formatoCsv": "Columnes: nombre, codigo, categoria i opcionalment marca.",
+    "resultadoCsv": "{{creadas}} creades, {{actualizadas}} actualitzades, {{rechazadas}} rebutjades.",
+    "linea": "Línia {{n}}"
+  },
+  "responsable": {
+    "cuestion": "Qüestió pendent",
+    "noHablado": "No va parlar amb el responsable",
+    "sinRegistrar": "Sense registrar en aquesta visita",
+    "titulo": "Responsable de botiga",
+    "valoracion": "Valoració de la relació"
+  },
+  "bloque": {
+    "incidencias": "Incidències",
+    "oportunidades": "Oportunitats",
+    "extraespacios": "Extraespais"
+  },
+  "flujo": {
+    "valoracion": {
+      "muy_buena": "Molt bona",
+      "buena": "Bona",
+      "correcta": "Correcta",
+      "mejorable": "Millorable",
+      "mala": "Dolenta",
+      "no_ha_podido_hablar": "No he pogut parlar-hi"
+    },
+    "suficiencia": {
+      "si": "Sí",
+      "no": "No",
+      "reponedor_no_ha_pasado": "El reposador no ha passat"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrecte",
+      "proximo_caducar": "Proper a caducar",
+      "mal_colocado": "Producte mal col·locat",
+      "otro": "Altre"
+    },
+    "correccion": {
+      "si": "Sí, corregit",
+      "no_posible": "No ha estat possible"
+    },
+    "situacionNevera": {
+      "uso_correcto": "S'usa correctament",
+      "uso_parcial": "S'usa parcialment",
+      "uso_incorrecto": "S'usa incorrectament",
+      "retirada": "Ens l'han retirada",
+      "vacia_desaprovechada": "Buida o desaprofitada",
+      "necesita_nueva": "Se'n necessita una de nova",
+      "necesita_recogida": "Necessita recollida",
+      "otro": "Altre"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Capçalera",
+      "isla": "Illa",
+      "pila": "Pila",
+      "otro": "Altre"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Alta rotació",
+      "promocion": "Promoció",
+      "potencial_venta": "Potencial de venda",
+      "falta_espacio_lineal": "Falta espai al lineal",
+      "oportunidad_estacional": "Oportunitat estacional",
+      "otro": "Altre"
+    },
+    "ubicacion": {
+      "palomar": "Palomar (a dalt)",
+      "zona_intermedia": "Zona intermèdia",
+      "altura_ojos": "Alçada dels ulls",
+      "foso": "Fossat (a baix)",
+      "otra": "Altra"
+    },
+    "propuesta": {
+      "subir_producto": "Pujar el producte",
+      "bajar_producto": "Baixar el producte",
+      "ganar_espacio": "Guanyar espai",
+      "cambiar_ubicacion": "Canviar d'ubicació",
+      "reorganizar_lineal": "Reorganitzar el lineal",
+      "otra": "Altra"
+    }
   }
 }

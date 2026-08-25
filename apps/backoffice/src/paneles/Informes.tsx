@@ -22,12 +22,17 @@ function hoy() {
 function Periodo({
   desde,
   hasta,
+  canal,
   onCambiar,
+  onCanal,
   extra,
 }: {
   desde: string;
   hasta: string;
+  /** Modern o Proximity; cadena vacía = ambos. */
+  canal: string;
   onCambiar: (desde: string, hasta: string) => void;
+  onCanal: (canal: string) => void;
   extra?: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -45,6 +50,21 @@ function Periodo({
           onChange={(e) => setD(e.target.value)}
         />
       </label>
+      {/* Los flujos no se bifurcan por canal, pero comparar cómo se comporta
+          cada uno sí interesa: es lo que el campo habilitó al guardarse. */}
+      <label className="campo">
+        <span className="campo__etiqueta">{t("informes.canal")}</span>
+        <select
+          className="campo__control"
+          value={canal}
+          onChange={(e) => onCanal(e.target.value)}
+        >
+          <option value="">{t("comun.todos")}</option>
+          <option value="modern">{t("canal.modern")}</option>
+          <option value="proximity">{t("canal.proximity")}</option>
+        </select>
+      </label>
+
       <label className="campo">
         <span className="campo__etiqueta">{t("comun.hasta")}</span>
         <input
@@ -83,7 +103,7 @@ async function descargarCsv(ruta: string, nombre: string) {
   URL.revokeObjectURL(url);
 }
 
-function useInforme<T>(ruta: string, desde: string, hasta: string) {
+function useInforme<T>(ruta: string, desde: string, hasta: string, canal = "") {
   const { idioma } = useSesion();
   const { t } = useTranslation();
   const [datos, setDatos] = useState<T | null>(null);
@@ -92,7 +112,9 @@ function useInforme<T>(ruta: string, desde: string, hasta: string) {
   const cargar = useCallback(async () => {
     setError(null);
     try {
-      setDatos(await pedir<T>(`${ruta}?desde=${desde}&hasta=${hasta}`, { idioma }));
+      const parametros = new URLSearchParams({ desde, hasta });
+      if (canal) parametros.set("canal", canal);
+      setDatos(await pedir<T>(`${ruta}?${parametros}`, { idioma }));
     } catch (e) {
       setError(
         e instanceof ErrorApi && e.esFalloDeRed
@@ -102,7 +124,7 @@ function useInforme<T>(ruta: string, desde: string, hasta: string) {
             : String(e),
       );
     }
-  }, [ruta, desde, hasta, idioma, t]);
+  }, [ruta, desde, hasta, canal, idioma, t]);
 
   useEffect(() => {
     void cargar();
@@ -116,11 +138,8 @@ function useInforme<T>(ruta: string, desde: string, hasta: string) {
 export function InformeCobertura() {
   const { t } = useTranslation();
   const [rango, setRango] = useState({ desde: hace(30), hasta: hoy() });
-  const { datos, error } = useInforme<Cobertura>(
-    "/informes/cobertura",
-    rango.desde,
-    rango.hasta,
-  );
+  const [canal, setCanal] = useState("");
+  const { datos, error } = useInforme<Cobertura>("/informes/cobertura", rango.desde, rango.hasta, canal);
 
   return (
     <>
@@ -134,13 +153,15 @@ export function InformeCobertura() {
       <Periodo
         desde={rango.desde}
         hasta={rango.hasta}
+        canal={canal}
         onCambiar={(desde, hasta) => setRango({ desde, hasta })}
+        onCanal={setCanal}
         extra={
           <button
             className="boton boton--secundario"
             onClick={() =>
               void descargarCsv(
-                `/informes/cobertura.csv?desde=${rango.desde}&hasta=${rango.hasta}`,
+                `/informes/cobertura.csv?desde=${rango.desde}&hasta=${rango.hasta}${canal ? `&canal=${canal}` : ""}`,
                 `cobertura_${rango.desde}_${rango.hasta}.csv`,
               )
             }
@@ -243,11 +264,8 @@ function TablaCobertura({
 export function InformeNoRealizacion() {
   const { t } = useTranslation();
   const [rango, setRango] = useState({ desde: hace(30), hasta: hoy() });
-  const { datos, error } = useInforme<NoRealizacion>(
-    "/informes/no-realizacion",
-    rango.desde,
-    rango.hasta,
-  );
+  const [canal, setCanal] = useState("");
+  const { datos, error } = useInforme<NoRealizacion>("/informes/no-realizacion", rango.desde, rango.hasta, canal);
 
   return (
     <>
@@ -261,13 +279,15 @@ export function InformeNoRealizacion() {
       <Periodo
         desde={rango.desde}
         hasta={rango.hasta}
+        canal={canal}
         onCambiar={(desde, hasta) => setRango({ desde, hasta })}
+        onCanal={setCanal}
         extra={
           <button
             className="boton boton--secundario"
             onClick={() =>
               void descargarCsv(
-                `/informes/no-realizacion.csv?desde=${rango.desde}&hasta=${rango.hasta}`,
+                `/informes/no-realizacion.csv?desde=${rango.desde}&hasta=${rango.hasta}${canal ? `&canal=${canal}` : ""}`,
                 `no_realizacion_${rango.desde}_${rango.hasta}.csv`,
               )
             }
@@ -363,11 +383,8 @@ export function InformeNoRealizacion() {
 export function InformeEjecucion() {
   const { t } = useTranslation();
   const [rango, setRango] = useState({ desde: hace(30), hasta: hoy() });
-  const { datos, error } = useInforme<Ejecucion>(
-    "/informes/ejecucion",
-    rango.desde,
-    rango.hasta,
-  );
+  const [canal, setCanal] = useState("");
+  const { datos, error } = useInforme<Ejecucion>("/informes/ejecucion", rango.desde, rango.hasta, canal);
 
   return (
     <>
@@ -381,7 +398,9 @@ export function InformeEjecucion() {
       <Periodo
         desde={rango.desde}
         hasta={rango.hasta}
+        canal={canal}
         onCambiar={(desde, hasta) => setRango({ desde, hasta })}
+        onCanal={setCanal}
       />
 
       {error && <div className="aviso aviso--error">{error}</div>}

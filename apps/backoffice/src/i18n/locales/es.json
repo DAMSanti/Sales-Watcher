@@ -13,7 +13,11 @@
     "exportar": "Exportar CSV",
     "vacio": "No hay nada que mostrar con estos filtros.",
     "todos": "Todos",
-    "sinDato": "Sin dato"
+    "sinDato": "Sin dato",
+    "si": "Sí",
+    "no": "No",
+    "volver": "Volver",
+    "cerrar": "Cerrar"
   },
   "nav": {
     "supervision": "Supervisión",
@@ -30,7 +34,8 @@
     "checklists": "Checklists",
     "rutas": "Rutas",
     "acciones": "Acciones",
-    "resultados": "Resultados"
+    "resultados": "Resultados",
+    "productos": "Productos"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -131,7 +136,8 @@
     "codigoFijo": "El código no se puede cambiar: es la clave estable que usan los datos semilla y las integraciones.",
     "faltanIdiomas": "Faltan",
     "traducciones": "Traducciones",
-    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde."
+    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde.",
+    "estado": "Estado"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -206,7 +212,8 @@
     "orden": "Orden",
     "verItems": "Ver ítems",
     "sinItems": "Esta plantilla no tiene ítems.",
-    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global."
+    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global.",
+    "avisoLargo": "{{n}} ítems. El checklist es una sección opcional y corta: cuantas más preguntas, menos tiempo pasa el GPV mirando la tienda."
   },
   "rutas": {
     "titulo": "Rutas",
@@ -254,7 +261,10 @@
     "avisoCierres": "{{n}} acción(es) que tenías asignadas las ha cerrado un GPV esta semana.",
     "verCierres": "Verlas",
     "viendoCierres": "Mostrando solo las que cerró un GPV.",
-    "volverBandeja": "Volver a la bandeja"
+    "volverBandeja": "Volver a la bandeja",
+    "informado": "Informado",
+    "informadoAyuda": "Informado en tu aplicación de neveras. No significa que la nevera se haya recogido.",
+    "verVisita": "Ver visita"
   },
   "estadoAccion": {
     "abierta": "Abierta",
@@ -346,5 +356,146 @@
     "facingsNoConseguidos": "Facings no conseguidos",
     "deDetectadas": "de {{n}} oportunidades",
     "sinResultado": "Sin resultado"
+  },
+  "canal": {
+    "modern": "Modern",
+    "proximity": "Proximity"
+  },
+  "informes": {
+    "canal": "Canal"
+  },
+  "detalleVisita": {
+    "gpv": "GPV",
+    "fecha": "Fecha",
+    "horario": "Horario",
+    "tipo": "Tipo",
+    "planificada": "Planificada",
+    "noPlanificada": "Fuera de ruta",
+    "sinRegistros": "No se registró nada en esta visita.",
+    "evidenciasGenerales": "Otras evidencias",
+    "notas": "Notas",
+    "verHistorico": "Ver histórico de la relación",
+    "sinNormalizar": "sin normalizar — puede no reproducirse en todos los navegadores"
+  },
+  "detalleFlujo": {
+    "suficiencia": "Producto suficiente",
+    "comunicadoAlResponsable": "Comunicado al responsable",
+    "problema": "Problema",
+    "detalle": "Detalle",
+    "existeHueco": "Hay hueco",
+    "cubiertoConAdyacente": "Cubierto con adyacente",
+    "correccion": "Corregido",
+    "referencia": "Referencia",
+    "incorporada": "Incorporada",
+    "incorporadaEn": "Incorporada el",
+    "marca": "Marca",
+    "conseguido": "Conseguido",
+    "facingsGanados": "Facings ganados",
+    "ubicacionActual": "Ubicación actual",
+    "propuesta": "Propuesta",
+    "tipo": "Tipo",
+    "motivo": "Motivo",
+    "situacion": "Situación",
+    "codigoNevera": "Código de nevera"
+  },
+  "relacion": {
+    "titulo": "Relación con el responsable",
+    "subtitulo": "Cómo evoluciona, visita a visita",
+    "evolucion": "Evolución",
+    "nota": "Cada punto es una visita. La valoración es de la relación en general, no de la conversación de ese día.",
+    "visitas": "Visita a visita",
+    "cuestion": "Cuestión pendiente",
+    "sinHistorico": "Todavía no se ha registrado la relación en esta tienda."
+  },
+  "productos": {
+    "titulo": "Marcas y referencias",
+    "subtitulo": "El catálogo del que el GPV elige en los flujos",
+    "sinTraduccion": "Las marcas y referencias no se traducen: son nombres propios. Por eso esta pantalla no tiene editor de idiomas.",
+    "marcas": "Marcas",
+    "referencias": "Referencias de producto",
+    "notaReferencias": "De aquí elige el GPV el Top Pico que falta. No duplica la base de datos de Top Picos del cliente: solo da nombres estables para poder comparar entre visitas.",
+    "nombre": "Nombre",
+    "codigo": "Código",
+    "marca": "Marca",
+    "importar": "Importar CSV",
+    "formatoCsv": "Columnas: nombre, codigo, categoria y opcionalmente marca. Las filas con errores se rechazan una a una, sin abortar el resto.",
+    "resultadoCsv": "{{creadas}} creadas, {{actualizadas}} actualizadas, {{rechazadas}} rechazadas.",
+    "linea": "Línea {{n}}"
+  },
+  "responsable": {
+    "cuestion": "Cuestión pendiente",
+    "noHablado": "No habló con el responsable",
+    "sinRegistrar": "Sin registrar en esta visita",
+    "titulo": "Responsable de tienda",
+    "valoracion": "Valoración de la relación"
+  },
+  "bloque": {
+    "incidencias": "Incidencias",
+    "oportunidades": "Oportunidades",
+    "extraespacios": "Extraespacios"
+  },
+  "flujo": {
+    "valoracion": {
+      "muy_buena": "Muy buena",
+      "buena": "Buena",
+      "correcta": "Correcta",
+      "mejorable": "Mejorable",
+      "mala": "Mala",
+      "no_ha_podido_hablar": "No he podido hablar con él"
+    },
+    "suficiencia": {
+      "si": "Sí",
+      "no": "No",
+      "reponedor_no_ha_pasado": "El reponedor no ha pasado"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrecto",
+      "proximo_caducar": "Próximo a caducar",
+      "mal_colocado": "Producto mal colocado",
+      "otro": "Otro"
+    },
+    "correccion": {
+      "si": "Sí, corregido",
+      "no_posible": "No ha sido posible"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Se usa correctamente",
+      "uso_parcial": "Se usa parcialmente",
+      "uso_incorrecto": "Se usa incorrectamente",
+      "retirada": "Nos la han retirado",
+      "vacia_desaprovechada": "Vacía o desaprovechada",
+      "necesita_nueva": "Se necesita una nueva",
+      "necesita_recogida": "Necesita recogida",
+      "otro": "Otro"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Cabecera",
+      "isla": "Isla",
+      "pila": "Pila",
+      "otro": "Otro"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Alta rotación",
+      "promocion": "Promoción",
+      "potencial_venta": "Potencial de venta",
+      "falta_espacio_lineal": "Falta espacio en lineal",
+      "oportunidad_estacional": "Oportunidad estacional",
+      "otro": "Otro"
+    },
+    "ubicacion": {
+      "palomar": "Palomar (arriba)",
+      "zona_intermedia": "Zona intermedia",
+      "altura_ojos": "Altura de los ojos",
+      "foso": "Foso (abajo)",
+      "otra": "Otra"
+    },
+    "propuesta": {
+      "subir_producto": "Subir el producto",
+      "bajar_producto": "Bajar el producto",
+      "ganar_espacio": "Ganar espacio",
+      "cambiar_ubicacion": "Cambiar de ubicación",
+      "reorganizar_lineal": "Reorganizar el lineal",
+      "otra": "Otra"
+    }
   }
 }

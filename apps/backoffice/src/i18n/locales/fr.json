@@ -13,7 +13,11 @@
     "exportar": "Exporter CSV",
     "vacio": "Rien à afficher avec ces filtres.",
     "todos": "Tous",
-    "sinDato": "Sans donnée"
+    "sinDato": "Sans donnée",
+    "si": "Oui",
+    "no": "Non",
+    "volver": "Retour",
+    "cerrar": "Fermer"
   },
   "nav": {
     "supervision": "Supervision",
@@ -30,7 +34,8 @@
     "checklists": "Checklists",
     "rutas": "Tournées",
     "acciones": "Actions",
-    "resultados": "Résultats"
+    "resultados": "Résultats",
+    "productos": "Produits"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -120,10 +125,10 @@
     "nuevo": "Nuevo",
     "editar": "Editar",
     "buscar": "Buscar…",
-    "activo": "Activo",
-    "inactivo": "Inactivo",
-    "activar": "Activar",
-    "desactivar": "Desactivar",
+    "activo": "Actif",
+    "inactivo": "Inactif",
+    "activar": "Activer",
+    "desactivar": "Désactiver",
     "sinBorrado": "Los elementos se desactivan, no se borran: el histórico que los referencia dejaría de poder leerse.",
     "resultados": "{{n}} resultados",
     "incluirInactivos": "Incluir inactivos",
@@ -131,7 +136,8 @@
     "codigoFijo": "El código no se puede cambiar: es la clave estable que usan los datos semilla y las integraciones.",
     "faltanIdiomas": "Faltan",
     "traducciones": "Traducciones",
-    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde."
+    "idiomaObligatorio": "El castellano es obligatorio; el resto puede completarse más tarde.",
+    "estado": "État"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -206,7 +212,8 @@
     "orden": "Orden",
     "verItems": "Ver ítems",
     "sinItems": "Esta plantilla no tiene ítems.",
-    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global."
+    "unaPorTipo": "Solo puede haber una plantilla activa por tipo de tienda, y una global.",
+    "avisoLargo": "{{n}} éléments. Le checklist est une section optionnelle et courte."
   },
   "rutas": {
     "titulo": "Rutas",
@@ -254,7 +261,10 @@
     "avisoCierres": "{{n}} action(s) qui vous étaient assignées ont été fermées par un GPV cette semaine.",
     "verCierres": "Les voir",
     "viendoCierres": "Affichage des seules actions fermées par un GPV.",
-    "volverBandeja": "Retour à la liste"
+    "volverBandeja": "Retour à la liste",
+    "informado": "Signalé",
+    "informadoAyuda": "Signalé dans votre application de frigos. Cela ne veut pas dire que le frigo a été récupéré.",
+    "verVisita": "Voir la visite"
   },
   "estadoAccion": {
     "abierta": "Ouverte",
@@ -346,5 +356,146 @@
     "facingsNoConseguidos": "Facings non obtenus",
     "deDetectadas": "sur {{n}} opportunités",
     "sinResultado": "Sans résultat"
+  },
+  "canal": {
+    "modern": "Modern",
+    "proximity": "Proximity"
+  },
+  "informes": {
+    "canal": "Canal"
+  },
+  "detalleVisita": {
+    "gpv": "GPV",
+    "fecha": "Date",
+    "horario": "Horaire",
+    "tipo": "Type",
+    "planificada": "Planifiée",
+    "noPlanificada": "Hors tournée",
+    "sinRegistros": "Rien n'a été enregistré lors de cette visite.",
+    "evidenciasGenerales": "Autres preuves",
+    "notas": "Notes",
+    "verHistorico": "Voir l'historique de la relation",
+    "sinNormalizar": "non normalisée — peut ne pas se lire partout"
+  },
+  "detalleFlujo": {
+    "suficiencia": "Produit suffisant",
+    "comunicadoAlResponsable": "Signalé au responsable",
+    "problema": "Problème",
+    "detalle": "Détail",
+    "existeHueco": "Trou présent",
+    "cubiertoConAdyacente": "Couvert par une référence voisine",
+    "correccion": "Corrigé",
+    "referencia": "Référence",
+    "incorporada": "Référencée",
+    "incorporadaEn": "Référencée le",
+    "marca": "Marque",
+    "conseguido": "Obtenu",
+    "facingsGanados": "Facings gagnés",
+    "ubicacionActual": "Emplacement actuel",
+    "propuesta": "Proposition",
+    "tipo": "Type",
+    "motivo": "Motif",
+    "situacion": "Situation",
+    "codigoNevera": "Code du frigo"
+  },
+  "relacion": {
+    "titulo": "Relation avec le responsable",
+    "subtitulo": "Son évolution, visite après visite",
+    "evolucion": "Évolution",
+    "nota": "Chaque point est une visite. L'évaluation porte sur la relation en général, pas sur la conversation du jour.",
+    "visitas": "Visite par visite",
+    "cuestion": "Point en suspens",
+    "sinHistorico": "La relation n'a pas encore été renseignée pour ce magasin."
+  },
+  "productos": {
+    "titulo": "Marques et références",
+    "subtitulo": "Le catalogue dans lequel le GPV choisit",
+    "sinTraduccion": "Les marques et références ne se traduisent pas : ce sont des noms propres.",
+    "marcas": "Marques",
+    "referencias": "Références produit",
+    "notaReferencias": "C'est ici que le GPV choisit le Top Pico manquant.",
+    "nombre": "Nom",
+    "codigo": "Code",
+    "marca": "Marque",
+    "importar": "Importer CSV",
+    "formatoCsv": "Colonnes : nombre, codigo, categoria et éventuellement marca.",
+    "resultadoCsv": "{{creadas}} créées, {{actualizadas}} mises à jour, {{rechazadas}} rejetées.",
+    "linea": "Ligne {{n}}"
+  },
+  "responsable": {
+    "cuestion": "Question en suspens",
+    "noHablado": "N'a pas parlé au responsable",
+    "sinRegistrar": "Non renseigné lors de cette visite",
+    "titulo": "Responsable du magasin",
+    "valoracion": "Évaluation de la relation"
+  },
+  "bloque": {
+    "incidencias": "Incidents",
+    "oportunidades": "Opportunités",
+    "extraespacios": "Espaces additionnels"
+  },
+  "flujo": {
+    "valoracion": {
+      "muy_buena": "Très bonne",
+      "buena": "Bonne",
+      "correcta": "Correcte",
+      "mejorable": "À améliorer",
+      "mala": "Mauvaise",
+      "no_ha_podido_hablar": "Je n'ai pas pu lui parler"
+    },
+    "suficiencia": {
+      "si": "Oui",
+      "no": "Non",
+      "reponedor_no_ha_pasado": "Le réassortisseur n'est pas passé"
+    },
+    "problemaFechas": {
+      "fifo_incorrecto": "FIFO incorrect",
+      "proximo_caducar": "Bientôt périmé",
+      "mal_colocado": "Produit mal placé",
+      "otro": "Autre"
+    },
+    "correccion": {
+      "si": "Oui, corrigé",
+      "no_posible": "Impossible"
+    },
+    "situacionNevera": {
+      "uso_correcto": "Bien utilisé",
+      "uso_parcial": "Partiellement utilisé",
+      "uso_incorrecto": "Mal utilisé",
+      "retirada": "Il a été retiré",
+      "vacia_desaprovechada": "Vide ou sous-utilisé",
+      "necesita_nueva": "Un nouveau est nécessaire",
+      "necesita_recogida": "À récupérer",
+      "otro": "Autre"
+    },
+    "tipoExtraespacio": {
+      "cabecera": "Tête de gondole",
+      "isla": "Îlot",
+      "pila": "Pile",
+      "otro": "Autre"
+    },
+    "motivoExtraespacio": {
+      "alta_rotacion": "Forte rotation",
+      "promocion": "Promotion",
+      "potencial_venta": "Potentiel de vente",
+      "falta_espacio_lineal": "Manque de place en linéaire",
+      "oportunidad_estacional": "Opportunité saisonnière",
+      "otro": "Autre"
+    },
+    "ubicacion": {
+      "palomar": "Étagère haute",
+      "zona_intermedia": "Zone intermédiaire",
+      "altura_ojos": "Hauteur des yeux",
+      "foso": "Étagère basse",
+      "otra": "Autre"
+    },
+    "propuesta": {
+      "subir_producto": "Monter le produit",
+      "bajar_producto": "Descendre le produit",
+      "ganar_espacio": "Gagner de l'espace",
+      "cambiar_ubicacion": "Changer d'emplacement",
+      "reorganizar_lineal": "Réorganiser le linéaire",
+      "otra": "Autre"
+    }
   }
 }

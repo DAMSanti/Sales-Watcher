@@ -77,6 +77,14 @@ export class ResultadosService {
     if (filtros.usuarioId) condiciones.push(eq(visitas.usuarioId, filtros.usuarioId));
     if (filtros.tiendaId) condiciones.push(eq(acciones.tiendaId, filtros.tiendaId));
 
+    if (filtros.canal) {
+      condiciones.push(
+        sql`${acciones.tiendaId} in (
+          select ${tiendas.id} from ${tiendas} where ${tiendas.canal} = ${filtros.canal}
+        )`,
+      );
+    }
+
     return condiciones;
   }
 

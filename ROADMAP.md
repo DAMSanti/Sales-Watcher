@@ -232,7 +232,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Aviso al asignar ruta en festivo regional *(pendiente del calendario laboral)*
 - [x] Dashboard del día: completadas vs. planificadas, activos, incidencias abiertas, no realizadas
 - [x] Bandeja de justificaciones, distinguiendo justificadas de no justificadas
-- [ ] Detalle de visita en solo lectura (checklist, fotos, incidencias, horarios, duración)
+- [x] Detalle de visita en solo lectura — *sin duración; ver el punto por categoría más abajo*
 - [x] Bandeja de incidencias con cambio de estado
 - [x] Informes de cobertura, no realización y ejecución con filtros de periodo
 - [x] Métrica de tasa de no realización con desglose por motivo
@@ -250,8 +250,8 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] **Historial desplegable** de cada acción: quién se pronunció, cuándo y qué dijo
 - [x] El dashboard cuenta **acciones abiertas**, no incidencias muertas
 - [x] Traducido a los cinco idiomas
-- [ ] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
-- [ ] Detalle de visita **organizado por categoría de producto**, con evidencias
+- [x] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
+- [x] Detalle de visita **organizado por categoría de producto**, con evidencias
 - [x] **Retirada la duración de visita** del detalle y de los informes
 - [x] Dashboard de resultados — las once preguntas de SPECS 6.4:
   - [x] Embudo detectadas → trabajadas → solucionadas, como barra apilada de una rampa secuencial *(es una progresión ordenada, no tres identidades)*
@@ -263,12 +263,12 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
   - [x] Cada bloque **declara su base temporal** y la pregunta 11 declara su lectura
   - [x] Vista de tabla del embudo, como alivio del aviso de contraste del paso más claro
   - [x] Traducido a los cinco idiomas
-- [ ] Histórico de la **relación con el responsable** por tienda
-- [ ] Reproducción de **vídeo** en el detalle
-- [ ] Gestión del catálogo de **marcas/segmentos** y de **referencias de producto**, con importación CSV
+- [x] Histórico de la **relación con el responsable** por tienda
+- [x] Reproducción de **vídeo** en el detalle
+- [x] Gestión del catálogo de **marcas/segmentos** y de **referencias de producto**, con importación CSV
 - [ ] Configuración de flujos por categoría, tipo de tienda y canal *(reutiliza el editor de plantillas)*
-- [ ] **Aviso en el editor al superar unos pocos ítems de checklist** — el guardarraíl contra el cuestionario
-- [ ] Segmentación de informes **por canal** (Modern / Proximity)
+- [x] **Aviso en el editor al superar unos pocos ítems de checklist** — el guardarraíl contra el cuestionario
+- [x] Segmentación de informes **por canal** (Modern / Proximity)
 
 ## Fase 5 — Endurecimiento y piloto
 

@@ -9,6 +9,9 @@ import { Marco } from "./componentes/Marco";
 import { Dashboard } from "./paneles/Dashboard";
 import { Acciones } from "./paneles/Acciones";
 import { Resultados } from "./paneles/Resultados";
+import { DetalleVisita } from "./paneles/DetalleVisita";
+import { Productos } from "./paneles/Productos";
+import { RelacionResponsable } from "./paneles/RelacionResponsable";
 import {
   InformeCobertura,
   InformeEjecucion,
@@ -62,6 +65,9 @@ export function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/acciones" element={<Acciones />} />
           <Route path="/resultados" element={<Resultados />} />
+          <Route path="/visitas/:id" element={<DetalleVisita />} />
+          <Route path="/tiendas/:id/relacion" element={<RelacionResponsable />} />
+          <Route path="/productos" element={<Productos />} />
           <Route path="/justificaciones" element={<Justificaciones />} />
           <Route path="/informes/cobertura" element={<InformeCobertura />} />
           <Route path="/informes/no-realizacion" element={<InformeNoRealizacion />} />

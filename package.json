@@ -23,6 +23,7 @@
     "infra:reset": "docker compose down -v && docker compose up -d",
     "db:verify": "node scripts/verificar-seed.mjs",
     "db:pruebas": "pnpm --filter @sw/db pruebas",
+    "db:evidencias": "node scripts/sembrar-evidencias.mjs",
     "db:acciones": "node scripts/ejercitar-acciones.mjs",
     "api:acciones": "node scripts/probar-api-acciones.mjs",
     "api:resultados": "node scripts/probar-api-resultados.mjs",

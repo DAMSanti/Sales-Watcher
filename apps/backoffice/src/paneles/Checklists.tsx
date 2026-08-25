@@ -3,6 +3,15 @@ import { IDIOMAS, IDIOMA_DEFECTO, type Idioma, type TextoI18n } from "@sw/shared
 import { useTranslation } from "react-i18next";
 import { ErrorApi, pedir } from "../api/cliente";
 import { useSesion } from "../auth/sesion";
+
+/**
+ * A partir de aquí el editor avisa.
+ *
+ * Seis no es un límite duro ni una cifra mágica: es el punto en que una lista
+ * deja de leerse de un vistazo en un móvil y empieza a rellenarse en
+ * automático, que es cuando el dato pierde valor.
+ */
+const LIMITE_COMODO = 6;
 import { Dialogo } from "../componentes/Dialogo";
 
 type Plantilla = {
@@ -87,6 +96,21 @@ export function Checklists() {
           <p className="pagina__subtitulo">{t("checklists.subtitulo")}</p>
         </div>
       </header>
+
+      {/*
+        El guardarraíl contra el cuestionario.
+
+        Un checklist editable sin freno crece hasta convertirse en lo que el
+        boceto rechaza —«no queremos que el GPV conteste obligatoriamente a
+        decenas de preguntas»— y crece porque añadir una pregunta siempre
+        parece barato para quien no la responde en una tienda con una mano
+        ocupada. El aviso no bloquea: recuerda el coste a quien lo asume.
+      */}
+      {items.length >= LIMITE_COMODO && (
+        <div className="aviso aviso--atencion" role="status">
+          {t("checklists.avisoLargo", { n: items.length })}
+        </div>
+      )}
 
       {error && <div className="aviso aviso--error">{error}</div>}
 
