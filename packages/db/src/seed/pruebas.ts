@@ -4,7 +4,7 @@ import { cargarEnv } from "../cargar-env";
 import { crearCliente } from "../index";
 import {
   categorias,
-  fotos,
+  evidencias,
   incidencias,
   itemsChecklist,
   justificaciones,
@@ -260,7 +260,7 @@ async function principal() {
    * violación de integridad. No es hipotético — el generador falló así en
    * cuanto hubo fotos reales en la base.
    */
-  await db.delete(fotos);
+  await db.delete(evidencias);
   await db.delete(justificaciones);
   await db.delete(incidencias);
   await db.delete(resultadosChecklist);

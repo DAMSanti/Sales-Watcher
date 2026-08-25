@@ -13,7 +13,7 @@
     "S3_SECRET_ACCESS_KEY",
     "CIERRE_JORNADA_HORA",
     "ZONA_HORARIA_DEFECTO",
-    "RETENCION_FOTOS_DIAS"
+    "RETENCION_EVIDENCIAS_DIAS"
   ],
   "tasks": {
     "build": {

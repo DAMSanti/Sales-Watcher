@@ -49,9 +49,37 @@ describe("cargarConfiguracion", () => {
     expect(config.ZONA_HORARIA_DEFECTO).toBe("Europe/Madrid");
     expect(config.AUTH_MAX_INTENTOS).toBe(5);
     expect(config.AUTH_BLOQUEO_MINUTOS).toBe(15);
-    expect(config.FOTO_MAX_BYTES).toBe(5 * 1024 * 1024);
+    expect(config.EVIDENCIA_FOTO_MAX_BYTES).toBe(5 * 1024 * 1024);
     expect(config.URL_SUBIDA_MINUTOS).toBe(15);
     expect(config.URL_DESCARGA_MINUTOS).toBe(5);
+  });
+
+  /**
+   * Los límites de vídeo son cinco veces los de foto, y su URL de subida dura
+   * tres veces más. Si alguien los iguala "por simplificar", una subida de
+   * 25 MB por red móvil caducará a mitad y el GPV perderá la grabación sin
+   * entender por qué.
+   */
+  it("da al vídeo límites propios, no los de una foto", () => {
+    const config = cargarConfiguracion();
+
+    expect(config.EVIDENCIA_VIDEO_MAX_BYTES).toBe(25 * 1024 * 1024);
+    expect(config.EVIDENCIA_VIDEO_MAX_BYTES).toBeGreaterThan(
+      config.EVIDENCIA_FOTO_MAX_BYTES,
+    );
+    expect(config.EVIDENCIA_VIDEO_MAX_SEGUNDOS).toBe(60);
+    expect(config.URL_SUBIDA_VIDEO_MINUTOS).toBeGreaterThan(config.URL_SUBIDA_MINUTOS);
+  });
+
+  /**
+   * Sin ffmpeg los vídeos se conservan sin normalizar, así que su ausencia no
+   * puede impedir el arranque: sería cambiar un vídeo pesado por ninguna API.
+   */
+  it("arranca aunque no se configure ffmpeg", () => {
+    const config = cargarConfiguracion();
+
+    expect(config.FFMPEG_BIN).toBe("ffmpeg");
+    expect(config.VIDEO_ALTURA).toBe(720);
   });
 
   it("rechaza que falten las credenciales de almacenamiento", () => {
@@ -100,14 +128,14 @@ describe("cargarConfiguracion", () => {
    * todas las fotos en la primera pasada del proceso de purga.
    */
   it("interpreta una retención de fotos vacía como indefinida, no como cero", () => {
-    process.env.RETENCION_FOTOS_DIAS = "";
-    expect(cargarConfiguracion().RETENCION_FOTOS_DIAS).toBeNull();
+    process.env.RETENCION_EVIDENCIAS_DIAS = "";
+    expect(cargarConfiguracion().RETENCION_EVIDENCIAS_DIAS).toBeNull();
 
-    process.env.RETENCION_FOTOS_DIAS = "   ";
-    expect(cargarConfiguracion().RETENCION_FOTOS_DIAS).toBeNull();
+    process.env.RETENCION_EVIDENCIAS_DIAS = "   ";
+    expect(cargarConfiguracion().RETENCION_EVIDENCIAS_DIAS).toBeNull();
 
-    process.env.RETENCION_FOTOS_DIAS = "90";
-    expect(cargarConfiguracion().RETENCION_FOTOS_DIAS).toBe(90);
+    process.env.RETENCION_EVIDENCIAS_DIAS = "90";
+    expect(cargarConfiguracion().RETENCION_EVIDENCIAS_DIAS).toBe(90);
   });
 
   it("rechaza un entorno desconocido", () => {

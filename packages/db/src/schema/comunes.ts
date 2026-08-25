@@ -78,8 +78,8 @@ export const estadoRevisionEnum = pgEnum("estado_revision", [
   "cuestionada",
 ]);
 
-/** Ámbito al que se asocia una fotografía (SPECS §5.4). */
-export const ambitoFotoEnum = pgEnum("ambito_foto", [
+/** Ámbito al que se asocia una evidencia (SPECS §5.4). */
+export const ambitoEvidenciaEnum = pgEnum("ambito_evidencia", [
   "visita",
   "checklist",
   "incidencia",
@@ -232,13 +232,11 @@ export const valoracionRelacionEnum = pgEnum("valoracion_relacion", [
 ]);
 
 /**
- * Tipo de evidencia adjunta.
+ * Tipo de evidencia adjunta: fotografía o vídeo.
  *
- * La tabla sigue llamándose `fotos` porque renombrarla a `evidencias` implica
- * un refactor transversal de un módulo que funciona (API, cola offline, purga,
- * app de campo). Se hará cuando se implemente el flujo de vídeo y ese código se
- * toque de todos modos; hasta entonces, este enum es el que manda sobre el
- * nombre de la tabla.
+ * Nombrar bien esto importa más de lo que parece. Mientras la tabla se llamó
+ * `fotos` y contenía vídeos, cualquiera que leyese `requiereFoto` tenía que
+ * acordarse de que podía ser un vídeo. Ahora el nombre dice lo que hay.
  */
 export const tipoEvidenciaEnum = pgEnum("tipo_evidencia", ["foto", "video"]);
 

@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { and, inArray, isNotNull, isNull, lte } from "drizzle-orm";
-import { fotos, operacionesSincronizadas } from "@sw/db";
+import { evidencias, operacionesSincronizadas } from "@sw/db";
 import { AlmacenamientoService } from "../almacenamiento/almacenamiento.service";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { Configuracion } from "../config/configuracion";
@@ -25,8 +25,8 @@ import type { Configuracion } from "../config/configuracion";
  *     acumulan indefinidamente.
  */
 @Injectable()
-export class PurgaFotosService {
-  private readonly logger = new Logger(PurgaFotosService.name);
+export class PurgaEvidenciasService {
+  private readonly logger = new Logger(PurgaEvidenciasService.name);
   private ejecutando = false;
 
   constructor(
@@ -103,9 +103,9 @@ export class PurgaFotosService {
   /** Fotos confirmadas cuya fecha de expiración ya pasó. */
   private async purgarCaducadas(): Promise<number> {
     const candidatas = await this.db
-      .select({ id: fotos.id, clave: fotos.claveAlmacenamiento })
-      .from(fotos)
-      .where(and(isNotNull(fotos.expiraEn), lte(fotos.expiraEn, new Date())))
+      .select({ id: evidencias.id, clave: evidencias.claveAlmacenamiento })
+      .from(evidencias)
+      .where(and(isNotNull(evidencias.expiraEn), lte(evidencias.expiraEn, new Date())))
       .limit(1000);
 
     return this.borrarCandidatas(candidatas);
@@ -113,13 +113,13 @@ export class PurgaFotosService {
 
   /** Reservas de subida que nunca se confirmaron. */
   private async purgarReservasAbandonadas(): Promise<number> {
-    const horas = this.config.get("FOTO_RESERVA_CADUCA_HORAS", { infer: true });
+    const horas = this.config.get("EVIDENCIA_RESERVA_CADUCA_HORAS", { infer: true });
     const limite = new Date(Date.now() - horas * 60 * 60 * 1000);
 
     const candidatas = await this.db
-      .select({ id: fotos.id, clave: fotos.claveAlmacenamiento })
-      .from(fotos)
-      .where(and(isNull(fotos.confirmadaEn), lte(fotos.creadoEn, limite)))
+      .select({ id: evidencias.id, clave: evidencias.claveAlmacenamiento })
+      .from(evidencias)
+      .where(and(isNull(evidencias.confirmadaEn), lte(evidencias.creadoEn, limite)))
       .limit(1000);
 
     return this.borrarCandidatas(candidatas);
@@ -153,7 +153,7 @@ export class PurgaFotosService {
 
     if (idsBorrados.length === 0) return 0;
 
-    await this.db.delete(fotos).where(inArray(fotos.id, idsBorrados));
+    await this.db.delete(evidencias).where(inArray(evidencias.id, idsBorrados));
 
     const fallidas = candidatas.length - idsBorrados.length;
     if (fallidas > 0) {

@@ -131,7 +131,7 @@ export const operacionSchema = z.discriminatedUnion("tipo", [
     datos: relacionResponsableSchema,
   }),
   z.object({
-    tipo: z.literal("foto.reservar"),
+    tipo: z.literal("evidencia.reservar"),
     opId,
     visita: refVisitaSchema,
     ambito: z.enum(["visita", "checklist", "incidencia"]),
@@ -146,11 +146,11 @@ export const operacionSchema = z.discriminatedUnion("tipo", [
     idCliente,
   }),
   z.object({
-    tipo: z.literal("foto.confirmar"),
+    tipo: z.literal("evidencia.confirmar"),
     opId,
-    fotoId: z.string().uuid().optional(),
+    evidenciaId: z.string().uuid().optional(),
     /** Para una foto reservada en este mismo lote. */
-    fotoIdCliente: z.string().min(1).max(128).optional(),
+    evidenciaIdCliente: z.string().min(1).max(128).optional(),
   }),
 ]);
 

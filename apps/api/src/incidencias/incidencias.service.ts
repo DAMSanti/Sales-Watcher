@@ -9,7 +9,7 @@ import {
 import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import {
   categorias,
-  fotos,
+  evidencias,
   incidencias,
   tiendas,
   usuarios,
@@ -136,9 +136,9 @@ export class IncidenciasService {
         incidencia: incidencias,
         categoria: categorias,
         fotosConfirmadas: sql<number>`(
-          select count(*)::int from ${fotos}
-          where ${fotos.incidenciaId} = ${incidencias.id}
-            and ${fotos.confirmadaEn} is not null
+          select count(*)::int from ${evidencias}
+          where ${evidencias.incidenciaId} = ${incidencias.id}
+            and ${evidencias.confirmadaEn} is not null
         )`,
       })
       .from(incidencias)

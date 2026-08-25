@@ -78,6 +78,8 @@ export class AlmacenamientoService {
     clave: string,
     tipoMime: string,
     tamanoBytes: number,
+    /** Caducidad a medida. El vídeo la necesita mucho mayor que la foto. */
+    minutos?: number,
   ): Promise<string> {
     const comando = new PutObjectCommand({
       Bucket: this.bucket,
@@ -86,9 +88,41 @@ export class AlmacenamientoService {
       ContentLength: tamanoBytes,
     });
 
-    return getSignedUrl(this.cliente, comando, {
-      expiresIn: this.config.get("URL_SUBIDA_MINUTOS", { infer: true }) * 60,
-    });
+    // `config.get` está tipado como opcional en este proyecto, así que el
+    // respaldo es el mismo valor por defecto que declara el esquema.
+    const caducidad =
+      minutos ?? this.config.get("URL_SUBIDA_MINUTOS", { infer: true }) ?? 15;
+
+    return getSignedUrl(this.cliente, comando, { expiresIn: caducidad * 60 });
+  }
+
+  /**
+   * Descarga un objeto a memoria.
+   *
+   * Lo usa la normalización de vídeo, que necesita el fichero en disco para
+   * dárselo a ffmpeg. Para fotos no hace falta: nadie las procesa en servidor.
+   */
+  async descargar(clave: string): Promise<Buffer> {
+    const respuesta = await this.cliente.send(
+      new GetObjectCommand({ Bucket: this.bucket, Key: clave }),
+    );
+    const trozos: Uint8Array[] = [];
+    for await (const trozo of respuesta.Body as AsyncIterable<Uint8Array>) {
+      trozos.push(trozo);
+    }
+    return Buffer.concat(trozos);
+  }
+
+  /** Sube un fichero desde el servidor. La usa la normalización de vídeo. */
+  async subir(clave: string, contenido: Buffer, tipoMime: string): Promise<void> {
+    await this.cliente.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: clave,
+        Body: contenido,
+        ContentType: tipoMime,
+      }),
+    );
   }
 
   /**

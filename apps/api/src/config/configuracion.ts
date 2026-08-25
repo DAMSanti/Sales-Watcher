@@ -30,7 +30,7 @@ const esquema = z.object({
   ZONA_HORARIA_DEFECTO: z.string().default("Europe/Madrid"),
 
   /** Vacío = conservar indefinidamente, pero el mecanismo de purga ya existe. */
-  RETENCION_FOTOS_DIAS: z
+  RETENCION_EVIDENCIAS_DIAS: z
     .string()
     .optional()
     .transform((v) => (v && v.trim() !== "" ? Number(v) : null)),
@@ -76,13 +76,62 @@ const esquema = z.object({
    * significa que la compresión del cliente falló y conviene rechazarlo antes
    * de que cientos de visitas al día llenen el almacenamiento.
    */
-  FOTO_MAX_BYTES: z.coerce.number().int().positive().default(5 * 1024 * 1024),
+  EVIDENCIA_FOTO_MAX_BYTES: z.coerce.number().int().positive().default(5 * 1024 * 1024),
 
   /**
-   * Validez de la URL firmada de subida. Corta, pero suficiente para que el
-   * dispositivo termine de subir por una red móvil lenta.
+   * Tamaño máximo por vídeo, cinco veces el de una foto.
+   *
+   * 60 s a 720p con H.264 (~2,5 Mbps) más audio AAC son unos 20 MB; 25 deja
+   * margen para una toma con más movimiento del previsto. Es el original que
+   * sube el dispositivo: tras normalizar, lo que se conserva suele ser menor.
+   */
+  EVIDENCIA_VIDEO_MAX_BYTES: z.coerce.number().int().positive().default(25 * 1024 * 1024),
+
+  /**
+   * Duración máxima de un vídeo.
+   *
+   * Suficiente para recorrer un lineal y narrarlo. El tope no es estético: sin
+   * él, un vídeo olvidado grabando llenaría el almacenamiento de una visita.
+   */
+  EVIDENCIA_VIDEO_MAX_SEGUNDOS: z.coerce.number().int().positive().default(60),
+
+  // ── Normalización de vídeo ─────────────────────────────────────────
+  /**
+   * Ruta del binario de ffmpeg.
+   *
+   * Configurable porque en desarrollo suele ser una compilación portátil y en
+   * producción viene en la imagen. Si no está, los vídeos se conservan **sin
+   * normalizar** en lugar de perderse: es preferible un vídeo pesado a ninguno.
+   */
+  FFMPEG_BIN: z.string().default("ffmpeg"),
+
+  /** Altura a la que se normaliza. 720p deja leer etiquetas de producto. */
+  VIDEO_ALTURA: z.coerce.number().int().positive().default(720),
+
+  /**
+   * Intentos de normalización antes de rendirse con un vídeo.
+   *
+   * Sin tope, un fichero corrupto o con un códec exótico se reintentaría en
+   * cada pasada para siempre, ocupando el proceso y llenando el registro.
+   */
+  VIDEO_MAX_INTENTOS: z.coerce.number().int().positive().default(3),
+
+  /**
+   * Validez de la URL firmada de subida de una FOTO. Corta, pero suficiente
+   * para que el dispositivo termine de subir por una red móvil lenta.
    */
   URL_SUBIDA_MINUTOS: z.coerce.number().int().positive().default(15),
+
+  /**
+   * Validez de la URL firmada de subida de un VÍDEO.
+   *
+   * Mucho más larga porque el fichero es hasta cinco veces mayor. 25 MB por una
+   * subida móvil de 1 Mbps son más de tres minutos en el mejor caso, y en el
+   * sótano de un híper con cobertura intermitente, bastante más. Con 15 minutos
+   * la URL caducaba a mitad de subida y el GPV perdía la grabación sin
+   * entender por qué.
+   */
+  URL_SUBIDA_VIDEO_MINUTOS: z.coerce.number().int().positive().default(45),
 
   /**
    * Validez de la URL firmada de descarga. Muy corta: se genera al vuelo cada
@@ -96,7 +145,7 @@ const esquema = z.object({
    * abandonada y se limpia. Generoso a propósito: el comercial puede quedarse
    * sin cobertura y no completar la subida hasta el día siguiente.
    */
-  FOTO_RESERVA_CADUCA_HORAS: z.coerce.number().int().positive().default(48),
+  EVIDENCIA_RESERVA_CADUCA_HORAS: z.coerce.number().int().positive().default(48),
 });
 
 export type Configuracion = z.infer<typeof esquema>;

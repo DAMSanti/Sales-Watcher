@@ -33,8 +33,8 @@ export type TipoOperacion =
   | "accion.registrar"
   | "accion.comprobar"
   | "relacion.guardar"
-  | "foto.reservar"
-  | "foto.confirmar";
+  | "evidencia.reservar"
+  | "evidencia.confirmar";
 
 /**
  * Resultado de cada operación del lote.

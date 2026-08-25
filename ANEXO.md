@@ -804,6 +804,20 @@ Cada respuesta declara su base en el propio JSON (`base: "cohorte por fecha de d
 
 **La pregunta 11 es la más abierta del cliente** («¿dónde estamos perdiendo oportunidades de venta?»), así que la respuesta declara su lectura: oportunidades detectadas que no acabaron en resultado —siguen abiertas o se descartaron—, agrupadas por tienda y categoría. Si el cliente quería otra cosa, al menos se ve cuál se eligió.
 
+### Normalización de vídeo
+
+**Por qué existe.** El dispositivo sube lo que produzca su cámara: MP4/H.264 en iOS, MP4 o WebM en Android, QuickTime en algunos modelos. **Safari no reproduce WebM con fiabilidad**, así que sin normalizar, un FSM con iPhone no podría ver el vídeo que grabó un GPV con Android — el peor fallo posible en una evidencia: existe, ocupa espacio y no sirve para nada.
+
+Además acota el almacenamiento. Un vídeo de móvil a 1080p pesa varias veces lo mismo a 720p, y 720p ya deja leer una etiqueta de producto. Medido con el vídeo de prueba: **466 KB → 164 KB** conservando duración y audio.
+
+**Por qué no se hace al subir.** Transcodificar un minuto de vídeo lleva segundos de CPU. Hacerlo dentro de la confirmación dejaría al GPV esperando en la tienda y bloquearía un hilo de la API por cada subida. Va en una cola que corre cada diez minutos; el vídeo es servible desde que se confirma.
+
+**El orden de sustitución importa.** Se sube el normalizado a una clave nueva, se apunta la fila a ella y solo entonces se borra el original. Sustituir en la misma clave sería más simple y destruiría la evidencia en cuanto ffmpeg produjera algo inservible.
+
+**Sin ffmpeg no se pierde nada.** El vídeo queda tal cual, servible, con `normalizada_en` en null. Un vídeo pesado es infinitamente mejor que ninguno, y el campo delata cuáles quedaron sin procesar. El binario se configura con `FFMPEG_BIN` porque en desarrollo suele ser una compilación portátil y en producción viene en la imagen.
+
+**El audio se conserva, deliberadamente.** El cliente pidió que los vídeos *«se oigan bien»*; eliminarlo para ahorrar espacio incumpliría el requisito. Eso mantiene P31 abierta y en pie.
+
 ### Puertos de desarrollo
 
 Todos los servicios locales viven en un bloque contiguo **3900–3907**, no en los

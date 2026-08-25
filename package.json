@@ -25,7 +25,8 @@
     "db:pruebas": "pnpm --filter @sw/db pruebas",
     "db:acciones": "node scripts/ejercitar-acciones.mjs",
     "api:acciones": "node scripts/probar-api-acciones.mjs",
-    "api:resultados": "node scripts/probar-api-resultados.mjs"
+    "api:resultados": "node scripts/probar-api-resultados.mjs",
+    "api:video": "node scripts/probar-video.mjs"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1117.0",

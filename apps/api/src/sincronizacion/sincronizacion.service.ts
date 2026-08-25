@@ -9,7 +9,7 @@ import {
 } from "@sw/shared";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import { ChecklistService } from "../visitas/checklist.service";
-import { FotosService } from "../fotos/fotos.service";
+import { EvidenciasService } from "../evidencias/evidencias.service";
 import { IncidenciasService } from "../incidencias/incidencias.service";
 import { AccionesService } from "../acciones/acciones.service";
 import { JustificacionesService } from "../visitas/justificaciones.service";
@@ -28,7 +28,7 @@ export class SincronizacionService {
     private readonly checklist: ChecklistService,
     private readonly incidencias: IncidenciasService,
     private readonly acciones: AccionesService,
-    private readonly fotos: FotosService,
+    private readonly evidencias: EvidenciasService,
   ) {}
 
   /**
@@ -247,13 +247,13 @@ export class SincronizacionService {
         return { estado: "aplicada", id: relacion.id };
       }
 
-      case "foto.reservar": {
+      case "evidencia.reservar": {
         const visitaId = await this.resolverVisita(operacion.visita, equivalencias);
-        const reserva = await this.fotos.solicitarSubida(
+        const reserva = await this.evidencias.solicitarSubida(
           {
             ...operacion,
             visitaId,
-            /** Una foto de incidencia puede apuntar a una creada en este lote. */
+            /** Una evidencia de incidencia puede apuntar a una creada en este lote. */
             incidenciaId: operacion.incidenciaIdCliente
               ? equivalencias.get(operacion.incidenciaIdCliente)
               : operacion.incidenciaId,
@@ -261,32 +261,32 @@ export class SincronizacionService {
           usuario,
         );
         if (operacion.idCliente) {
-          equivalencias.set(operacion.idCliente, reserva.fotoId);
+          equivalencias.set(operacion.idCliente, reserva.evidenciaId);
         }
         return {
           estado: reserva.yaConfirmada ? "duplicada" : "aplicada",
-          id: reserva.fotoId,
+          id: reserva.evidenciaId,
           ...(operacion.idCliente ? { idCliente: operacion.idCliente } : {}),
           /** La URL firmada viaja de vuelta: el cliente sube y confirma después. */
           datos: { urlSubida: reserva.urlSubida },
         };
       }
 
-      case "foto.confirmar": {
-        const fotoId =
-          operacion.fotoIdCliente !== undefined
-            ? equivalencias.get(operacion.fotoIdCliente)
-            : operacion.fotoId;
+      case "evidencia.confirmar": {
+        const evidenciaId =
+          operacion.evidenciaIdCliente !== undefined
+            ? equivalencias.get(operacion.evidenciaIdCliente)
+            : operacion.evidenciaId;
 
-        if (!fotoId) {
+        if (!evidenciaId) {
           return {
             estado: "fallida_permanente",
             error: "No se pudo resolver la fotografía a confirmar",
           };
         }
 
-        const resultado = await this.fotos.confirmarSubida(fotoId, usuario);
-        return { estado: "aplicada", id: resultado.fotoId };
+        const resultado = await this.evidencias.confirmarSubida(evidenciaId, usuario);
+        return { estado: "aplicada", id: resultado.evidenciaId };
       }
     }
   }

@@ -104,9 +104,12 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] `db:verify` amplía sus invariantes al ciclo de acciones
 - [x] `db:acciones` ejercita los nueve flujos contra la base de datos real
 - [ ] Importación CSV de referencias de producto *(el catálogo se siembra; falta la carga masiva)*
-- [ ] Renombrar la tabla `fotos` a `evidencias` *(100 usos en 24 ficheros: se hará al implementar vídeo, cuando ese código se toque igualmente)*
-- [ ] Subir el límite de tamaño a **25 MB** para vídeo y revisar la caducidad de la URL de subida
-- [ ] **Proceso de transcodificación a 720p** (ffmpeg) — la pieza de infraestructura nueva más costosa
+- [x] Renombrada la tabla `fotos` a **`evidencias`**, con migración escrita a mano *(`ALTER ... RENAME`, no `DROP`+`CREATE`)*
+- [x] Límites **por tipo**: 5 MB la foto, 25 MB el vídeo, 60 s de duración máxima
+- [x] La URL de subida de vídeo dura **45 minutos** frente a los 15 de una foto
+- [x] **Normalización a 720p H.264/AAC** con ffmpeg, en cola y no en la petición
+- [x] Sin ffmpeg, el vídeo se conserva **servible y sin normalizar**: nunca se pierde el original
+- [x] `api:video` verifica el ciclo entero sondeando el fichero almacenado con ffprobe
 - [ ] Traducir a los cinco idiomas las etiquetas de las opciones de los flujos *(son enums en base de datos; sus etiquetas van en los ficheros de idioma del cliente, no en el seed)*
 
 ### 🆕 Hallazgos del modelado

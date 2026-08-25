@@ -769,7 +769,7 @@ Camino elegido:
 2. **Validación de duración y tamaño en el dispositivo** antes de encolar, con mensaje claro si se pasa.
 3. **Normalización a 720p en el servidor**, que uniforma la reproducción y acota el almacenamiento.
 
-> **Implicación de infraestructura:** el paso 3 necesita un proceso de transcodificación (ffmpeg). Es la pieza nueva más costosa de esta tanda. Si se prefiere evitarla al principio, la alternativa es almacenar el original y asumir tanto el coste de almacenamiento como el riesgo de compatibilidad — pero conviene que sea una decisión a la vista, no por omisión.
+> **Implementado.** La normalización corre en una cola cada diez minutos, no en la petición de confirmación: transcodificar dentro de ella dejaría al GPV esperando en la tienda. Si ffmpeg no está disponible, el vídeo se conserva **servible y sin normalizar** en lugar de perderse, y el campo `normalizada_en` delata cuáles quedaron pendientes.
 
 > ⚠️ **El vídeo lleva audio, y eso abre una cuestión que la fotografía no planteaba (P31).** El caso de uso previsto por el boceto —documentar una falta de stock repetida para *«hablar con el responsable del establecimiento o escalar el problema»*— implica que el encargado puede quedar grabado, y que la grabación puede usarse en una conversación sobre él. Grabar la voz de una persona no equivale a fotografiar un lineal. No es motivo para descartar el vídeo ni bloquea diseñar el flujo, pero las salidas baratas —aviso visible de grabación, encuadre sobre el lineal y no sobre personas, o audio opcional— solo son baratas si se deciden antes de tener vídeos grabados.
 

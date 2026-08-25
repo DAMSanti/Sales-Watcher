@@ -9,7 +9,12 @@ import {
 import type { Punto } from "../comun/ubicacion";
 import type { FotoComprimida } from "./comprimir";
 
-type Reserva = { fotoId: string; urlSubida: string | null; yaConfirmada: boolean };
+type Reserva = {
+  evidenciaId: string;
+  tipo: "foto" | "video";
+  urlSubida: string | null;
+  yaConfirmada: boolean;
+};
 
 export type Destino = {
   visitaId: string;
@@ -19,7 +24,7 @@ export type Destino = {
 };
 
 export type ResultadoSubida =
-  | { via: "subida"; fotoId: string }
+  | { via: "subida"; evidenciaId: string }
   | { via: "guardada"; fotoLocalId: string };
 
 /**
@@ -39,7 +44,7 @@ export async function subirFoto(
 
   if (navigator.onLine) {
     try {
-      const fotoId = await flujoCompleto(foto.blob, {
+      const evidenciaId = await flujoCompleto(foto.blob, {
         ...destino,
         tipoMime: foto.tipoMime,
         tamanoBytes: foto.tamanoBytes,
@@ -48,7 +53,7 @@ export async function subirFoto(
         capturadaEn,
         ubicacion,
       });
-      return { via: "subida", fotoId };
+      return { via: "subida", evidenciaId };
     } catch (error) {
       /**
        * Solo se guarda para después si falló la RED. Un rechazo del servidor
@@ -92,14 +97,14 @@ async function flujoCompleto(
     ubicacion?: Punto;
   },
 ): Promise<string> {
-  const reserva = await pedir<Reserva>("/fotos/subida", {
+  const reserva = await pedir<Reserva>("/evidencias/subida", {
     metodo: "POST",
     cuerpo: datos,
   });
 
   /** Reserva ya confirmada: llegó en un intento anterior cuya respuesta se
    *  perdió. No hay nada que subir. */
-  if (reserva.yaConfirmada || !reserva.urlSubida) return reserva.fotoId;
+  if (reserva.yaConfirmada || !reserva.urlSubida) return reserva.evidenciaId;
 
   const respuesta = await fetch(reserva.urlSubida, {
     method: "PUT",
@@ -118,9 +123,9 @@ async function flujoCompleto(
    * almacenamiento que el objeto existe y que su tamaño y tipo coinciden. Sin
    * ella, un ítem que exige foto quedaría satisfecho por una subida a medias.
    */
-  await pedir(`/fotos/${reserva.fotoId}/confirmar`, { metodo: "POST" });
+  await pedir(`/evidencias/${reserva.evidenciaId}/confirmar`, { metodo: "POST" });
 
-  return reserva.fotoId;
+  return reserva.evidenciaId;
 }
 
 /**

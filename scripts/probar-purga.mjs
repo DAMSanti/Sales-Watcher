@@ -20,6 +20,30 @@ if (!process.env.DATABASE_URL && existsSync(resolve(raiz, ".env"))) {
   process.loadEnvFile(resolve(raiz, ".env"));
 }
 
+/**
+ * Entra como administrador.
+ *
+ * Antes el token llegaba por la variable TOKEN_ADMIN, que nadie definía: el
+ * script fallaba con un 401 y parecía que la purga estaba rota. Pedirlo aquí
+ * hace el script ejecutable sin preparación previa.
+ */
+async function entrarComoAdmin() {
+  const r = await fetch(
+    `http://localhost:${process.env.PORT ?? 3900}/api/auth/login`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        numeroTrabajador: "10000",
+        password: "SalesWatcher2026!",
+      }),
+    },
+  );
+  const cuerpo = await r.json();
+  if (!cuerpo.token) throw new Error(`login fallido: ${JSON.stringify(cuerpo)}`);
+  return cuerpo.token;
+}
+
 const sql = postgres(process.env.DATABASE_URL, { max: 2 });
 const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
@@ -61,7 +85,7 @@ try {
     }),
   );
   const [caducada] = await sql`
-    INSERT INTO fotos (visita_id, ambito, clave_almacenamiento, tipo_mime,
+    INSERT INTO evidencias (visita_id, ambito, clave_almacenamiento, tipo_mime,
                        tamano_bytes, capturada_en, confirmada_en, expira_en)
     VALUES (${visita.id}, 'visita', ${claveCaducada}, 'image/png', 19,
             now(), now(), now() - interval '1 day')
@@ -78,7 +102,7 @@ try {
     }),
   );
   const [abandonada] = await sql`
-    INSERT INTO fotos (visita_id, ambito, clave_almacenamiento, tipo_mime,
+    INSERT INTO evidencias (visita_id, ambito, clave_almacenamiento, tipo_mime,
                        tamano_bytes, capturada_en, confirmada_en, creado_en)
     VALUES (${visita.id}, 'visita', ${claveAbandonada}, 'image/png', 15,
             now(), NULL, now() - interval '72 hours')
@@ -95,7 +119,7 @@ try {
     }),
   );
   const [viva] = await sql`
-    INSERT INTO fotos (visita_id, ambito, clave_almacenamiento, tipo_mime,
+    INSERT INTO evidencias (visita_id, ambito, clave_almacenamiento, tipo_mime,
                        tamano_bytes, capturada_en, confirmada_en, expira_en)
     VALUES (${visita.id}, 'visita', ${claveViva}, 'image/png', 8,
             now(), now(), now() + interval '30 days')
@@ -107,9 +131,9 @@ try {
   check("objeto vivo existe       ", await existeObjeto(claveViva));
 
   // Disparar la purga a través del endpoint interno.
-  const respuesta = await fetch(`http://localhost:${process.env.PORT ?? 3900}/api/mantenimiento/purga-fotos`, {
+  const respuesta = await fetch(`http://localhost:${process.env.PORT ?? 3900}/api/mantenimiento/purga-evidencias`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${process.env.TOKEN_ADMIN}` },
+    headers: { Authorization: `Bearer ${await entrarComoAdmin()}` },
   });
   const resultado = await respuesta.json();
   console.log(`\nResultado de la purga: ${JSON.stringify(resultado)}`);
@@ -120,14 +144,14 @@ try {
   check("objeto vivo INTACTO      ", await existeObjeto(claveViva));
 
   const filas = await sql`
-    SELECT id FROM fotos WHERE id IN (${caducada.id}, ${abandonada.id}, ${viva.id})`;
+    SELECT id FROM evidencias WHERE id IN (${caducada.id}, ${abandonada.id}, ${viva.id})`;
   const ids = filas.map((f) => f.id);
   check("fila caducada borrada    ", !ids.includes(caducada.id));
   check("fila abandonada borrada  ", !ids.includes(abandonada.id));
   check("fila viva conservada     ", ids.includes(viva.id));
 
   // Limpieza
-  await sql`DELETE FROM fotos WHERE id = ${viva.id}`;
+  await sql`DELETE FROM evidencias WHERE id = ${viva.id}`;
   await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: claveViva }));
 
   console.log(fallos === 0 ? "\nPurga verificada.\n" : `\n${fallos} fallo(s).\n`);

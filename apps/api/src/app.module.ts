@@ -11,7 +11,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { RolesGuard } from "./auth/guards/roles.guard";
 import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
-import { FotosModule } from "./fotos/fotos.module";
+import { EvidenciasModule } from "./evidencias/evidencias.module";
 import { IncidenciasModule } from "./incidencias/incidencias.module";
 import { AccionesModule } from "./acciones/acciones.module";
 import { InformesModule } from "./informes/informes.module";
@@ -37,7 +37,7 @@ import { VisitasModule } from "./visitas/visitas.module";
     AuditoriaModule,
     AlmacenamientoModule,
     AuthModule,
-    FotosModule,
+    EvidenciasModule,
     VisitasModule,
     IncidenciasModule,
     AccionesModule,

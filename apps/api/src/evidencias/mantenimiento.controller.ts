@@ -3,7 +3,8 @@ import { Roles } from "../auth/decoradores/roles.decorator";
 import { UsuarioActual } from "../auth/decoradores/usuario-actual.decorator";
 import { AuditoriaService } from "../auditoria/auditoria.service";
 import type { PayloadToken } from "../auth/auth.service";
-import { PurgaFotosService } from "./purga-fotos.service";
+import { NormalizacionVideoService } from "./normalizacion-video.service";
+import { PurgaEvidenciasService } from "./purga-evidencias.service";
 import { CierreJornadaService } from "../visitas/cierre-jornada.service";
 
 /**
@@ -24,25 +25,52 @@ import { CierreJornadaService } from "../visitas/cierre-jornada.service";
 @Controller("mantenimiento")
 export class MantenimientoController {
   constructor(
-    private readonly purga: PurgaFotosService,
+    private readonly purga: PurgaEvidenciasService,
+    private readonly normalizacion: NormalizacionVideoService,
     private readonly cierre: CierreJornadaService,
     private readonly auditoria: AuditoriaService,
   ) {}
 
   @Roles("administrador")
-  @Post("purga-fotos")
+  @Post("purga-evidencias")
   @HttpCode(HttpStatus.OK)
-  async purgarFotos(@UsuarioActual() usuario: PayloadToken) {
+  async purgarEvidencias(@UsuarioActual() usuario: PayloadToken) {
     const resultado = await this.purga.ejecutar();
 
     await this.auditoria.registrar({
       usuarioId: usuario.sub,
       numeroTrabajador: usuario.numeroTrabajador,
-      accion: "mantenimiento.purga_fotos",
-      entidad: "foto",
+      accion: "mantenimiento.purga_evidencias",
+      entidad: "evidencia",
       cambios: {
         caducadas: { antes: null, despues: resultado.caducadas },
         abandonadas: { antes: null, despues: resultado.abandonadas },
+      },
+    });
+
+    return resultado;
+  }
+
+  /**
+   * Dispara una pasada de normalización de vídeo.
+   *
+   * Existe además del cron para poder probar el proceso sin esperar diez
+   * minutos, y para vaciar la cola a mano tras una incidencia.
+   */
+  @Roles("administrador")
+  @Post("normalizar-videos")
+  @HttpCode(HttpStatus.OK)
+  async normalizarVideos(@UsuarioActual() usuario: PayloadToken) {
+    const resultado = await this.normalizacion.ejecutar();
+
+    await this.auditoria.registrar({
+      usuarioId: usuario.sub,
+      numeroTrabajador: usuario.numeroTrabajador,
+      accion: "mantenimiento.normalizar_videos",
+      entidad: "evidencia",
+      cambios: {
+        normalizados: { antes: null, despues: resultado.normalizados },
+        fallidos: { antes: null, despues: resultado.fallidos },
       },
     });
 

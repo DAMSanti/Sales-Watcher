@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { and, eq } from "drizzle-orm";
-import { fotos, visitas } from "@sw/db";
+import { evidencias, visitas } from "@sw/db";
 import { AlmacenamientoService } from "../almacenamiento/almacenamiento.service";
 import { AuditoriaService } from "../auditoria/auditoria.service";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
@@ -27,7 +27,25 @@ const TIPOS_PERMITIDOS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
+  /**
+   * Vídeo (SPECS §8).
+   *
+   * MP4 es lo que producen las cámaras nativas de iOS y Android, y lo que
+   * reproduce cualquier navegador. WebM y QuickTime se aceptan porque algunos
+   * dispositivos los generan; el servidor los normaliza a MP4 después.
+   *
+   * Aceptar formatos que luego no se pueden reproducir sería peor que
+   * rechazarlos: el GPV creería haber documentado algo que nadie puede ver.
+   */
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+  "video/webm": "webm",
 };
+
+/** Un tipo MIME de vídeo, para decidir límites y normalización. */
+function esVideo(tipoMime: string): boolean {
+  return tipoMime.startsWith("video/");
+}
 
 export type SolicitudSubida = {
   visitaId: string;
@@ -38,6 +56,8 @@ export type SolicitudSubida = {
   tamanoBytes: number;
   anchoPx?: number | undefined;
   altoPx?: number | undefined;
+  /** Solo vídeo. El servidor la valida antes de dar la URL de subida. */
+  duracionS?: number | undefined;
   capturadaEn: Date;
   ubicacion?: { lat: number; lon: number; precisionM: number; capturadoEn: string };
   /** Identificador generado en el dispositivo, para idempotencia offline. */
@@ -45,8 +65,8 @@ export type SolicitudSubida = {
 };
 
 @Injectable()
-export class FotosService {
-  private readonly logger = new Logger(FotosService.name);
+export class EvidenciasService {
+  private readonly logger = new Logger(EvidenciasService.name);
 
   constructor(
     @Inject(SERVICIO_DB) private readonly db: ClienteDb,
@@ -66,16 +86,36 @@ export class FotosService {
     const extension = TIPOS_PERMITIDOS[solicitud.tipoMime];
     if (!extension) {
       throw new BadRequestException(
-        `Tipo de imagen no admitido: ${solicitud.tipoMime}. Se aceptan JPEG, PNG y WebP.`,
+        `Tipo no admitido: ${solicitud.tipoMime}. ` +
+          "Se aceptan JPEG, PNG y WebP en imagen, y MP4, MOV y WebM en vídeo.",
       );
     }
 
-    const maximo = this.config.get("FOTO_MAX_BYTES", { infer: true });
+    const video = esVideo(solicitud.tipoMime);
+
+    // Los límites son por tipo: un vídeo de 20 MB es normal y una foto de
+    // 20 MB significa que la compresión del dispositivo no llegó a ejecutarse.
+    const maximo = video
+      ? this.config.get("EVIDENCIA_VIDEO_MAX_BYTES", { infer: true })
+      : this.config.get("EVIDENCIA_FOTO_MAX_BYTES", { infer: true });
+
     if (solicitud.tamanoBytes > maximo) {
       throw new BadRequestException(
-        `La imagen supera el máximo de ${Math.round(maximo / 1024 / 1024)} MB. ` +
-          "Debe comprimirse en el dispositivo antes de subirla.",
+        `${video ? "El vídeo" : "La imagen"} supera el máximo de ` +
+          `${Math.round(maximo / 1024 / 1024)} MB.`,
       );
+    }
+
+    if (video) {
+      const tope = this.config.get("EVIDENCIA_VIDEO_MAX_SEGUNDOS", { infer: true });
+      if (solicitud.duracionS === undefined) {
+        throw new BadRequestException("Falta la duración del vídeo");
+      }
+      if (solicitud.duracionS > tope) {
+        throw new BadRequestException(
+          `El vídeo dura ${solicitud.duracionS} s y el máximo son ${tope} s.`,
+        );
+      }
     }
 
     const visita = await this.visitaEditable(solicitud.visitaId, usuario);
@@ -88,13 +128,14 @@ export class FotosService {
     if (solicitud.idCliente) {
       const [existente] = await this.db
         .select()
-        .from(fotos)
-        .where(eq(fotos.idCliente, solicitud.idCliente))
+        .from(evidencias)
+        .where(eq(evidencias.idCliente, solicitud.idCliente))
         .limit(1);
 
       if (existente) {
         return {
-          fotoId: existente.id,
+          evidenciaId: existente.id,
+          tipo: existente.tipo,
           urlSubida: existente.confirmadaEn
             ? null
             : await this.almacenamiento.urlDeSubida(
@@ -114,7 +155,7 @@ export class FotosService {
     );
 
     const [creada] = await this.db
-      .insert(fotos)
+      .insert(evidencias)
       .values({
         visitaId: visita.id,
         ambito: solicitud.ambito,
@@ -123,8 +164,10 @@ export class FotosService {
         claveAlmacenamiento: clave,
         tipoMime: solicitud.tipoMime,
         tamanoBytes: solicitud.tamanoBytes,
+        tipo: video ? "video" : "foto",
         anchoPx: solicitud.anchoPx ?? null,
         altoPx: solicitud.altoPx ?? null,
+        duracionS: solicitud.duracionS ?? null,
         capturadaEn: solicitud.capturadaEn,
         ubicacion: solicitud.ubicacion ?? null,
         expiraEn: this.calcularExpiracion(),
@@ -135,11 +178,17 @@ export class FotosService {
     if (!creada) throw new BadRequestException("No se pudo reservar la fotografía");
 
     return {
-      fotoId: creada.id,
+      evidenciaId: creada.id,
+      tipo: creada.tipo,
       urlSubida: await this.almacenamiento.urlDeSubida(
         clave,
         solicitud.tipoMime,
         solicitud.tamanoBytes,
+        // Un vídeo tarda mucho más en subir por red móvil: con la caducidad de
+        // foto, la URL expiraba a mitad de subida y el GPV perdía la grabación.
+        video
+          ? this.config.get("URL_SUBIDA_VIDEO_MINUTOS", { infer: true })
+          : undefined,
       ),
       yaConfirmada: false,
     };
@@ -153,53 +202,56 @@ export class FotosService {
    * y la reserva — un fichero que no es lo que dijo ser no debe quedarse
    * ocupando espacio ni figurar como prueba de una visita.
    */
-  async confirmarSubida(fotoId: string, usuario: PayloadToken) {
-    const [foto] = await this.db
+  async confirmarSubida(evidenciaId: string, usuario: PayloadToken) {
+    const [evidencia] = await this.db
       .select()
-      .from(fotos)
-      .where(eq(fotos.id, fotoId))
+      .from(evidencias)
+      .where(eq(evidencias.id, evidenciaId))
       .limit(1);
 
-    if (!foto) throw new NotFoundException("Fotografía no encontrada");
-    if (foto.confirmadaEn) return { confirmada: true, fotoId: foto.id };
+    if (!evidencia) throw new NotFoundException("Evidencia no encontrada");
+    if (evidencia.confirmadaEn) return { confirmada: true, evidenciaId: evidencia.id };
 
-    await this.visitaEditable(foto.visitaId, usuario);
+    await this.visitaEditable(evidencia.visitaId, usuario);
 
-    const metadatos = await this.almacenamiento.metadatos(foto.claveAlmacenamiento);
+    const metadatos = await this.almacenamiento.metadatos(evidencia.claveAlmacenamiento);
     if (!metadatos) {
       throw new BadRequestException(
         "La imagen no está en el almacenamiento. Vuelve a subirla.",
       );
     }
 
-    const maximo = this.config.get("FOTO_MAX_BYTES", { infer: true });
+    const maximo =
+      evidencia.tipo === "video"
+        ? this.config.get("EVIDENCIA_VIDEO_MAX_BYTES", { infer: true })
+        : this.config.get("EVIDENCIA_FOTO_MAX_BYTES", { infer: true });
     const tamanoIncorrecto =
-      metadatos.tamanoBytes > maximo || metadatos.tamanoBytes !== foto.tamanoBytes;
+      metadatos.tamanoBytes > maximo || metadatos.tamanoBytes !== evidencia.tamanoBytes;
     const tipoIncorrecto =
-      metadatos.tipoMime !== undefined && metadatos.tipoMime !== foto.tipoMime;
+      metadatos.tipoMime !== undefined && metadatos.tipoMime !== evidencia.tipoMime;
 
     if (tamanoIncorrecto || tipoIncorrecto) {
-      await this.almacenamiento.borrar(foto.claveAlmacenamiento).catch(() => {});
-      await this.db.delete(fotos).where(eq(fotos.id, foto.id));
+      await this.almacenamiento.borrar(evidencia.claveAlmacenamiento).catch(() => {});
+      await this.db.delete(evidencias).where(eq(evidencias.id, evidencia.id));
       throw new BadRequestException(
         "La imagen subida no coincide con lo declarado. Vuelve a intentarlo.",
       );
     }
 
     await this.db
-      .update(fotos)
+      .update(evidencias)
       .set({ confirmadaEn: new Date() })
-      .where(eq(fotos.id, foto.id));
+      .where(eq(evidencias.id, evidencia.id));
 
     await this.auditoria.registrar({
       usuarioId: usuario.sub,
       numeroTrabajador: usuario.numeroTrabajador,
-      accion: "foto.subida",
+      accion: "evidencia.subida",
       entidad: "foto",
-      entidadId: foto.id,
+      entidadId: evidencia.id,
     });
 
-    return { confirmada: true, fotoId: foto.id };
+    return { confirmada: true, evidenciaId: evidencia.id };
   }
 
   /**
@@ -208,16 +260,16 @@ export class FotosService {
    * Un comercial solo ve las suyas; supervisores y administradores ven todas,
    * que es justamente para lo que existe el backoffice.
    */
-  async urlDeDescarga(fotoId: string, usuario: PayloadToken) {
+  async urlDeDescarga(evidenciaId: string, usuario: PayloadToken) {
     const [fila] = await this.db
-      .select({ foto: fotos, visita: visitas })
-      .from(fotos)
-      .innerJoin(visitas, eq(visitas.id, fotos.visitaId))
-      .where(eq(fotos.id, fotoId))
+      .select({ evidencia: evidencias, visita: visitas })
+      .from(evidencias)
+      .innerJoin(visitas, eq(visitas.id, evidencias.visitaId))
+      .where(eq(evidencias.id, evidenciaId))
       .limit(1);
 
     if (!fila) throw new NotFoundException("Fotografía no encontrada");
-    if (!fila.foto.confirmadaEn) {
+    if (!fila.evidencia.confirmadaEn) {
       throw new NotFoundException("La fotografía aún no se ha subido");
     }
 
@@ -226,7 +278,7 @@ export class FotosService {
     }
 
     return {
-      url: await this.almacenamiento.urlDeDescarga(fila.foto.claveAlmacenamiento),
+      url: await this.almacenamiento.urlDeDescarga(fila.evidencia.claveAlmacenamiento),
       expiraEnMinutos: this.config.get("URL_DESCARGA_MINUTOS", { infer: true }),
     };
   }
@@ -241,7 +293,7 @@ export class FotosService {
    * en las fotos ya acumuladas.
    */
   private calcularExpiracion(): Date | null {
-    const dias = this.config.get("RETENCION_FOTOS_DIAS", { infer: true });
+    const dias = this.config.get("RETENCION_EVIDENCIAS_DIAS", { infer: true });
     if (dias === null || dias <= 0) return null;
     return new Date(Date.now() + dias * 24 * 60 * 60 * 1000);
   }

@@ -26,6 +26,14 @@ export const solicitarSubidaSchema = z
     anchoPx: z.number().int().positive().optional(),
     altoPx: z.number().int().positive().optional(),
     /**
+     * Duración en segundos. Obligatoria en vídeo, ausente en fotografía.
+     *
+     * La comprueba el servidor contra el tope antes de dar la URL de subida:
+     * rechazar después de que el GPV haya subido 25 MB por red móvil sería
+     * gastarle los datos para nada.
+     */
+    duracionS: z.number().int().positive().max(3600).optional(),
+    /**
      * Momento de la captura en el dispositivo, no de la subida. Con modo
      * offline pueden separarse horas, y es la captura lo que documenta cuándo
      * ocurrió la visita.

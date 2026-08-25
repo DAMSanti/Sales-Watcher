@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { obtenerUbicacion } from "../comun/ubicacion";
 import { comprimir } from "./comprimir";
 import { subirFoto, type Destino } from "./subida";
-import "./fotos.css";
+import "./evidencias.css";
 
 /**
  * Captura de fotografía (SPECS §5.4).
@@ -17,7 +17,7 @@ import "./fotos.css";
  * ignora y aparece el selector—, pero los metadatos de fecha y ubicación que
  * viajan con la foto sí dejan constancia de cuándo se hizo de verdad.
  */
-export function BotonFoto({
+export function BotonEvidencia({
   destino,
   onSubida,
   deshabilitado,

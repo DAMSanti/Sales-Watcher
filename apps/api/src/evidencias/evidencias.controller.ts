@@ -12,12 +12,12 @@ import { ZodValidationPipe } from "../comun/zod-validation.pipe";
 import { UsuarioActual } from "../auth/decoradores/usuario-actual.decorator";
 import { Roles } from "../auth/decoradores/roles.decorator";
 import type { PayloadToken } from "../auth/auth.service";
-import { FotosService } from "./fotos.service";
-import { solicitarSubidaSchema, type SolicitarSubidaDto } from "./dto/fotos.dto";
+import { EvidenciasService } from "./evidencias.service";
+import { solicitarSubidaSchema, type SolicitarSubidaDto } from "./dto/evidencias.dto";
 
-@Controller("fotos")
-export class FotosController {
-  constructor(private readonly fotos: FotosService) {}
+@Controller("evidencias")
+export class EvidenciasController {
+  constructor(private readonly fotos: EvidenciasService) {}
 
   /**
    * Paso 1: reservar la foto y obtener la URL firmada de subida.

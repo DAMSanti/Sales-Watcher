@@ -1,6 +1,6 @@
 import { MAX_OPERACIONES_LOTE, type RespuestaLote, type TipoOperacion } from "@sw/shared";
 import { ErrorApi, pedir } from "../api/cliente";
-import { subirPendientes } from "../fotos/subida";
+import { subirPendientes } from "../evidencias/subida";
 import {
   anotarIntento,
   eliminar,

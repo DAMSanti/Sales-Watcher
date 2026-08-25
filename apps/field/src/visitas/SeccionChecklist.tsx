@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorApi } from "../api/cliente";
 import { ejecutar } from "../offline/cola";
-import { BotonFoto } from "../fotos/BotonFoto";
+import { BotonEvidencia } from "../evidencias/BotonEvidencia";
 import type { Checklist, ItemChecklist } from "../api/tipos";
 
 /**
@@ -158,7 +158,7 @@ export function SeccionChecklist({
                 imagen a algo que ya marcó.
               */}
               {item.requiereFoto && editable && item.resultadoId && (
-                <BotonFoto
+                <BotonEvidencia
                   destino={{
                     visitaId,
                     ambito: "checklist",

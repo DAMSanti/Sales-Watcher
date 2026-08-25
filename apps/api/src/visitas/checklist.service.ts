@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { and, asc, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 import {
-  fotos,
+  evidencias,
   itemsChecklist,
   plantillasChecklist,
   resultadosChecklist,
@@ -54,9 +54,9 @@ export class ChecklistService {
          * satisface el requisito de fotografía.
          */
         fotosConfirmadas: sql<number>`(
-          select count(*)::int from ${fotos}
-          where ${fotos.resultadoChecklistId} = ${resultadosChecklist.id}
-            and ${fotos.confirmadaEn} is not null
+          select count(*)::int from ${evidencias}
+          where ${evidencias.resultadoChecklistId} = ${resultadosChecklist.id}
+            and ${evidencias.confirmadaEn} is not null
         )`,
       })
       .from(itemsChecklist)
@@ -156,11 +156,11 @@ export class ChecklistService {
     if (completado && item.requiereFoto) {
       const [conteo] = await this.db
         .select({ total: sql<number>`count(*)::int` })
-        .from(fotos)
+        .from(evidencias)
         .where(
           and(
-            eq(fotos.resultadoChecklistId, resultado.id),
-            isNotNull(fotos.confirmadaEn),
+            eq(evidencias.resultadoChecklistId, resultado.id),
+            isNotNull(evidencias.confirmadaEn),
           ),
         );
 

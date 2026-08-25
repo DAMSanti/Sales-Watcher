@@ -141,6 +141,15 @@ Y una consecuencia de interfaz: **el GPV no habla con el reponedor**. Las incide
 
 **`estancada` se deriva de la antigüedad; no es un estado.** Una acción estancada sigue abierta y solo sube en el panel del FSM. Convertirlo en estado permitiría que algo estuviera «estancado» y «resuelto» a la vez, o que dejara de estarlo sin que nadie hiciera nada. Y **las acciones no caducan**: cerrarlas solas destruiría en silencio el seguimiento que da sentido al sistema.
 
+### La tabla se llama `evidencias`, no `fotos`
+
+Contiene fotografías y vídeos. Mientras se llamó `fotos`, cualquiera que leyese `requiereFoto` tenía que acordarse de que podía haber un vídeo detrás.
+
+Dos cosas que siguen diciendo «foto» a propósito:
+
+- **`requiereFoto`** en un ítem de checklist. Significa lo que dice: un vídeo NO lo satisface. El requisito viene de antes del vídeo y no se ha ampliado.
+- **`tipo: "foto"`** como valor del enum. Es una de las dos clases de evidencia, no un residuo.
+
 ### Tres campos que parecen internos y no lo son
 
 - **`codigo_nevera`** es la clave de correspondencia con la **aplicación de neveras del FSM**. Se guarda tal cual se escribe. Normalizarlo —recortar, pasar a mayúsculas, quitar guiones— puede romper la correspondencia, y su razón de existir es que no se retire la nevera equivocada.
