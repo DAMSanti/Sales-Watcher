@@ -58,8 +58,13 @@ export function App() {
   if (cargando) return <p className="cargando">{t("comun.cargando")}</p>;
   if (!perfil) return <PantallaLogin />;
 
+  /*
+   * La base la decide Vite (`base` en vite.config.ts) y el router la lee de
+   * ahí en vez de repetirla: dos sitios con la misma ruta escrita a mano se
+   * desincronizan, y el síntoma sería una pantalla en blanco sin error.
+   */
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<Marco pendientes={pendientes} />}>
           <Route path="/" element={<Dashboard />} />

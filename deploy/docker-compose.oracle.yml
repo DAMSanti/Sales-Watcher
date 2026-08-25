@@ -1,0 +1,136 @@
+# Sales Watcher en el servidor de Oracle.
+#
+# Comparte host con sprinta, MesaRPG, F1-master y Steel Titans. Reglas que
+# vienen de ahí y no son opcionales:
+#
+#  - NADA publica puertos al host. El 80 y el 443 los tiene sprinta-web, que es
+#    el único nginx de entrada y enruta por dominio. Publicar un puerto aquí
+#    sería exponer la base de datos a internet sin motivo.
+#  - Los servicios que nginx debe alcanzar viven en la red `edge`, externa y
+#    compartida. Postgres NO está en ella: solo la API lo necesita.
+#  - Los nombres de contenedor son los que nginx escribe en sus `proxy_pass`,
+#    así que cambiarlos rompe el enrutado.
+
+name: sales-watcher
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sales-watcher-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Sin esto, un reinicio con la zona horaria del contenedor a UTC y la
+      # aplicación a Europe/Madrid daría fechas de jornada desplazadas.
+      TZ: Europe/Madrid
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: sales-watcher-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    # En `edge` porque el NAVEGADOR habla con MinIO directamente: sube la foto
+    # con una URL firmada sin pasar por la API, y para eso nginx tiene que
+    # poder enrutar hasta aquí.
+    networks:
+      - default
+      - edge
+
+  # Crea el bucket y lo deja privado. Un solo disparo: termina y no reaparece.
+  minio-init:
+    image: minio/mc:latest
+    container_name: sales-watcher-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${S3_ACCESS_KEY_ID} ${S3_SECRET_ACCESS_KEY} &&
+      mc mb --ignore-existing local/${S3_BUCKET} &&
+      mc anonymous set none local/${S3_BUCKET} &&
+      echo 'bucket ${S3_BUCKET} listo'
+      "
+    restart: "no"
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    image: sales-watcher-api
+    container_name: sales-watcher-api
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 3900
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # Interno para operar, público para firmar. La firma SigV4 incluye el
+      # host: una URL firmada con `minio:9000` no la abre nadie desde un móvil.
+      S3_ENDPOINT: http://minio:9000
+      S3_ENDPOINT_PUBLICO: https://${DOMINIO}
+      FFMPEG_BIN: /usr/bin/ffmpeg
+      TZ: Europe/Madrid
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - edge
+
+  field:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+      args:
+        APP: field
+    image: sales-watcher-field
+    container_name: sales-watcher-field
+    restart: unless-stopped
+    networks:
+      - edge
+
+  backoffice:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+      args:
+        APP: backoffice
+        # Tiene que coincidir con la ruta que enruta nginx. Si divergen, la
+        # página carga pero sus assets dan 404 y se ve en blanco.
+        BASE_BACKOFFICE: /gestion/
+    image: sales-watcher-backoffice
+    container_name: sales-watcher-backoffice
+    restart: unless-stopped
+    networks:
+      - edge
+
+networks:
+  # Creada una vez en el host con `docker network create edge`. La comparten
+  # todos los proyectos para que sprinta-web llegue a ellos.
+  edge:
+    external: true
+
+volumes:
+  postgres_data:
+  minio_data:

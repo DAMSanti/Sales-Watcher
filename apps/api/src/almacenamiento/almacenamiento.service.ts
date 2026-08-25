@@ -28,12 +28,21 @@ export type MetadatosObjeto = {
 export class AlmacenamientoService {
   private readonly logger = new Logger(AlmacenamientoService.name);
   private readonly cliente: S3Client;
+  /**
+   * Cliente que SOLO firma URLs para el navegador.
+   *
+   * Es el mismo almacenamiento, pero visto desde fuera. La firma SigV4 cubre
+   * el host y la ruta, así que una URL firmada con el nombre interno del
+   * contenedor no la puede abrir nadie desde un móvil. En desarrollo ambos
+   * clientes apuntan al mismo sitio y esto no cambia nada.
+   */
+  private readonly clienteFirma: S3Client;
   private readonly bucket: string;
 
   constructor(private readonly config: ConfigService<Configuracion, true>) {
     this.bucket = config.get("S3_BUCKET", { infer: true });
-    this.cliente = new S3Client({
-      endpoint: config.get("S3_ENDPOINT", { infer: true }),
+
+    const comunes = {
       region: config.get("S3_REGION", { infer: true }),
       credentials: {
         accessKeyId: config.get("S3_ACCESS_KEY_ID", { infer: true }),
@@ -45,7 +54,15 @@ export class AlmacenamientoService {
        * partes y evita una variable de configuración más.
        */
       forcePathStyle: true,
-    });
+    };
+
+    const interno = config.get("S3_ENDPOINT", { infer: true });
+    const publico = config.get("S3_ENDPOINT_PUBLICO", { infer: true });
+
+    this.cliente = new S3Client({ ...comunes, endpoint: interno });
+    this.clienteFirma = publico
+      ? new S3Client({ ...comunes, endpoint: publico })
+      : this.cliente;
   }
 
   /**
@@ -93,7 +110,7 @@ export class AlmacenamientoService {
     const caducidad =
       minutos ?? this.config.get("URL_SUBIDA_MINUTOS", { infer: true }) ?? 15;
 
-    return getSignedUrl(this.cliente, comando, { expiresIn: caducidad * 60 });
+    return getSignedUrl(this.clienteFirma, comando, { expiresIn: caducidad * 60 });
   }
 
   /**
@@ -133,7 +150,7 @@ export class AlmacenamientoService {
    */
   async urlDeDescarga(clave: string): Promise<string> {
     const comando = new GetObjectCommand({ Bucket: this.bucket, Key: clave });
-    return getSignedUrl(this.cliente, comando, {
+    return getSignedUrl(this.clienteFirma, comando, {
       expiresIn: this.config.get("URL_DESCARGA_MINUTOS", { infer: true }) * 60,
     });
   }

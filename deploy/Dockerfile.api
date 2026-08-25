@@ -1,0 +1,54 @@
+# syntax=docker/dockerfile:1
+#
+# API de Sales Watcher.
+#
+# Lleva ffmpeg DENTRO de la imagen. La normalización de vídeo lo invoca por
+# ruta (FFMPEG_BIN) y sin él los vídeos quedan servibles pero sin normalizar:
+# funciona, pero un GPV con un móvil que grabe en 1080p subiría ficheros que
+# nadie reescala. Es una dependencia del servicio, no del entorno.
+
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
+WORKDIR /app
+
+# ── Dependencias ───────────────────────────────────────────────────────
+# Solo los manifiestos primero: mientras no cambien, esta capa se reutiliza y
+# el `pnpm install` no se repite en cada cambio de código.
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/api/package.json apps/api/
+COPY packages/shared/package.json packages/shared/
+COPY packages/db/package.json packages/db/
+# @node-rs/argon2 es un binario nativo: se resuelve aquí, en linux/amd64, que
+# es donde va a ejecutarse. Compilarlo en otra plataforma no serviría.
+RUN pnpm install --frozen-lockfile --filter @sw/api... --filter @sw/db...
+
+# ── Compilación ────────────────────────────────────────────────────────
+FROM deps AS build
+COPY packages packages
+COPY apps/api apps/api
+RUN pnpm --filter @sw/shared build \
+ && pnpm --filter @sw/db build \
+ && pnpm --filter @sw/api build
+
+# ── Ejecución ──────────────────────────────────────────────────────────
+FROM base AS runtime
+RUN apk add --no-cache ffmpeg
+
+ENV NODE_ENV=production
+ENV FFMPEG_BIN=/usr/bin/ffmpeg
+
+# Se copian las dependencias COMPLETAS, no solo las de producción: `migrate` y
+# `seed` corren con tsx, que es dependencia de desarrollo. Podarlas ahorraría
+# unos megas a cambio de no poder migrar la base desde el propio contenedor,
+# que es justo lo que hace falta en el primer arranque y en cada despliegue.
+COPY --from=build /app /app
+
+WORKDIR /app/apps/api
+EXPOSE 3900
+
+# Sin usuario root: la API no escribe en disco —las evidencias van a MinIO— así
+# que no necesita privilegios para nada.
+USER node
+
+CMD ["node", "dist/main.js"]

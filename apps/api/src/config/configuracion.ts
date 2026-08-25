@@ -83,6 +83,23 @@ const esquema = z.object({
 
   // ── Almacenamiento de fotografías ──────────────────────────────────
   S3_ENDPOINT: z.string().min(1),
+
+  /**
+   * Endpoint PÚBLICO, el que verá el navegador. Opcional: sin él se firma con
+   * `S3_ENDPOINT` y todo sigue como en desarrollo.
+   *
+   * Hacen falta dos porque la firma SigV4 incluye el host y la ruta. En el
+   * servidor, la API habla con MinIO por la red interna de Docker
+   * (`http://sales-watcher-minio:9000`), pero una URL firmada con ese host es
+   * inútil para el móvil de un GPV. Y firmar todo con el dominio público
+   * tampoco vale: obligaría a la API a salir a internet y volver a entrar por
+   * su propia IP pública, un rodeo que además suele fallar desde dentro de un
+   * contenedor.
+   *
+   * Así que se firma con el público y se opera con el interno.
+   */
+  S3_ENDPOINT_PUBLICO: z.string().min(1).optional(),
+
   S3_REGION: z.string().default("us-east-1"),
   S3_BUCKET: z.string().min(1),
   S3_ACCESS_KEY_ID: z.string().min(1),

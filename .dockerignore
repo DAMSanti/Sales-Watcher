@@ -1,0 +1,12 @@
+# El contexto de build es la raíz del monorepo. Sin esto, docker enviaría
+# cientos de megas de node_modules y de artefactos de compilación.
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+.git
+.env
+.env.*
+!.env.example
+deploy/.env
+*.log
