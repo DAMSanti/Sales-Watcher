@@ -135,18 +135,23 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 API del ciclo de acciones
 
+- [x] Endpoint de registro por flujo *(`POST /visitas/:id/acciones`)*, unión discriminada por `tipoSituacion` y **responsable derivado en servidor**
+- [x] Validación cruzada que **rechaza lo imposible**: fechas fuera de Dairy, «el reponedor no ha pasado» en Waters/PBB, «lo corregí yo» en Dairy, nevera a retirar sin código, «otro» sin detallar
+- [x] Endpoint de **acciones abiertas de una tienda** *(`GET /tiendas/:id/acciones`)*, con días abierta y estancada calculados
+- [x] Endpoint de **comprobación** *(`POST /acciones/:id/comprobaciones`)*, que acumula historial y cierra si el desenlace lo indica
+- [x] Historial completo de una acción *(`GET /acciones/:id/comprobaciones`)*
+- [x] Cierre **desde ambos lados**, registrando `cerrada_por` y `cerrada_por_rol`
+- [x] Marcado de acciones **estancadas** por antigüedad, sin cerrarlas *(`ACCION_ESTANCADA_DIAS`)*
+- [x] Endpoint de **Top Picos pendientes** por tienda, que marca `incorporada` al resolverse
+- [x] Endpoint de **relación con el responsable** *(`PUT /visitas/:id/responsable`)*, una por visita y corregible
+- [x] Endpoint de **resumen de visita** *(`GET /visitas/:id/resumen`)*, que avisa sin bloquear
+- [x] Bandeja de **acciones pendientes del FSM** *(`GET /acciones`)*, lo más antiguo primero, acotada a su zona
+- [x] Idempotencia offline por `idCliente` en acciones y comprobaciones
+- [x] `api:acciones` ejercita los endpoints contra el servidor en marcha *(30 comprobaciones)*
 - [ ] Búsqueda de tienda **por código `350…` o por nombre**, entre las asignadas al GPV *(las dos vías al mismo nivel)*
 - [ ] Al iniciar una visita fuera de ruta, **incorporarla a la ruta del día conservando `planificada = false`**
-- [ ] Endpoints de registro por flujo, con el responsable derivado en servidor
-- [ ] Endpoint de **acciones abiertas de una tienda**, para traerlas al iniciar la visita
-- [ ] Endpoint de **comprobación** de una acción pendiente (sigue pendiente / resuelta)
-- [ ] Cierre de acción **desde ambos lados**, registrando quién y cuándo
-- [ ] Marcado de acciones **estancadas** por antigüedad, sin cerrarlas
-- [ ] Endpoint de **Top Picos pendientes** por tienda
-- [ ] Endpoint de **relación con el responsable**, una por visita
-- [ ] Endpoint de **resumen de visita** previo al cierre
 - [ ] Cierre de visita **sin mínimos obligatorios** *(revisar que `incompleta` deja de marcarse)*
-- [ ] Bandeja de **acciones pendientes del FSM**, con antigüedad y priorización
+- [ ] **Aviso al FSM cuando un GPV cierra una acción que le estaba asignada** *(el dato ya se registra; falta destacarlo)*
 - [ ] Agregados de resultado: facings por GPV/tienda/categoría/marca/mes, Top Picos incorporados, embudo detectado → trabajado → solucionado
 - [ ] Agregados de patrón: incidencias de stock repetidas, tiendas con problemas recurrentes, acciones abiertas demasiado tiempo
 - [ ] Subida, confirmación y **normalización de vídeo** a 720p MP4

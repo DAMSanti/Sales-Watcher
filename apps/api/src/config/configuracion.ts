@@ -51,6 +51,18 @@ const esquema = z.object({
   /** Longitud mínima de contraseña al cambiarla. */
   AUTH_PASSWORD_MIN: z.coerce.number().int().min(8).default(10),
 
+  /**
+   * Días tras los que una acción abierta se marca como **estancada**.
+   *
+   * Estancada no la cierra: solo la sube en el panel del FSM. Las acciones no
+   * caducan, porque cerrarlas solas destruiría en silencio el seguimiento que
+   * da sentido al sistema (ANEXO, decisión que cierra P23).
+   *
+   * Catorce días son unos dos ciclos de visita: suficiente para que el GPV haya
+   * vuelto al menos una vez y siga sin resolverse.
+   */
+  ACCION_ESTANCADA_DIAS: z.coerce.number().int().positive().default(14),
+
   // ── Almacenamiento de fotografías ──────────────────────────────────
   S3_ENDPOINT: z.string().min(1),
   S3_REGION: z.string().default("us-east-1"),

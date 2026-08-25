@@ -13,6 +13,7 @@ import { cargarConfiguracion } from "./config/configuracion";
 import { DbModule } from "./db/db.module";
 import { FotosModule } from "./fotos/fotos.module";
 import { IncidenciasModule } from "./incidencias/incidencias.module";
+import { AccionesModule } from "./acciones/acciones.module";
 import { InformesModule } from "./informes/informes.module";
 import { CatalogosModule } from "./catalogos/catalogos.module";
 import { ChecklistsModule } from "./checklists/checklists.module";
@@ -39,6 +40,7 @@ import { VisitasModule } from "./visitas/visitas.module";
     FotosModule,
     VisitasModule,
     IncidenciasModule,
+    AccionesModule,
     SincronizacionModule,
     // Backoffice
     CatalogosModule,
