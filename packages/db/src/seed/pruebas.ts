@@ -153,7 +153,10 @@ const PESOS_SITUACION: Array<[TipoSituacion, number]> = [
   ["fechas", 9],
   ["visibilidad", 8],
   ["extraespacio", 6],
-  ["nevera", 3],
+  // Las neveras suben de 3 a 7: con el peso anterior salían dos o tres en
+  // todo el historial y ninguna con código, así que el panel del FSM nunca
+  // llegaba a mostrar el dato más distintivo que tiene.
+  ["nevera", 7],
   ["reorganizacion", 2],
 ];
 
@@ -292,7 +295,6 @@ async function principal() {
   let nRutas = 0;
   let nVisitas = 0;
   let nResultados = 0;
-  let nIncidencias = 0;
   let nJustificaciones = 0;
   const porEstado: Record<string, number> = {};
 
@@ -434,43 +436,12 @@ async function principal() {
           }
         }
 
-        // ── Incidencias y oportunidades ────────────────────────────
-        if (estado === "finalizada" && azar() < 0.38) {
-          const cuantas = azar() < 0.15 ? 2 : 1;
-          for (let i = 0; i < cuantas; i++) {
-            const categoria = elegir(catalogoCategorias);
-            const textos = DESCRIPCIONES[categoria.codigo];
-
-            /**
-             * Las antiguas están mayormente resueltas y las recientes abiertas.
-             * Sin ese gradiente, la bandeja del supervisor saldría llena de
-             * incidencias de hace un mes sin tocar, que no es lo que enseña
-             * una operación sana.
-             */
-            const antiguedad = atras / DIAS_HISTORIAL;
-            const estadoInc =
-              antiguedad > 0.5
-                ? azar() < 0.85
-                  ? "resuelta"
-                  : "abierta"
-                : azar() < 0.45
-                  ? "abierta"
-                  : azar() < 0.7
-                    ? "en_revision"
-                    : "resuelta";
-
-            await db.insert(incidencias).values({
-              visitaId: visita.id,
-              categoriaId: categoria.id,
-              descripcion: textos ? elegir(textos) : null,
-              prioridad: categoria.prioridadDefecto,
-              estado: estadoInc as "abierta" | "en_revision" | "resuelta",
-              resueltaEn: estadoInc === "resuelta" ? fin : null,
-            });
-            nIncidencias++;
-          }
-        }
-
+        // Las incidencias genéricas ya NO se generan.
+        //
+        // El reencuadre las sustituyó por los flujos tipificados, y la app de
+        // campo dejó de crearlas. Seguir generándolas produciría un dato que
+        // nada alimenta: una bandeja que solo puede vaciarse, y unas cifras que
+        // parecen actividad sin serlo.
         // ── El ciclo de acciones ───────────────────────────────────
         //
         // Lo que hace útil este bloque para probar el dashboard no es el
@@ -613,10 +584,15 @@ async function principal() {
                 .returning({ id: extraespacios.id });
 
               if (esNevera) {
+                // `necesita_recogida` y `retirada` repetidos: son los casos
+                // que llevan código de nevera, y los que el FSM traslada a su
+                // propia aplicación.
                 const situacion = elegir([
                   "uso_parcial",
                   "vacia_desaprovechada",
                   "necesita_recogida",
+                  "necesita_recogida",
+                  "retirada",
                   "necesita_nueva",
                 ] as const);
                 await db.insert(neveras).values({
@@ -624,7 +600,7 @@ async function principal() {
                   situacion,
                   // El código solo existe donde hay que mover una unidad concreta.
                   codigoNevera:
-                    situacion === "necesita_recogida"
+                    situacion === "necesita_recogida" || situacion === "retirada"
                       ? `NV-${String(entre(100, 999))}-${categoria.slice(0, 3).toUpperCase()}`
                       : null,
                 });
@@ -706,7 +682,6 @@ async function principal() {
     en curso ..................... ${porEstado.en_curso ?? 0}
     pendientes ................... ${porEstado.pendiente ?? 0}
   Resultados de checklist ........ ${nResultados}
-  Incidencias y oportunidades .... ${nIncidencias}
   Justificaciones ................ ${nJustificaciones}
   Acciones ....................... ${nAcciones}
     comprobaciones ............... ${nComprobaciones}

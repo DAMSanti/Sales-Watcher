@@ -17,7 +17,6 @@
   "nav": {
     "supervision": "Supervision",
     "dashboard": "Today",
-    "incidencias": "Issues",
     "justificaciones": "Justifications",
     "informes": "Reports",
     "cobertura": "Coverage",
@@ -28,7 +27,8 @@
     "usuarios": "Users",
     "catalogos": "Catalogues",
     "checklists": "Checklists",
-    "rutas": "Routes"
+    "rutas": "Routes",
+    "acciones": "Actions"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -50,23 +50,9 @@
     "extra": "Fuera de ruta",
     "comerciales": "Comerciales activos",
     "deTotal": "de {{total}} con ruta",
-    "abiertas": "Incidencias abiertas",
-    "criticas": "{{n}} críticas"
-  },
-  "incidencias": {
-    "titulo": "Incidencias y oportunidades",
-    "subtitulo": "Reportadas por los comerciales en punto de venta",
-    "estado": "Estado",
-    "prioridad": "Prioridad",
-    "tipo": "Tipo",
-    "categoria": "Categoría",
-    "tienda": "Tienda",
-    "comercial": "Comercial",
-    "fecha": "Fecha",
-    "acciones": "Acciones",
-    "revisar": "Revisar",
-    "resolver": "Resolver",
-    "descartar": "Descartar"
+    "abiertas": "Open actions",
+    "estancadas": "{{n}} stalled",
+    "paraElFsm": "{{n}} for the FSM"
   },
   "justificaciones": {
     "titulo": "Justificaciones",
@@ -234,5 +220,67 @@
     "sustituye": "Planificar sustituye la ruta completa de ese día.",
     "bloqueada": "No se puede replanificar: hay visitas de esa jornada ya iniciadas o cerradas.",
     "estadoVisita": "Estado"
+  },
+  "acciones": {
+    "titulo": "Open actions",
+    "subtitulo": "What is still open, oldest first",
+    "abiertas": "Open",
+    "estancadas": "Stalled",
+    "estancadasPie": "Still open: they never close by themselves",
+    "estancada": "Stalled",
+    "soloEstancadas": "Stalled only",
+    "abiertasYEnCurso": "Open and in progress",
+    "estado": "Status",
+    "categoria": "Category",
+    "responsable": "Owner",
+    "paraMi": "For the FSM",
+    "paraElGpv": "For the GPV",
+    "antiguedad": "Age",
+    "situacion": "Situation",
+    "tienda": "Store",
+    "detectadaPor": "Detected by",
+    "acciones": "Actions",
+    "dias": "{{n}} days",
+    "resolver": "Resolve",
+    "descartar": "Dismiss",
+    "historial": "History ({{n}})",
+    "sinComprobaciones": "Nobody has weighed in yet",
+    "cerradaPorGpv": "Closed by the GPV",
+    "copiar": "Copy",
+    "copiarCodigo": "Copy the code for the cooler app",
+    "vacio": "Nothing open with these filters"
+  },
+  "estadoAccion": {
+    "abierta": "Open",
+    "en_curso": "In progress",
+    "resuelta": "Resolved",
+    "descartada": "Dismissed"
+  },
+  "desenlace": {
+    "sigue_pendiente": "Still pending",
+    "resuelta": "Resolved",
+    "no_procede": "Not applicable"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "situacion": {
+    "stock": "Out of stock",
+    "fechas": "Date issue",
+    "hueco": "Gap on shelf",
+    "top_pico": "Missing Top Pico",
+    "facings": "Gain facings",
+    "visibilidad": "Improve visibility",
+    "reorganizacion": "Reorganise the shelf",
+    "extraespacio": "Extra space",
+    "nevera": "Cooler",
+    "relacion_responsable": "Manager relationship"
+  },
+  "rol": {
+    "comercial": "GPV",
+    "supervisor": "FSM",
+    "administrador": "Admin"
   }
 }

@@ -17,7 +17,6 @@
   "nav": {
     "supervision": "Supervisión",
     "dashboard": "Hoy",
-    "incidencias": "Incidencias",
     "justificaciones": "Justificaciones",
     "informes": "Informes",
     "cobertura": "Cobertura",
@@ -28,7 +27,8 @@
     "usuarios": "Usuarios",
     "catalogos": "Catálogos",
     "checklists": "Checklists",
-    "rutas": "Rutas"
+    "rutas": "Rutas",
+    "acciones": "Acciones"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -50,23 +50,9 @@
     "extra": "Fuera de ruta",
     "comerciales": "Comerciales activos",
     "deTotal": "de {{total}} con ruta",
-    "abiertas": "Incidencias abiertas",
-    "criticas": "{{n}} críticas"
-  },
-  "incidencias": {
-    "titulo": "Incidencias y oportunidades",
-    "subtitulo": "Reportadas por los comerciales en punto de venta",
-    "estado": "Estado",
-    "prioridad": "Prioridad",
-    "tipo": "Tipo",
-    "categoria": "Categoría",
-    "tienda": "Tienda",
-    "comercial": "Comercial",
-    "fecha": "Fecha",
-    "acciones": "Acciones",
-    "revisar": "Revisar",
-    "resolver": "Resolver",
-    "descartar": "Descartar"
+    "abiertas": "Acciones abiertas",
+    "estancadas": "{{n}} estancadas",
+    "paraElFsm": "{{n}} para el FSM"
   },
   "justificaciones": {
     "titulo": "Justificaciones",
@@ -234,5 +220,67 @@
     "sustituye": "Planificar sustituye la ruta completa de ese día.",
     "bloqueada": "No se puede replanificar: hay visitas de esa jornada ya iniciadas o cerradas.",
     "estadoVisita": "Estado"
+  },
+  "acciones": {
+    "titulo": "Acciones pendientes",
+    "subtitulo": "Lo que sigue abierto, de más antiguo a más reciente",
+    "abiertas": "Abiertas",
+    "estancadas": "Estancadas",
+    "estancadasPie": "Siguen abiertas: no se cierran solas",
+    "estancada": "Estancada",
+    "soloEstancadas": "Solo estancadas",
+    "abiertasYEnCurso": "Abiertas y en curso",
+    "estado": "Estado",
+    "categoria": "Categoría",
+    "responsable": "Responsable",
+    "paraMi": "Para el FSM",
+    "paraElGpv": "Para el GPV",
+    "antiguedad": "Antigüedad",
+    "situacion": "Situación",
+    "tienda": "Tienda",
+    "detectadaPor": "Detectada por",
+    "acciones": "Acciones",
+    "dias": "{{n}} días",
+    "resolver": "Resolver",
+    "descartar": "Descartar",
+    "historial": "Historial ({{n}})",
+    "sinComprobaciones": "Nadie se ha pronunciado todavía",
+    "cerradaPorGpv": "La cerró el GPV",
+    "copiar": "Copiar",
+    "copiarCodigo": "Copiar el código para la aplicación de neveras",
+    "vacio": "Nada abierto con estos filtros"
+  },
+  "estadoAccion": {
+    "abierta": "Abierta",
+    "en_curso": "En curso",
+    "resuelta": "Resuelta",
+    "descartada": "Descartada"
+  },
+  "desenlace": {
+    "sigue_pendiente": "Seguía pendiente",
+    "resuelta": "Resuelta",
+    "no_procede": "No procede"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "situacion": {
+    "stock": "Falta de producto",
+    "fechas": "Problema con las fechas",
+    "hueco": "Hueco en el lineal",
+    "top_pico": "Top Pico sin incorporar",
+    "facings": "Ganar facings",
+    "visibilidad": "Mejorar visibilidad",
+    "reorganizacion": "Reorganizar el lineal",
+    "extraespacio": "Extraespacio",
+    "nevera": "Nevera",
+    "relacion_responsable": "Relación con el responsable"
+  },
+  "rol": {
+    "comercial": "GPV",
+    "supervisor": "FSM",
+    "administrador": "Administración"
   }
 }

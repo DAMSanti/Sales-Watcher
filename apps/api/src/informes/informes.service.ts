@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { fechaLocal } from "@sw/shared";
 import { and, eq, gte, lte, sql, type SQL } from "drizzle-orm";
 import {
+  acciones,
   categorias,
   incidencias,
   itemsChecklist,
@@ -114,39 +115,48 @@ export class InformesService {
       .where(and(...ambito));
 
     /**
-     * Las incidencias abiertas son el PENDIENTE TOTAL, no las de hoy.
+     * Las ACCIONES abiertas son el PENDIENTE TOTAL, no las de hoy.
      *
      * Es una cifra de acumulación, no de jornada: un panel que mostrara cero
-     * porque hoy no se ha reportado ninguna, teniendo treinta y seis sin
-     * resolver, le diría al supervisor que no tiene nada que hacer. Por eso
-     * aquí solo se aplica el filtro de zona, no el de fecha.
+     * porque hoy no se ha detectado nada, teniendo treinta y seis sin resolver,
+     * le diría al FSM que no tiene nada que hacer. Por eso aquí solo se aplica
+     * el filtro de zona, no el de fecha.
+     *
+     * Cuenta acciones y no incidencias porque el reencuadre retiró el registro
+     * genérico de incidencias: nada las crea ya, y seguir contándolas mostraría
+     * una cifra congelada que solo baja.
      */
     const alcanceZona =
       usuario.rol === "supervisor" && usuario.zonaId
         ? [eq(usuarios.zonaId, usuario.zonaId)]
         : [];
 
+    const umbral = this.config.get("ACCION_ESTANCADA_DIAS", { infer: true }) ?? 14;
+
     const [abiertas] = await this.db
       .select({
         total: sql<number>`count(*)::int`,
-        criticas: sql<number>`count(*) filter (where ${incidencias.prioridad} = 'critica')::int`,
-        altas: sql<number>`count(*) filter (where ${incidencias.prioridad} = 'alta')::int`,
+        /** Las que van al FSM: lo que no puede resolver el GPV por su cuenta. */
+        paraElFsm: sql<number>`count(*) filter (
+          where ${acciones.responsableActuar} = 'fsm'
+        )::int`,
+        /** Estancadas: derivadas de la antigüedad, no de una columna. */
+        estancadas: sql<number>`count(*) filter (
+          where ${acciones.detectadaEn} < now() - (${umbral} || ' days')::interval
+        )::int`,
       })
-      .from(incidencias)
-      .innerJoin(visitas, eq(visitas.id, incidencias.visitaId))
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
       .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
       .where(
-        and(
-          ...alcanceZona,
-          sql`${incidencias.estado} in ('abierta', 'en_revision')`,
-        ),
+        and(...alcanceZona, sql`${acciones.estado} in ('abierta', 'en_curso')`),
       );
 
     return {
       fecha,
       visitas: estados,
       comerciales: actividad,
-      incidenciasAbiertas: abiertas,
+      accionesAbiertas: abiertas,
     };
   }
 

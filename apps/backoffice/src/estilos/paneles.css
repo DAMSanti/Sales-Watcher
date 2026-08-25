@@ -1,0 +1,94 @@
+
+/* ── Panel de acciones del FSM ─────────────────────────────────────── */
+
+/* Lo estancado se destaca sin gritar: sigue abierto, no es una alarma. */
+.fila--estancada {
+  background: var(--estado-atencion-fondo, #fff8e6);
+}
+
+.metrica--atencion .metrica__valor {
+  color: var(--ambar-700, #92610a);
+}
+
+/*
+ * El código de nevera es un puente a otro sistema: el FSM lo teclea en su
+ * aplicación de neveras. De ahí que se muestre monoespaciado y con un botón
+ * para copiarlo, en vez de ir escondido en el detalle.
+ */
+.codigo-nevera {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  margin-top: var(--e1);
+}
+
+.codigo-nevera code {
+  padding: 2px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  background: var(--superficie-alt);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+}
+
+/*
+ * El interruptor se alinea con la base de los desplegables vecinos. Sin el
+ * `align-self`, quedaba flotando arriba y el filtro parecía de otra fila.
+ */
+.campo--interruptor {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--e2);
+  align-self: flex-end;
+  min-height: 42px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.campo--interruptor input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--azul-600);
+  cursor: pointer;
+}
+
+/* ── Historial de una acción ───────────────────────────────────────── */
+
+.historial {
+  background: var(--superficie-alt);
+}
+
+.historial__lista {
+  margin: 0;
+  padding-left: var(--e4);
+  display: grid;
+  gap: var(--e2);
+  font-size: 0.875rem;
+}
+
+.historial__lista li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+  align-items: baseline;
+}
+
+.historial__fecha {
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.historial__desenlace {
+  font-weight: 600;
+}
+
+.historial__autor {
+  color: var(--texto-suave);
+}
+
+.historial__comentario {
+  flex-basis: 100%;
+  color: var(--texto-suave);
+  font-style: italic;
+}

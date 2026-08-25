@@ -7,7 +7,7 @@ import { PantallaLogin } from "./auth/PantallaLogin";
 import { useSesion } from "./auth/sesion";
 import { Marco } from "./componentes/Marco";
 import { Dashboard } from "./paneles/Dashboard";
-import { Incidencias } from "./paneles/Incidencias";
+import { Acciones } from "./paneles/Acciones";
 import {
   InformeCobertura,
   InformeEjecucion,
@@ -59,7 +59,7 @@ export function App() {
       <Routes>
         <Route element={<Marco pendientes={pendientes} />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/incidencias" element={<Incidencias />} />
+          <Route path="/acciones" element={<Acciones />} />
           <Route path="/justificaciones" element={<Justificaciones />} />
           <Route path="/informes/cobertura" element={<InformeCobertura />} />
           <Route path="/informes/no-realizacion" element={<InformeNoRealizacion />} />

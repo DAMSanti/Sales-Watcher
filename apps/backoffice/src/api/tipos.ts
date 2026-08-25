@@ -24,7 +24,14 @@ export type Dashboard = {
     noPlanificadas: number;
   };
   comerciales: { conActividad: number; conRuta: number };
-  incidenciasAbiertas: { total: number; criticas: number; altas: number };
+  /**
+   * Acciones abiertas: pendiente TOTAL, no de hoy.
+   *
+   * `paraElFsm` son las que el GPV no puede resolver por su cuenta y
+   * `estancadas` las que superan el umbral de antigüedad. Antes esto contaba
+   * incidencias genéricas, que el reencuadre retiró.
+   */
+  accionesAbiertas: { total: number; paraElFsm: number; estancadas: number };
 };
 
 export type IncidenciaBandeja = {

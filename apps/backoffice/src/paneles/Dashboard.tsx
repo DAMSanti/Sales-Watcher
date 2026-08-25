@@ -4,12 +4,13 @@ import { LOCALE } from "@sw/shared";
 import { ErrorApi, pedir } from "../api/cliente";
 import type { Dashboard as Datos } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
+import { Metrica } from "../componentes/Metrica";
 
 /**
  * Estado del día (SPECS §6.2).
  *
  * Responde a una sola pregunta: ¿cómo va hoy y qué necesita mi atención? Por
- * eso las cifras que exigen acción —sin justificar, incidencias críticas— van
+ * eso las cifras que exigen acción —sin justificar, acciones estancadas— van
  * en rojo y separadas de las que solo informan.
  */
 export function Dashboard() {
@@ -49,7 +50,7 @@ export function Dashboard() {
 
   const v = datos?.visitas;
   const c = datos?.comerciales;
-  const i = datos?.incidenciasAbiertas;
+  const a = datos?.accionesAbiertas;
 
   return (
     <>
@@ -104,10 +105,16 @@ export function Dashboard() {
               tono={c!.conActividad < c!.conRuta ? "aviso" : "ok"}
             />
             <Metrica
-              valor={i!.total}
+              valor={a!.total}
               etiqueta={t("dashboard.abiertas")}
-              pie={i!.criticas > 0 ? t("dashboard.criticas", { n: i!.criticas }) : undefined}
-              tono={i!.criticas > 0 ? "alerta" : undefined}
+              /* Lo que se destaca es lo estancado, no el volumen: el volumen
+                 sube con la actividad y no significa nada por sí solo. */
+              pie={
+                a!.estancadas > 0
+                  ? t("dashboard.estancadas", { n: a!.estancadas })
+                  : t("dashboard.paraElFsm", { n: a!.paraElFsm })
+              }
+              tono={a!.estancadas > 0 ? "alerta" : undefined}
             />
             <Metrica
               valor={v!.incompletas}
@@ -118,26 +125,6 @@ export function Dashboard() {
         </>
       )}
     </>
-  );
-}
-
-function Metrica({
-  valor,
-  etiqueta,
-  pie,
-  tono,
-}: {
-  valor: number;
-  etiqueta: string;
-  pie?: string | undefined;
-  tono?: "ok" | "curso" | "aviso" | "alerta" | undefined;
-}) {
-  return (
-    <div className={`metrica ${tono ? `metrica--${tono}` : ""}`}>
-      <div className="metrica__valor">{valor}</div>
-      <div className="metrica__etiqueta">{etiqueta}</div>
-      {pie && <div className="metrica__pie">{pie}</div>}
-    </div>
   );
 }
 

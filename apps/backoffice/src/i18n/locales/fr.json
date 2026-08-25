@@ -17,7 +17,6 @@
   "nav": {
     "supervision": "Supervision",
     "dashboard": "Aujourd'hui",
-    "incidencias": "Incidents",
     "justificaciones": "Justifications",
     "informes": "Rapports",
     "cobertura": "Couverture",
@@ -28,7 +27,8 @@
     "usuarios": "Utilisateurs",
     "catalogos": "Catalogues",
     "checklists": "Checklists",
-    "rutas": "Tournées"
+    "rutas": "Tournées",
+    "acciones": "Actions"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -50,23 +50,9 @@
     "extra": "Fuera de ruta",
     "comerciales": "Comerciales activos",
     "deTotal": "de {{total}} con ruta",
-    "abiertas": "Incidencias abiertas",
-    "criticas": "{{n}} críticas"
-  },
-  "incidencias": {
-    "titulo": "Incidencias y oportunidades",
-    "subtitulo": "Reportadas por los comerciales en punto de venta",
-    "estado": "Estado",
-    "prioridad": "Prioridad",
-    "tipo": "Tipo",
-    "categoria": "Categoría",
-    "tienda": "Tienda",
-    "comercial": "Comercial",
-    "fecha": "Fecha",
-    "acciones": "Acciones",
-    "revisar": "Revisar",
-    "resolver": "Resolver",
-    "descartar": "Descartar"
+    "abiertas": "Actions ouvertes",
+    "estancadas": "{{n}} enlisées",
+    "paraElFsm": "{{n}} pour le FSM"
   },
   "justificaciones": {
     "titulo": "Justificaciones",
@@ -234,5 +220,67 @@
     "sustituye": "Planificar sustituye la ruta completa de ese día.",
     "bloqueada": "No se puede replanificar: hay visitas de esa jornada ya iniciadas o cerradas.",
     "estadoVisita": "Estado"
+  },
+  "acciones": {
+    "titulo": "Actions en cours",
+    "subtitulo": "Ce qui reste ouvert, du plus ancien au plus récent",
+    "abiertas": "Ouvertes",
+    "estancadas": "Enlisées",
+    "estancadasPie": "Toujours ouvertes : jamais fermées d'office",
+    "estancada": "Enlisée",
+    "soloEstancadas": "Enlisées seulement",
+    "abiertasYEnCurso": "Ouvertes et en cours",
+    "estado": "État",
+    "categoria": "Catégorie",
+    "responsable": "Responsable",
+    "paraMi": "Pour le FSM",
+    "paraElGpv": "Pour le GPV",
+    "antiguedad": "Ancienneté",
+    "situacion": "Situation",
+    "tienda": "Magasin",
+    "detectadaPor": "Détectée par",
+    "acciones": "Actions",
+    "dias": "{{n}} jours",
+    "resolver": "Résoudre",
+    "descartar": "Écarter",
+    "historial": "Historique ({{n}})",
+    "sinComprobaciones": "Personne ne s'est encore prononcé",
+    "cerradaPorGpv": "Fermée par le GPV",
+    "copiar": "Copier",
+    "copiarCodigo": "Copier le code pour l'application de frigos",
+    "vacio": "Rien d'ouvert avec ces filtres"
+  },
+  "estadoAccion": {
+    "abierta": "Ouverte",
+    "en_curso": "En cours",
+    "resuelta": "Résolue",
+    "descartada": "Écartée"
+  },
+  "desenlace": {
+    "sigue_pendiente": "Toujours en attente",
+    "resuelta": "Résolue",
+    "no_procede": "Sans objet"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "situacion": {
+    "stock": "Rupture de produit",
+    "fechas": "Problème de dates",
+    "hueco": "Trou dans le linéaire",
+    "top_pico": "Top Pico non référencé",
+    "facings": "Gagner des facings",
+    "visibilidad": "Améliorer la visibilité",
+    "reorganizacion": "Réorganiser le linéaire",
+    "extraespacio": "Espace additionnel",
+    "nevera": "Frigo",
+    "relacion_responsable": "Relation avec le responsable"
+  },
+  "rol": {
+    "comercial": "GPV",
+    "supervisor": "FSM",
+    "administrador": "Administration"
   }
 }

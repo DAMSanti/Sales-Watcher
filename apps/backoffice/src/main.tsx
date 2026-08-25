@@ -6,6 +6,7 @@ import { ProveedorSesion } from "./auth/sesion";
 import { iniciarI18n } from "./i18n";
 import "./estilos/base.css";
 import "./estilos/componentes.css";
+import "./estilos/paneles.css";
 
 function idiomaInicial(): Idioma {
   try {

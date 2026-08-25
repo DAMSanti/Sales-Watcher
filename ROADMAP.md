@@ -208,7 +208,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] **Resultados propios del GPV visibles para él** — facings ganados, Top Picos incorporados *(«la idea es que los GPVs generen más oportunidades»)*
 - [ ] Captura de **foto** en los flujos que la admiten *(visibilidad, reorganización, nevera)*
 - [ ] Convertir el checklist en **sección opcional, desactivada por defecto** y nunca obligatoria para cerrar
-- [ ] **Retirar o fusionar `ContextoAnterior`**: hoy muestra incidencias antiguas justo debajo de «De tu última visita», que muestra acciones. Son dos listas de pendientes en formatos distintos — la duplicación que el reencuadre quería evitar
+- [x] **Retirado el registro genérico de incidencias de la app de campo** *(`ContextoAnterior` y `SeccionIncidencias`)*: duplicaban lo que ya muestran las acciones
 - [ ] Probar el recorrido completo **sin cobertura**, no solo con red
 
 ## Fase 4 — Backoffice — MVP
@@ -232,11 +232,16 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 
 ### 🆕 Panel del FSM y dashboard de resultados
 
-- [ ] **Panel de acciones pendientes**: categoría · tienda · situación · **antigüedad**, priorizable
-- [ ] Cambio de estado y cierre de acciones desde el panel
-- [ ] **Aviso cuando un GPV cierra una acción asignada al FSM**, para que no se entere por casualidad
-- [ ] Acciones **estancadas** destacadas por antigüedad
-- [ ] **Código de nevera prominente y copiable** — es el dato que el FSM teclea en su aplicación de neveras
+> El panel de acciones **sustituye** a la bandeja de incidencias, que se retira: el registro genérico de incidencias queda desautorizado por el reencuadre y nada lo alimenta ya.
+
+- [x] **Panel de acciones pendientes**: antigüedad · situación · tienda · quién la detectó · responsable, ordenado de más antiguo a más reciente
+- [x] Cambio de estado y cierre de acciones desde el panel
+- [x] **Aviso cuando un GPV cierra una acción asignada al FSM**
+- [x] Acciones **estancadas** destacadas y filtrables
+- [x] **Código de nevera prominente y copiable**, con botón de copiar al portapapeles
+- [x] **Historial desplegable** de cada acción: quién se pronunció, cuándo y qué dijo
+- [x] El dashboard cuenta **acciones abiertas**, no incidencias muertas
+- [x] Traducido a los cinco idiomas
 - [ ] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
 - [ ] Detalle de visita **organizado por categoría de producto**, con evidencias
 - [ ] **Ocultar la duración de visita** en el detalle y en los informes

@@ -17,7 +17,6 @@
   "nav": {
     "supervision": "Gainbegiratzea",
     "dashboard": "Gaur",
-    "incidencias": "Intzidentziak",
     "justificaciones": "Justifikazioak",
     "informes": "Txostenak",
     "cobertura": "Estaldura",
@@ -28,7 +27,8 @@
     "usuarios": "Erabiltzaileak",
     "catalogos": "Katalogoak",
     "checklists": "Egiaztapen-zerrendak",
-    "rutas": "Ibilbideak"
+    "rutas": "Ibilbideak",
+    "acciones": "Ekintzak"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -50,23 +50,9 @@
     "extra": "Fuera de ruta",
     "comerciales": "Comerciales activos",
     "deTotal": "de {{total}} con ruta",
-    "abiertas": "Incidencias abiertas",
-    "criticas": "{{n}} críticas"
-  },
-  "incidencias": {
-    "titulo": "Incidencias y oportunidades",
-    "subtitulo": "Reportadas por los comerciales en punto de venta",
-    "estado": "Estado",
-    "prioridad": "Prioridad",
-    "tipo": "Tipo",
-    "categoria": "Categoría",
-    "tienda": "Tienda",
-    "comercial": "Comercial",
-    "fecha": "Fecha",
-    "acciones": "Acciones",
-    "revisar": "Revisar",
-    "resolver": "Resolver",
-    "descartar": "Descartar"
+    "abiertas": "Ekintza irekiak",
+    "estancadas": "{{n}} geldituta",
+    "paraElFsm": "{{n}} FSMrentzat"
   },
   "justificaciones": {
     "titulo": "Justificaciones",
@@ -234,5 +220,67 @@
     "sustituye": "Planificar sustituye la ruta completa de ese día.",
     "bloqueada": "No se puede replanificar: hay visitas de esa jornada ya iniciadas o cerradas.",
     "estadoVisita": "Estado"
+  },
+  "acciones": {
+    "titulo": "Ekintza irekiak",
+    "subtitulo": "Irekita jarraitzen duena, zaharrenetik berrienera",
+    "abiertas": "Irekiak",
+    "estancadas": "Geldituta",
+    "estancadasPie": "Irekita jarraitzen dute: ez dira bakarrik ixten",
+    "estancada": "Geldituta",
+    "soloEstancadas": "Geldituak soilik",
+    "abiertasYEnCurso": "Irekiak eta abian",
+    "estado": "Egoera",
+    "categoria": "Kategoria",
+    "responsable": "Arduraduna",
+    "paraMi": "FSMrentzat",
+    "paraElGpv": "GPVrentzat",
+    "antiguedad": "Antzinatasuna",
+    "situacion": "Egoera",
+    "tienda": "Denda",
+    "detectadaPor": "Nork antzeman duen",
+    "acciones": "Ekintzak",
+    "dias": "{{n}} egun",
+    "resolver": "Konpondu",
+    "descartar": "Baztertu",
+    "historial": "Historia ({{n}})",
+    "sinComprobaciones": "Inork ez du oraindik ezer esan",
+    "cerradaPorGpv": "GPVak itxi zuen",
+    "copiar": "Kopiatu",
+    "copiarCodigo": "Kopiatu kodea hozkailuen aplikaziorako",
+    "vacio": "Ezer irekita iragazki hauekin"
+  },
+  "estadoAccion": {
+    "abierta": "Irekia",
+    "en_curso": "Abian",
+    "resuelta": "Konponduta",
+    "descartada": "Baztertuta"
+  },
+  "desenlace": {
+    "sigue_pendiente": "Zain jarraitzen zuen",
+    "resuelta": "Konponduta",
+    "no_procede": "Ez dagokio"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "situacion": {
+    "stock": "Produktu falta",
+    "fechas": "Datekin arazoa",
+    "hueco": "Hutsunea apalategian",
+    "top_pico": "Top Pico sartu gabe",
+    "facings": "Facing-ak irabazi",
+    "visibilidad": "Ikusgaitasuna hobetu",
+    "reorganizacion": "Apalategia berrantolatu",
+    "extraespacio": "Espazio gehigarria",
+    "nevera": "Hozkailua",
+    "relacion_responsable": "Arduradunarekiko harremana"
+  },
+  "rol": {
+    "comercial": "GPV",
+    "supervisor": "FSM",
+    "administrador": "Administrazioa"
   }
 }

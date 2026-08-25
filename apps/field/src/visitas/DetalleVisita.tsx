@@ -7,7 +7,6 @@ import type {
   CategoriaProducto,
   Checklist,
   Desviacion,
-  IncidenciaVisita,
   RelacionResponsable,
   ResumenVisita,
   TarjetaVisita,
@@ -17,10 +16,8 @@ import { obtenerUbicacion } from "../comun/ubicacion";
 import { guardarCache, leerCache } from "../offline/almacen";
 import { ejecutar } from "../offline/cola";
 import { IndicadorSincronizacion } from "../offline/IndicadorSincronizacion";
-import { ContextoAnterior } from "./ContextoAnterior";
 import { DialogoJustificar } from "./DialogoJustificar";
 import { SeccionChecklist } from "./SeccionChecklist";
-import { SeccionIncidencias } from "./SeccionIncidencias";
 import { DialogoResumen } from "./DialogoResumen";
 import { PanelCategoria } from "./PanelCategoria";
 import { SeccionPendientes } from "./SeccionPendientes";
@@ -55,7 +52,6 @@ export function DetalleVisita() {
    * hacer y cerraría la visita sin completarla.
    */
   const [datosDisponibles, setDatosDisponibles] = useState(true);
-  const [incidencias, setIncidencias] = useState<IncidenciaVisita[]>([]);
 
   // ── El ciclo de acciones ───────────────────────────────────────────
   /** Lo detectado en ESTA visita, para los contadores de cada flujo. */
@@ -90,13 +86,11 @@ export function DetalleVisita() {
       const encontrada = dia.visitas.find((v) => v.visitaId === id) ?? null;
       setVisita(encontrada);
 
-      const [lista, incidenciasVisita, resumenVisita] = await Promise.all([
+      const [lista, resumenVisita] = await Promise.all([
         pedir<Checklist>(`/visitas/${id}/checklist`, { idioma }),
-        pedir<IncidenciaVisita[]>(`/visitas/${id}/incidencias`, { idioma }),
         pedir<ResumenVisita>(`/visitas/${id}/resumen`, { idioma }),
       ]);
       setChecklist(lista);
-      setIncidencias(incidenciasVisita);
       setResumen(resumenVisita);
       setRelacion(
         resumenVisita.relacionResponsable
@@ -129,17 +123,13 @@ export function DetalleVisita() {
       }
 
       setDatosDisponibles(true);
-      void guardarCache(`visita/${id}`, { lista, incidenciasVisita });
+      void guardarCache(`visita/${id}`, { lista });
     } catch (e) {
       if (e instanceof ErrorApi && e.esFalloDeRed) {
-        const guardado = await leerCache<{
-          lista: Checklist;
-          incidenciasVisita: IncidenciaVisita[];
-        }>(`visita/${id}`);
+        const guardado = await leerCache<{ lista: Checklist }>(`visita/${id}`);
 
         if (guardado) {
           setChecklist(guardado.datos.lista);
-          setIncidencias(guardado.datos.incidenciasVisita);
           setDatosDisponibles(true);
         } else {
           /** Nunca se abrió esta visita con cobertura: no hay nada que mostrar. */
@@ -372,18 +362,9 @@ export function DetalleVisita() {
               alGuardar={cargar}
             />
 
-            <ContextoAnterior visitaId={id!} idioma={idioma} />
-
             <SeccionChecklist
               checklist={checklist}
               disponible={datosDisponibles}
-              editable={editable}
-              visitaId={id!}
-              alCambiar={cargar}
-            />
-
-            <SeccionIncidencias
-              incidencias={incidencias}
               editable={editable}
               visitaId={id!}
               alCambiar={cargar}

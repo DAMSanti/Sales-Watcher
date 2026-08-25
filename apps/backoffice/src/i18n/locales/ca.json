@@ -17,7 +17,6 @@
   "nav": {
     "supervision": "Supervisió",
     "dashboard": "Avui",
-    "incidencias": "Incidències",
     "justificaciones": "Justificacions",
     "informes": "Informes",
     "cobertura": "Cobertura",
@@ -28,7 +27,8 @@
     "usuarios": "Usuaris",
     "catalogos": "Catàlegs",
     "checklists": "Checklists",
-    "rutas": "Rutes"
+    "rutas": "Rutes",
+    "acciones": "Accions"
   },
   "login": {
     "titulo": "Acceso de gestión",
@@ -50,23 +50,9 @@
     "extra": "Fuera de ruta",
     "comerciales": "Comerciales activos",
     "deTotal": "de {{total}} con ruta",
-    "abiertas": "Incidencias abiertas",
-    "criticas": "{{n}} críticas"
-  },
-  "incidencias": {
-    "titulo": "Incidencias y oportunidades",
-    "subtitulo": "Reportadas por los comerciales en punto de venta",
-    "estado": "Estado",
-    "prioridad": "Prioridad",
-    "tipo": "Tipo",
-    "categoria": "Categoría",
-    "tienda": "Tienda",
-    "comercial": "Comercial",
-    "fecha": "Fecha",
-    "acciones": "Acciones",
-    "revisar": "Revisar",
-    "resolver": "Resolver",
-    "descartar": "Descartar"
+    "abiertas": "Accions obertes",
+    "estancadas": "{{n}} encallades",
+    "paraElFsm": "{{n}} per al FSM"
   },
   "justificaciones": {
     "titulo": "Justificaciones",
@@ -234,5 +220,67 @@
     "sustituye": "Planificar sustituye la ruta completa de ese día.",
     "bloqueada": "No se puede replanificar: hay visitas de esa jornada ya iniciadas o cerradas.",
     "estadoVisita": "Estado"
+  },
+  "acciones": {
+    "titulo": "Accions pendents",
+    "subtitulo": "El que segueix obert, de més antic a més recent",
+    "abiertas": "Obertes",
+    "estancadas": "Encallades",
+    "estancadasPie": "Segueixen obertes: no es tanquen soles",
+    "estancada": "Encallada",
+    "soloEstancadas": "Només encallades",
+    "abiertasYEnCurso": "Obertes i en curs",
+    "estado": "Estat",
+    "categoria": "Categoria",
+    "responsable": "Responsable",
+    "paraMi": "Per al FSM",
+    "paraElGpv": "Per al GPV",
+    "antiguedad": "Antiguitat",
+    "situacion": "Situació",
+    "tienda": "Botiga",
+    "detectadaPor": "Detectada per",
+    "acciones": "Accions",
+    "dias": "{{n}} dies",
+    "resolver": "Resoldre",
+    "descartar": "Descartar",
+    "historial": "Historial ({{n}})",
+    "sinComprobaciones": "Encara no s'hi ha pronunciat ningú",
+    "cerradaPorGpv": "La va tancar el GPV",
+    "copiar": "Copiar",
+    "copiarCodigo": "Copiar el codi per a l'aplicació de neveres",
+    "vacio": "Res obert amb aquests filtres"
+  },
+  "estadoAccion": {
+    "abierta": "Oberta",
+    "en_curso": "En curs",
+    "resuelta": "Resolta",
+    "descartada": "Descartada"
+  },
+  "desenlace": {
+    "sigue_pendiente": "Seguia pendent",
+    "resuelta": "Resolta",
+    "no_procede": "No procedeix"
+  },
+  "categoria": {
+    "dairy": "Dairy",
+    "waters": "Waters",
+    "pbb": "PBB"
+  },
+  "situacion": {
+    "stock": "Falta de producte",
+    "fechas": "Problema amb les dates",
+    "hueco": "Buit al lineal",
+    "top_pico": "Top Pico sense incorporar",
+    "facings": "Guanyar facings",
+    "visibilidad": "Millorar visibilitat",
+    "reorganizacion": "Reorganitzar el lineal",
+    "extraespacio": "Extraespai",
+    "nevera": "Nevera",
+    "relacion_responsable": "Relació amb el responsable"
+  },
+  "rol": {
+    "comercial": "GPV",
+    "supervisor": "FSM",
+    "administrador": "Administració"
   }
 }
