@@ -194,6 +194,18 @@ export class AccionesController {
     return this.acciones.bandeja(usuario, query);
   }
 
+  /**
+   * Cuántas acciones del FSM ha cerrado un GPV en los últimos días.
+   *
+   * El panel lo usa para avisar. Va aparte de la bandeja porque esas acciones
+   * ya están cerradas y no aparecen en ella.
+   */
+  @Roles("supervisor", "administrador")
+  @Get("acciones/cerradas-por-gpv")
+  async cerradasPorGpv(@UsuarioActual() usuario: PayloadToken) {
+    return { total: await this.acciones.cerradasPorGpv(usuario) };
+  }
+
   /** Cerrar o cambiar el estado de una acción desde el panel. */
   @Roles("supervisor", "administrador")
   @Patch("acciones/:id")

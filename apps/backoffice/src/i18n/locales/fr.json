@@ -250,7 +250,11 @@
     "cerradaPorGpv": "Fermée par le GPV",
     "copiar": "Copier",
     "copiarCodigo": "Copier le code pour l'application de frigos",
-    "vacio": "Rien d'ouvert avec ces filtres"
+    "vacio": "Rien d'ouvert avec ces filtres",
+    "avisoCierres": "{{n}} action(s) qui vous étaient assignées ont été fermées par un GPV cette semaine.",
+    "verCierres": "Les voir",
+    "viendoCierres": "Affichage des seules actions fermées par un GPV.",
+    "volverBandeja": "Retour à la liste"
   },
   "estadoAccion": {
     "abierta": "Ouverte",

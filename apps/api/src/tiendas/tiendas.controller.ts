@@ -27,20 +27,37 @@ export class TiendasController {
   constructor(private readonly tiendas: TiendasService) {}
 
   /**
-   * Buscador, compartido por el "Añadir visita" del comercial y el backoffice.
+   * Buscador, compartido por el "Añadir visita" del GPV y el backoffice.
    *
-   * Un comercial nunca ve tiendas inactivas, pida lo que pida: crear una
-   * visita a una tienda dada de baja generaría actividad sobre algo que ya no
-   * existe.
+   * Busca por **código `350…` y por nombre al mismo nivel** (SPECS §5.3): el
+   * código es la vía rápida cuando se conoce, y el nombre no debe ser el
+   * camino de segunda para quien no lo recuerda delante de la tienda.
+   *
+   * Un GPV nunca ve tiendas inactivas, pida lo que pida: crear una visita a
+   * una tienda dada de baja generaría actividad sobre algo que ya no existe.
+   *
+   * ── El alcance del GPV ────────────────────────────────────────────
+   *
+   * El boceto dice que se busca «entre las tiendas asignadas al GPV», y el
+   * modelo NO tiene asignación tienda-GPV: lo más parecido que expresa es la
+   * zona. Se acota por zona, que es lo correcto que se puede hacer hoy, y
+   * queda anotado que la asignación individual no existe.
+   *
+   * Con una sola zona en la operación actual esto no filtra nada en la
+   * práctica, pero fija el comportamiento para cuando haya más.
    */
   @Get()
   async buscar(
     @Query(new ZodValidationPipe(buscarTiendasSchema)) query: BuscarTiendasDto,
     @UsuarioActual() usuario: PayloadToken,
   ) {
+    const esGpv = usuario.rol === "comercial";
+
     return this.tiendas.buscar({
       ...query,
-      soloActivas: usuario.rol === "comercial" ? true : !query.incluirInactivas,
+      // Un GPV no puede ampliar su propio alcance pasando otra zona.
+      ...(esGpv && usuario.zonaId ? { zonaId: usuario.zonaId } : {}),
+      soloActivas: esGpv ? true : !query.incluirInactivas,
     });
   }
 

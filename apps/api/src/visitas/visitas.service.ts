@@ -78,7 +78,17 @@ export class VisitasService {
       )
       .orderBy(asc(rutasDiarias.ordenSugerido));
 
-    const noPlanificadas = await this.db
+    /**
+     * Las que NO cuelgan de una ruta.
+     *
+     * Desde que una visita fuera de rutero se incorpora a la ruta del día,
+     * casi todas tienen `rutaDiariaId`. Sin este filtro aparecerían dos veces:
+     * una por la consulta de arriba y otra por esta.
+     *
+     * La consulta se conserva igualmente para el histórico: las visitas
+     * creadas antes de ese cambio no tienen ruta y desaparecerían del día.
+     */
+    const sueltas = await this.db
       .select({ tienda: tiendas, visita: visitas })
       .from(visitas)
       .innerJoin(tiendas, eq(tiendas.id, visitas.tiendaId))
@@ -87,12 +97,18 @@ export class VisitasService {
           eq(visitas.usuarioId, usuario.sub),
           eq(visitas.fecha, fecha),
           eq(visitas.planificada, false),
+          isNull(visitas.rutaDiariaId),
         ),
       );
 
     const tarjetas = [
-      ...planificadas.map((f) => this.tarjeta(f.tienda, f.visita, true, f.orden)),
-      ...noPlanificadas.map((f) => this.tarjeta(f.tienda, f.visita, false, null)),
+      // `planificada` sale de la VISITA, no de estar en el rutero: ahora
+      // conviven en la ruta las previstas y las que el GPV añadió sobre la
+      // marcha, y la etiqueta debe distinguirlas.
+      ...planificadas.map((f) =>
+        this.tarjeta(f.tienda, f.visita, f.visita?.planificada ?? true, f.orden),
+      ),
+      ...sueltas.map((f) => this.tarjeta(f.tienda, f.visita, false, null)),
     ];
 
     const finalizadas = tarjetas.filter((t) => t.estado === "finalizada").length;
@@ -243,27 +259,61 @@ export class VisitasService {
 
     if (yaExiste) return yaExiste;
 
-    const [creada] = await this.db
-      .insert(visitas)
-      .values({
-        usuarioId: usuario.sub,
-        tiendaId,
-        fecha,
-        estado: "pendiente",
-        planificada: false,
-        idCliente: idCliente ?? null,
-      })
-      .returning();
+    /**
+     * La visita se INCORPORA a la ruta del día (decisión que cierra P28).
+     *
+     * El GPV ve entonces una lista coherente de su jornada, con la tienda que
+     * acaba de añadir entre las demás, en lugar de un apartado suelto.
+     *
+     * ⚠️ Pero conserva `planificada = false`. Si toda visita incorporada
+     * contase como planificada, la cobertura saldría siempre al 100 % y la
+     * métrica dejaría de medir nada. Son dos preguntas distintas —qué hay que
+     * hacer hoy y qué estaba previsto— y ambas conservan respuesta.
+     */
+    const creada = await this.db.transaction(async (tx) => {
+      // Se pone al final del rutero: es un añadido sobre lo ya planificado.
+      const orden = await tx
+        .select({ ultimo: sql<number>`coalesce(max(${rutasDiarias.ordenSugerido}), 0)` })
+        .from(rutasDiarias)
+        .where(
+          and(eq(rutasDiarias.usuarioId, usuario.sub), eq(rutasDiarias.fecha, fecha)),
+        );
+
+      const [ruta] = await tx
+        .insert(rutasDiarias)
+        .values({
+          usuarioId: usuario.sub,
+          tiendaId,
+          fecha,
+          ordenSugerido: Number(orden[0]?.ultimo ?? 0) + 1,
+        })
+        .returning();
+
+      const [visita] = await tx
+        .insert(visitas)
+        .values({
+          usuarioId: usuario.sub,
+          tiendaId,
+          fecha,
+          rutaDiariaId: ruta!.id,
+          estado: "pendiente",
+          planificada: false,
+          idCliente: idCliente ?? null,
+        })
+        .returning();
+
+      return visita!;
+    });
 
     await this.auditoria.registrar({
       usuarioId: usuario.sub,
       numeroTrabajador: usuario.numeroTrabajador,
       accion: "visita.creada_no_planificada",
       entidad: "visita",
-      entidadId: creada!.id,
+      entidadId: creada.id,
     });
 
-    return creada!;
+    return creada;
   }
 
   /**
@@ -319,10 +369,16 @@ export class VisitasService {
   /**
    * Finaliza la visita.
    *
-   * Se permite cerrar con ítems obligatorios sin completar: la visita queda
-   * marcada como `incompleta` en vez de bloquearse. Hay razones legítimas —el
-   * producto ya no está, la cámara falla— y bloquear al comercial por un
-   * problema que no es suyo destruye la adopción (SPECS §5.4).
+   * **En el MVP no hay mínimos obligatorios** (SPECS §5.7): el GPV inicia y
+   * cierra visitas libremente mientras el cliente define qué comportamientos
+   * quiere exigir. Es una decisión consciente y temporal suya.
+   *
+   * Por eso `incompleta` ya NO se marca. El campo se conserva porque el propio
+   * cliente anticipa definir esos mínimos más adelante, y borrarlo obligaría a
+   * una migración para volver a añadirlo.
+   *
+   * Los ítems pendientes se siguen devolviendo: sirven para informar en el
+   * resumen de cierre, que avisa sin bloquear.
    */
   async finalizar(
     visitaId: string,
@@ -346,7 +402,8 @@ export class VisitasService {
         estado: "finalizada",
         horaFin: momento,
         ubicacionFin: datos.ubicacion ?? null,
-        incompleta: pendientes.length > 0,
+        // Sin mínimos obligatorios, nada deja la visita incompleta.
+        incompleta: false,
         notasLibres: datos.notasLibres ?? visita.notasLibres,
       })
       .where(eq(visitas.id, visita.id))
@@ -360,18 +417,14 @@ export class VisitasService {
       entidadId: visita.id,
       cambios: {
         estado: { antes: "en_curso", despues: "finalizada" },
-        incompleta: { antes: false, despues: pendientes.length > 0 },
       },
     });
 
     return {
       visita: actualizada!,
-      incompleta: pendientes.length > 0,
+      incompleta: false,
       /** Se devuelven para que la app pueda decir QUÉ quedó sin hacer. */
-      itemsPendientes: pendientes,
-      duracionMinutos: visita.horaInicio
-        ? Math.round((momento.getTime() - visita.horaInicio.getTime()) / 60_000)
-        : null,
+      itemsPendientes: pendientes
     };
   }
 

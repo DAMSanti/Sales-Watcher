@@ -161,10 +161,9 @@ export class SincronizacionService {
         return {
           estado: "aplicada",
           id: resultado.visita.id,
-          datos: {
-            incompleta: resultado.incompleta,
-            duracionMinutos: resultado.duracionMinutos,
-          },
+          // Sin duración: el tiempo de permanencia no sale de la base de
+          // datos mientras no se complete la revisión legal (SPECS §6.2).
+          datos: { incompleta: resultado.incompleta },
         };
       }
 

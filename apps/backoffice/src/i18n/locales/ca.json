@@ -250,7 +250,11 @@
     "cerradaPorGpv": "La va tancar el GPV",
     "copiar": "Copiar",
     "copiarCodigo": "Copiar el codi per a l'aplicació de neveres",
-    "vacio": "Res obert amb aquests filtres"
+    "vacio": "Res obert amb aquests filtres",
+    "avisoCierres": "{{n}} acció(ns) que tenies assignades les ha tancat un GPV aquesta setmana.",
+    "verCierres": "Veure-les",
+    "viendoCierres": "Mostrant només les que va tancar un GPV.",
+    "volverBandeja": "Tornar a la safata"
   },
   "estadoAccion": {
     "abierta": "Oberta",

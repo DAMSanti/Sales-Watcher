@@ -405,18 +405,6 @@ export function InformeEjecucion() {
             </div>
           </div>
 
-          <div className="metrica metrica--curso">
-            <div className="metrica__valor">
-              {t("ejecucion.minutos", { n: datos.duracion.mediaMinutos })}
-            </div>
-            <div className="metrica__etiqueta">{t("ejecucion.duracionMedia")}</div>
-            {/* La mediana acompaña siempre a la media: aguanta mejor los
-                valores extremos y delata si la media está sesgada. */}
-            <div className="metrica__pie">
-              {t("ejecucion.mediana", { n: datos.duracion.medianaMinutos })}
-            </div>
-          </div>
-
           <div
             className={`metrica ${datos.visitasIncompletas.tasa > 20 ? "metrica--aviso" : ""}`}
           >

@@ -357,33 +357,17 @@ export class InformesService {
       .where(and(...ambito, eq(visitas.estado, "finalizada")));
 
     /**
-     * La duración solo tiene sentido en visitas cerradas con las dos marcas.
-     * Se filtran las de más de ocho horas: son un check-out olvidado, no una
-     * visita larga, y una sola arrastraría la media del equipo entero.
+     * La DURACIÓN DE VISITA se retiró de este informe.
+     *
+     * El cliente decidió no usar el tiempo de permanencia como métrica ni como
+     * mecanismo de control mientras no se complete la revisión legal
+     * correspondiente (SPECS §6.2). Ocultarla solo en la interfaz no bastaba:
+     * seguía saliendo por la API y por el CSV, donde cualquiera podía
+     * calcularla igual.
+     *
+     * El dato SIGUE registrándose —`hora_inicio` y `hora_fin` están en la
+     * tabla— por si el cliente llega a pedirlo. Lo que no hace es salir.
      */
-    const [duracion] = await this.db
-      .select({
-        visitasMedidas: sql<number>`count(*)::int`,
-        mediaMinutos: sql<number>`coalesce(round(avg(
-          extract(epoch from (${visitas.horaFin} - ${visitas.horaInicio})) / 60
-        ))::int, 0)`,
-        medianaMinutos: sql<number>`coalesce(round(
-          percentile_cont(0.5) within group (
-            order by extract(epoch from (${visitas.horaFin} - ${visitas.horaInicio})) / 60
-          )
-        )::int, 0)`,
-        descartadas: sql<number>`0::int`,
-      })
-      .from(visitas)
-      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
-      .where(
-        and(
-          ...ambito,
-          eq(visitas.estado, "finalizada"),
-          sql`${visitas.horaInicio} is not null and ${visitas.horaFin} is not null`,
-          sql`${visitas.horaFin} - ${visitas.horaInicio} between interval '0 minutes' and interval '8 hours'`,
-        ),
-      );
 
     const [incompletas] = await this.db
       .select({
@@ -404,7 +388,6 @@ export class InformesService {
           checklist?.obligatoriosEvaluados,
         ),
       },
-      duracion,
       visitasIncompletas: {
         ...incompletas,
         tasa: porcentaje(incompletas?.incompletas, incompletas?.finalizadas),

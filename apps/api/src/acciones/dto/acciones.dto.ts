@@ -262,6 +262,8 @@ export const bandejaAccionesSchema = z.object({
   tiendaId: z.string().uuid().optional(),
   /** Solo las que superan el umbral de antigüedad. */
   soloEstancadas: z.coerce.boolean().optional(),
+  /** Solo las que el FSM tenía asignadas y cerró un GPV. */
+  cerradasPorGpv: z.coerce.boolean().optional(),
   limite: z.coerce.number().int().positive().max(200).default(50),
 });
 export type BandejaAccionesDto = z.infer<typeof bandejaAccionesSchema>;

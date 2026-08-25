@@ -508,11 +508,13 @@ export class AccionesService {
       condiciones.push(eq(tiendas.zonaId, usuario.zonaId));
     }
 
-    condiciones.push(
-      filtros.estado
-        ? eq(acciones.estado, filtros.estado)
-        : inArray(acciones.estado, ["abierta", "en_curso"]),
-    );
+    // Con `cerradasPorGpv` el estado por defecto no sirve: lo que se busca
+    // está cerrado precisamente.
+    if (filtros.estado) {
+      condiciones.push(eq(acciones.estado, filtros.estado));
+    } else if (!filtros.cerradasPorGpv) {
+      condiciones.push(inArray(acciones.estado, ["abierta", "en_curso"]));
+    }
 
     if (filtros.categoriaProducto) {
       condiciones.push(eq(acciones.categoriaProducto, filtros.categoriaProducto));
@@ -528,6 +530,19 @@ export class AccionesService {
       condiciones.push(
         sql`${acciones.detectadaEn} < now() - (${this.umbralEstancada} || ' days')::interval`,
       );
+    }
+
+    /**
+     * Acciones que el FSM tenía asignadas y cerró un GPV.
+     *
+     * El dato se registraba desde el principio, pero no se veía: la bandeja
+     * muestra por defecto lo abierto, y estas ya están cerradas. Sin un filtro
+     * propio, el aviso de "la cerró el GPV" no llegaba a aparecer nunca y el
+     * FSM se enteraba de que su bandeja había menguado por casualidad.
+     */
+    if (filtros.cerradasPorGpv) {
+      condiciones.push(eq(acciones.responsableActuar, "fsm"));
+      condiciones.push(eq(acciones.cerradaPorRol, "comercial"));
     }
 
     const filas = await this.db
@@ -570,6 +585,33 @@ export class AccionesService {
       codigoNevera: f.codigoNevera,
       comprobaciones: f.comprobaciones,
     }));
+  }
+
+  /**
+   * Cuántas acciones del FSM ha cerrado un GPV últimamente.
+   *
+   * Alimenta el aviso del panel. Se acota a los últimos días porque el aviso
+   * es «mira esto», no un contador histórico que solo puede crecer.
+   */
+  async cerradasPorGpv(usuario: PayloadToken, dias = 7): Promise<number> {
+    const condiciones = [
+      eq(acciones.responsableActuar, "fsm"),
+      eq(acciones.cerradaPorRol, "comercial"),
+      sql`${acciones.resueltaEn} > now() - (${dias} || ' days')::interval`,
+    ];
+
+    if (usuario.rol === "supervisor") {
+      if (!usuario.zonaId) return 0;
+      condiciones.push(eq(tiendas.zonaId, usuario.zonaId));
+    }
+
+    const [fila] = await this.db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(acciones)
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(and(...condiciones));
+
+    return fila?.n ?? 0;
   }
 
   /** Cierre o cambio de estado desde el panel. */

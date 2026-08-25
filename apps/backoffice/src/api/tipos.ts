@@ -118,7 +118,6 @@ export type Ejecucion = {
     tasaCumplimiento: number;
     tasaObligatorios: number;
   };
-  duracion: { visitasMedidas: number; mediaMinutos: number; medianaMinutos: number };
   visitasIncompletas: { finalizadas: number; incompletas: number; tasa: number };
 };
 

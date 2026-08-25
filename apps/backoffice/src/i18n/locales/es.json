@@ -250,7 +250,11 @@
     "cerradaPorGpv": "La cerró el GPV",
     "copiar": "Copiar",
     "copiarCodigo": "Copiar el código para la aplicación de neveras",
-    "vacio": "Nada abierto con estos filtros"
+    "vacio": "Nada abierto con estos filtros",
+    "avisoCierres": "{{n}} acción(es) que tenías asignadas las ha cerrado un GPV esta semana.",
+    "verCierres": "Verlas",
+    "viendoCierres": "Mostrando solo las que cerró un GPV.",
+    "volverBandeja": "Volver a la bandeja"
   },
   "estadoAccion": {
     "abierta": "Abierta",

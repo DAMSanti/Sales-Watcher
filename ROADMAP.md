@@ -151,19 +151,24 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Bandeja de **acciones pendientes del FSM** *(`GET /acciones`)*, lo más antiguo primero, acotada a su zona
 - [x] Idempotencia offline por `idCliente` en acciones y comprobaciones
 - [x] `api:acciones` ejercita los endpoints contra el servidor en marcha *(30 comprobaciones)*
-- [ ] Búsqueda de tienda **por código `350…` o por nombre**, entre las asignadas al GPV *(las dos vías al mismo nivel)*
-- [ ] Al iniciar una visita fuera de ruta, **incorporarla a la ruta del día conservando `planificada = false`**
-- [ ] Cierre de visita **sin mínimos obligatorios** *(revisar que `incompleta` deja de marcarse)*
-- [ ] **Aviso al FSM cuando un GPV cierra una acción que le estaba asignada** *(el dato ya se registra; falta destacarlo)*
+- [x] Búsqueda de tienda **por código `350…` y por nombre al mismo nivel**, acotada al alcance del GPV
+- [x] La visita fuera de ruta **se incorpora a la ruta del día conservando `planificada = false`**, sin duplicarse en la vista
+- [x] Cierre de visita **sin mínimos obligatorios**: `incompleta` deja de marcarse
+- [x] **Aviso al FSM cuando un GPV cierra una acción que le estaba asignada**, con filtro para verlas
+- [x] `api:visitas` verifica los cinco cambios de un tirón
+
+### 🆕 Hallazgo: no existe la asignación tienda–GPV
+
+- [ ] **El boceto dice que se busca «entre las tiendas asignadas al GPV», y el modelo no tiene esa asignación.** Lo más parecido que expresa es la zona, que es por lo que se acota hoy. Con una sola zona eso no filtra nada en la práctica. Hace falta decidir si la asignación individual llega a existir —una tabla `gpv_tiendas`— o si el rutero diario es asignación suficiente
 - [x] Agregados de resultado: facings por GPV/tienda/categoría/marca/mes, Top Picos incorporados, embudo detectado → trabajado → solucionado
 - [x] Agregados de patrón: incidencias de stock repetidas, tiendas con problemas recurrentes, acciones abiertas demasiado tiempo
 - [x] Las once preguntas del dashboard *(`GET /resultados` y siete endpoints de detalle)*
 - [x] Detección y resultado por GPV **en la misma fila**, para no crear un incentivo torcido
 - [x] `db:pruebas` genera acciones, comprobaciones y relación con el responsable, con gradiente de antigüedad
 - [x] `api:resultados` contrasta cada agregado con SQL independiente *(40 comprobaciones)*
-- [ ] Subida, confirmación y **normalización de vídeo** a 720p MP4
-- [ ] **Retirar la duración de visita** de respuestas, informes y exportaciones *(no basta con ocultarla en la interfaz: el dato se registra, pero no sale de la base de datos)*
-- [ ] Incluir los flujos nuevos en el endpoint de sincronización por lotes
+- [x] Subida, confirmación y **normalización de vídeo** a 720p MP4
+- [x] **Retirada la duración de visita** de respuestas, informes y exportaciones. El dato se sigue registrando, pero no sale
+- [x] Incluir los flujos nuevos en el endpoint de sincronización por lotes
 
 ## Fase 3 — App del comercial (PWA) — MVP
 
@@ -207,7 +212,6 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Los flujos nuevos viajan por la **cola offline** *(`accion.registrar`, `accion.comprobar`, `relacion.guardar`)*
 - [x] Los avisos del resumen viajan como **códigos**, no como frases: una frase del servidor saldría en castellano para quien tiene la interfaz en otro idioma
 - [ ] Captura de **vídeo** con cámara nativa, validando duración y tamaño en el dispositivo
-- [ ] **Aviso visible de que se está grabando audio** *(según lo que resuelva P31)*
 - [ ] **Resultados propios del GPV visibles para él** — facings ganados, Top Picos incorporados *(«la idea es que los GPVs generen más oportunidades»)*
 - [ ] Captura de **foto** en los flujos que la admiten *(visibilidad, reorganización, nevera)*
 - [ ] Convertir el checklist en **sección opcional, desactivada por defecto** y nunca obligatoria para cerrar
@@ -247,7 +251,7 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Traducido a los cinco idiomas
 - [ ] Redactar el cierre de acciones de nevera como **«informado en la aplicación de neveras»**, no «nevera recogida»
 - [ ] Detalle de visita **organizado por categoría de producto**, con evidencias
-- [ ] **Ocultar la duración de visita** en el detalle y en los informes
+- [x] **Retirada la duración de visita** del detalle y de los informes
 - [x] Dashboard de resultados — las once preguntas de SPECS 6.4:
   - [x] Embudo detectadas → trabajadas → solucionadas, como barra apilada de una rampa secuencial *(es una progresión ordenada, no tres identidades)*
   - [x] **Facings ganados**, con desglose conmutable por GPV, tienda, categoría, marca y mes

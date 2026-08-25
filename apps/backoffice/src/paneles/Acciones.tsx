@@ -58,6 +58,9 @@ export function Acciones() {
   const [categoria, setCategoria] = useState("");
   const [responsable, setResponsable] = useState("");
   const [soloEstancadas, setSoloEstancadas] = useState(false);
+  const [cerradasPorGpv, setCerradasPorGpv] = useState(false);
+  /** Cuántas acciones del FSM ha cerrado un GPV esta semana. */
+  const [avisoCierres, setAvisoCierres] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enCurso, setEnCurso] = useState<string | null>(null);
@@ -75,6 +78,7 @@ export function Acciones() {
       if (categoria) p.set("categoriaProducto", categoria);
       if (responsable) p.set("responsableActuar", responsable);
       if (soloEstancadas) p.set("soloEstancadas", "true");
+      if (cerradasPorGpv) p.set("cerradasPorGpv", "true");
       setFilas(await pedir<Accion[]>(`/acciones?${p}`, { idioma }));
     } catch (e) {
       setError(
@@ -87,7 +91,19 @@ export function Acciones() {
     } finally {
       setCargando(false);
     }
-  }, [estado, categoria, responsable, soloEstancadas, idioma, t]);
+  }, [estado, categoria, responsable, soloEstancadas, cerradasPorGpv, idioma, t]);
+
+  /**
+   * El aviso se pide aparte de la bandeja.
+   *
+   * Esas acciones están CERRADAS, así que no aparecen en la lista por defecto
+   * y el FSM no se enteraría de que alguien cerró algo que le tocaba a él.
+   */
+  useEffect(() => {
+    void pedir<{ total: number }>("/acciones/cerradas-por-gpv", { idioma })
+      .then((r) => setAvisoCierres(r.total))
+      .catch(() => setAvisoCierres(0));
+  }, [idioma, filas]);
 
   useEffect(() => {
     void cargar();
@@ -197,6 +213,35 @@ export function Acciones() {
           <span>{t("acciones.soloEstancadas")}</span>
         </label>
       </div>
+
+      {/*
+        No es una alarma: es información. Un GPV que cierra algo asignado al
+        FSM suele estar haciendo lo correcto —vio que ya estaba resuelto—, y el
+        FSM solo necesita poder mirarlo.
+      */}
+      {avisoCierres > 0 && !cerradasPorGpv && (
+        <div className="aviso aviso--atencion" role="status">
+          {t("acciones.avisoCierres", { n: avisoCierres })}{" "}
+          <button
+            className="boton boton--menudo boton--secundario"
+            onClick={() => setCerradasPorGpv(true)}
+          >
+            {t("acciones.verCierres")}
+          </button>
+        </div>
+      )}
+
+      {cerradasPorGpv && (
+        <div className="aviso" role="status">
+          {t("acciones.viendoCierres")}{" "}
+          <button
+            className="boton boton--menudo boton--secundario"
+            onClick={() => setCerradasPorGpv(false)}
+          >
+            {t("acciones.volverBandeja")}
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="aviso aviso--error" role="alert">

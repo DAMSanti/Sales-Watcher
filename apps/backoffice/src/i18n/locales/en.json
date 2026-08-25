@@ -250,7 +250,11 @@
     "cerradaPorGpv": "Closed by the GPV",
     "copiar": "Copy",
     "copiarCodigo": "Copy the code for the cooler app",
-    "vacio": "Nothing open with these filters"
+    "vacio": "Nothing open with these filters",
+    "avisoCierres": "A GPV closed {{n}} action(s) assigned to you this week.",
+    "verCierres": "View them",
+    "viendoCierres": "Showing only actions closed by a GPV.",
+    "volverBandeja": "Back to the list"
   },
   "estadoAccion": {
     "abierta": "Open",

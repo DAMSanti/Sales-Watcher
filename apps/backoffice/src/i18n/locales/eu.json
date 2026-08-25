@@ -250,7 +250,11 @@
     "cerradaPorGpv": "GPVak itxi zuen",
     "copiar": "Kopiatu",
     "copiarCodigo": "Kopiatu kodea hozkailuen aplikaziorako",
-    "vacio": "Ezer irekita iragazki hauekin"
+    "vacio": "Ezer irekita iragazki hauekin",
+    "avisoCierres": "Zuri esleitutako {{n}} ekintza GPV batek itxi ditu aste honetan.",
+    "verCierres": "Ikusi",
+    "viendoCierres": "GPV batek itxitakoak soilik erakusten.",
+    "volverBandeja": "Itzuli erretilura"
   },
   "estadoAccion": {
     "abierta": "Irekia",
