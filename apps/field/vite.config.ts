@@ -71,8 +71,13 @@ export default defineConfig(({ mode }) => {
          * pedir el documento.
          */
         navigateFallback: "index.html",
-        /** Salvo las llamadas a la API, que tienen su propia estrategia. */
-        navigateFallbackDenylist: [/^\/api\//],
+        /**
+         * Salvo las rutas que no son de esta app:
+         *  - /api/        → backend REST
+         *  - /gestion/    → backoffice (SPA aparte, otro contenedor)
+         *  - /evidencias/ → MinIO (URLs firmadas de subida de fotos)
+         */
+        navigateFallbackDenylist: [/^\/api\//, /^\/gestion\//, /^\/evidencias\//],
 
         runtimeCaching: [
           {
