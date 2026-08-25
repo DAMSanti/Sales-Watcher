@@ -202,6 +202,127 @@ El respaldo de euskera y catalán es el castellano porque quien los usa lo entie
 
 ---
 
+### Boceto funcional del cliente — ronda 4
+
+> Documento recibido: *«Primer boceto funcional — Aplicación de gestión y rentabilidad de visitas GPV»*, 17 páginas, en la raíz del repositorio. Incorporado a [SPECS.md](SPECS.md) v0.5 el 2026-08-25.
+
+### 2026-08-25 — El producto se reencuadra: de registro de actividad a gestión de acciones
+
+El boceto **no es un incremento sobre la v0.4; cambia el propósito**. La v0.4 construía un sistema para saber *qué hizo el comercial*. El boceto pide un sistema para saber *qué se detectó, quién actuó y qué resultado hubo*.
+
+El ciclo que hay que soportar es **VISITA → DETECCIÓN → ACCIÓN → SEGUIMIENTO → RESULTADO**, y la frase que mejor resume la diferencia es del propio cliente: el objetivo es pasar de *«el GPV ha estado en la tienda»* a *«el GPV ha detectado, ha actuado, ha generado acciones para quien debía intervenir, y la compañía puede comprobar el resultado»*.
+
+**Por qué importa reconocerlo como reencuadre y no como lista de funcionalidades nuevas:** si se tratara como una tanda de pantallas adicionales, acabaríamos con las dos aplicaciones a la vez — el checklist de la v0.4 conviviendo con los flujos del boceto — y el resultado sería exactamente el cuestionario largo que el cliente pide evitar.
+
+### 2026-08-25 — La aplicación no duplica la herramienta de auditoría existente
+
+El cliente ya tiene una aplicación que comprueba presencia de producto, implantaciones y promociones. El boceto es explícito: *«no queremos duplicar esa funcionalidad»* y *«no queremos crear otro cuestionario»*.
+
+**Consecuencia directa sobre lo construido:** el checklist configurable es hoy el núcleo de la visita en la app de campo, y ese enfoque queda desautorizado. No se retira nada todavía —la decisión es del cliente (P19)—, pero deja de ser el centro del diseño.
+
+También afecta a Top Picos: la base de datos de qué referencias son Top Pico en cada tienda **ya existe en otra aplicación**. Aquí solo se registran las que faltan y su seguimiento. Replicar ese catálogo sería crear una segunda fuente de verdad que se desincronizaría en semanas.
+
+### 2026-08-25 — La regla de diseño principal: quién puede resolverlo
+
+> Si el GPV puede solucionarlo, la aplicación le pide que actúe.
+> Si el GPV no puede solucionarlo, la aplicación genera una acción para la persona responsable.
+
+El reparto no es arbitrario: **en Dairy hay un reponedor de Danone** y el GPV no le da instrucciones directamente, así que las incidencias escalan al FSM, que habla con el reponedor. **En Waters y PBB no hay reponedor propio**, y el GPV actúa por sí mismo o negocia con el encargado del establecimiento.
+
+**Decisión técnica derivada: `responsable_actuar` se calcula en el servidor**, no lo elige el GPV. Si fuera una elección del usuario, la misma situación escalaría de forma distinta según quién la registrase, y los agregados del dashboard dejarían de ser comparables. Es una regla de negocio, y las reglas de negocio no se ponen en un desplegable.
+
+**Consecuencia de interfaz:** la cadena GPV → FSM → reponedor debe respetarse también visualmente. Mostrar al GPV que «se ha avisado al reponedor» crearía una expectativa de notificación que el sistema no cumple, porque el reponedor no es usuario del sistema.
+
+### 2026-08-25 — Lo detectado sobrevive a la visita
+
+La que el propio boceto llama la funcionalidad más importante: una incidencia u oportunidad **no desaparece al cerrar la visita**; queda abierta hasta que hay resultado, y reaparece en la siguiente visita a esa tienda para que el GPV se pronuncie.
+
+**Consecuencias sobre el modelo:**
+
+- La **acción pertenece a la tienda**, no a la visita. La visita es solo el momento en que se detectó o se comprobó. Colgar la acción de la visita —que es lo natural si se piensa en pantallas— haría el seguimiento entre visitas artificialmente difícil.
+- Cada comprobación es un **evento con fecha**, no una sobreescritura del estado. Guardar solo el último estado impediría responder *cuánto tardó en resolverse*, que es una de las preguntas explícitas del dashboard.
+- El cliente dice que el seguimiento se aplicará **progresivamente** a los distintos tipos de acción. El modelo de datos, sin embargo, conviene que lo admita desde el principio: incorporarlo después obliga a migrar histórico.
+
+### 2026-08-25 — Sin mínimos obligatorios para cerrar una visita
+
+En el MVP el GPV puede iniciar y finalizar visitas libremente. El cliente todavía está definiendo qué comportamientos mínimos quiere exigir.
+
+Es una decisión consciente y temporal, y merece la pena registrarla como tal: el flag `incompleta` que ya existe en el modelo **queda sin uso**, pero no se elimina, precisamente porque el cliente anticipa que habrá mínimos más adelante.
+
+Lo que sí se exige antes de cerrar es un **resumen de lo registrado**. No es decorativo: es la última oportunidad de corregir un error antes de que la visita quede inmutable.
+
+### 2026-08-25 — El tiempo de permanencia se registra pero no se muestra · ⚠️ revierte parte de la v0.4
+
+El boceto es cuidadoso aquí: la aplicación *podrá* registrar inicio y cierre, pero *«en esta primera fase no se plantea utilizar el tiempo de permanencia como una métrica visible o como mecanismo de control del GPV»*, y condiciona su uso futuro a una **revisión previa de los aspectos legales**.
+
+**Esto revierte decisiones de la v0.4**, que incluía la duración en el detalle de visita del backoffice y la duración media en los informes. Ambas deben ocultarse.
+
+Encaja además con el riesgo de percepción de vigilancia que ya estaba registrado, y con P18 (art. 90 LOPDGDD): el cliente está siendo prudente en la misma dirección que ya apuntaba el análisis.
+
+### 2026-08-25 — El vídeo entra como evidencia
+
+Nuevo respecto a la v0.4, que solo contemplaba fotografía. **No es una extensión trivial**: una foto comprimida ronda los 250 KB y un vídeo de móvil son decenas de megabytes. Afecta al límite por evidencia (hoy 5 MB), al coste de almacenamiento, a la caducidad de la URL de subida, al espacio que la cola offline ocupa en el dispositivo, y multiplica el peso de la retención sin decidir (P7).
+
+Los límites concretos están sin definir (P20), y sin ellos no se puede dimensionar nada.
+
+### 2026-08-25 — Contexto real de operación
+
+El boceto aporta los primeros datos reales, que hasta ahora eran placeholder:
+
+- **Jerarquía:** RSM → FSM → GPV → puntos de venta.
+- **Geografía:** el FSM de referencia gestiona **Granada y Almería**.
+- **Canales:** **Modern** y **Proximity**.
+- **Código de punto de venta:** empieza por **`350…`**, asociado a un nombre de tienda. Es lo que el GPV teclea para iniciar la visita, y corresponde al `numero_referencia` que ya existe en el modelo.
+- **Categorías de producto:** Dairy, Waters y PBB.
+- **Marcas citadas:** Activia, Alpro, Actimel — como ejemplos, no como catálogo cerrado (P22).
+
+---
+
+## 1-bis. Impacto sobre lo ya construido
+
+Balance honesto tras leer el boceto. Es la información más útil para decidir qué hacer a continuación, y conviene tenerla escrita antes de tocar código.
+
+### Sobrevive intacto — toda la infraestructura
+
+Nada de esto depende del reencuadre, porque es fontanería y no producto:
+
+- Autenticación, roles, JWT, política de contraseñas, bloqueo por intentos.
+- Cola offline, idempotencia por `opId`, sincronización por lotes.
+- Infraestructura de i18n: cinco locales, cadena de respaldo, negociación de idioma.
+- Almacenamiento de objetos con URLs firmadas, y el mecanismo de retención y purga.
+- Catálogo de tiendas, importación CSV, preparación para ERP.
+- Marcas de tiempo en UTC, cierre de jornada por zona, auditoría.
+- Estructura del monorepo, CI, esqueleto PWA y del backoffice.
+
+### Sobrevive con cambios
+
+| Pieza | Qué cambia |
+|---|---|
+| Ciclo de vida de la visita | Los cuatro estados siguen valiendo; `incompleta` queda sin uso (sin mínimos en MVP) |
+| Rutas diarias | Siguen siendo la referencia de cobertura, pero la entrada a la visita pasa a ser por código de tienda (P28) |
+| Incidencias | El modelo genérico *categoría + descripción* se queda corto: los flujos del boceto están tipificados y el dashboard agrega por campos concretos |
+| Detalle de visita en backoffice | Debe **ocultar la duración**; el contenido pasa a organizarse por categoría de producto |
+| Informes | Desaparece la duración media; entran las métricas de resultado |
+| Roles | Se añade `rsm` (alcance pendiente, P21) |
+| Tienda | Se añade `canal` (Modern / Proximity) |
+
+### Queda desautorizado como núcleo
+
+- **El checklist configurable.** La maquinaria funciona y está probada, pero el enfoque de cuestionario es justo lo que el cliente pide evitar. Decisión pendiente (P19): retirarlo, o reutilizar las plantillas como mecanismo de configuración de los flujos.
+- **La duración como métrica**, por la razón legal de arriba.
+
+### Es enteramente nuevo
+
+Acciones con ciclo de vida propio · comprobaciones entre visitas · Top Picos pendientes · facings ganados como resultado acumulable · extraespacios · neveras con código · visibilidad · reorganización · relación con el responsable · panel de acciones pendientes del FSM · dashboard de resultados · vídeo.
+
+### Lectura del balance
+
+**La fase 1 y la fase 2 aguantan bien**: lo construido ahí es infraestructura y sigue siendo válido. **La fase 3 es la más afectada**, porque la pantalla de visita se rehace casi entera. **La fase 4 se amplía** más que se rehace: el backoffice existente sigue sirviendo para la gestión maestra, y lo nuevo —panel del FSM y dashboard de resultados— se añade al lado.
+
+Dicho de otro modo: se conserva casi todo lo que costó tiempo construir bien (offline, i18n, auth, almacenamiento) y se rehace la capa que siempre iba a depender de lo que el cliente decidiera. Es el reparto afortunado, no el contrario.
+
+---
+
 ## 2. Preguntas abiertas
 
 Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuesta a la sección 1 como decisión.
@@ -215,6 +336,27 @@ Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuest
 | 17 | ¿Hay comerciales en Canarias? | Si no, el cierre de jornada es de huso único | **Abierta** — menor |
 | 7 | ¿Cuánto tiempo se conservan las fotos? | Política RGPD, coste de almacenamiento | **Pospuesta** — decisión consciente de negocio (ver nota abajo) |
 
+**Derivadas del boceto funcional (ronda 4).** Ordenadas por lo que bloquean:
+
+| # | Pregunta | Bloquea | Estado |
+|---|---|---|---|
+| 19 | ¿Qué se hace con el checklist ya construido: se retira o se reutiliza para configurar los flujos? | **Alcance de la fase 3** — es la pieza más afectada | **Abierta — la más urgente** |
+| 20 | ¿Qué límites tiene el vídeo (duración, formato, resolución, compresión en dispositivo)? | Dimensionado de almacenamiento y comportamiento de la cola offline | **Abierta** |
+| 22 | ¿Cuál es el catálogo de marcas/segmentos? | Flujos de facings y visibilidad | **Abierta** — el boceto solo da ejemplos |
+| 23 | ¿Quién cierra una acción (GPV en la siguiente visita, FSM desde el panel, ambos), y caduca? | Ciclo de vida de la acción | **Abierta** |
+| 25 | ¿La referencia de Top Pico es texto libre o catálogo? | Seguimiento entre visitas | **Abierta** — ver nota |
+| 21 | ¿El RSM es un rol con acceso propio o solo un nivel organizativo? | Si hay una cuarta vista de backoffice | **Abierta** |
+| 24 | ¿Se confirma el modelo de tabla por flujo frente a JSONB genérico? | Migraciones | **Abierta** — hay recomendación en SPECS 7.1 |
+| 27 | ¿Modern y Proximity cambian los flujos o solo segmentan informes? | Diseño de los flujos | **Abierta** |
+| 28 | ¿Se mantiene la ruta planificada si el GPV entra por código de tienda? | Métrica de cobertura | **Abierta** |
+| 26 | ¿Todas las neveras tienen código visible? | Flujo de retirada | **Abierta** — menor |
+| 29 | ¿Las zonas reales son solo Granada y Almería? | Datos de prueba y alta de zonas | **Abierta** — menor |
+| 30 | ¿Cuándo se cierra la revisión legal del tiempo de permanencia? | Si la duración puede mostrarse alguna vez | **Abierta** — extensión de P18 |
+
+**Nota sobre P25 (referencia de Top Pico).** El boceto la trata como texto que el GPV introduce («Referencia 1, Referencia 2…»), y eso encaja con no duplicar la base de datos de Top Picos que ya existe en otra aplicación. Pero el seguimiento entre visitas exige comparar *la misma referencia* a lo largo del tiempo, y con texto libre «Activia Natural 4x125» y «activia natural 4x125» son dos referencias distintas. Sin resolverlo, la funcionalidad que el cliente considera más importante se degrada sola. Las salidas razonables son un catálogo mínimo de referencias, o normalizar el texto y aceptar el margen de error — pero conviene elegir a conciencia, no por omisión.
+
+**Nota sobre P19 (el checklist).** Es la pregunta que más trabajo desbloquea o desperdicia, y conviene plantearla al cliente en esos términos: la maquinaria de plantillas configurables está construida, probada y funcionando. Retirarla es perder trabajo hecho; mantenerla junto a los nuevos flujos es arriesgarse al cuestionario largo que el boceto quiere evitar. La tercera vía —usar las plantillas como mecanismo de configuración de los flujos tipificados, en lugar de como lista de tareas para el GPV— aprovecha lo construido sin contradecir el boceto, y es la que merece la pena explorar primero.
+
 **Nota sobre P16.** Las traducciones iniciales están hechas (sección 4), pero el contenido configurable es *vivo*: el administrador añadirá categorías nuevas en producción. Sin un circuito definido, esas categorías saldrán solo en castellano y el resto de idiomas irá degradándose por acumulación. Conviene decidirlo antes del rollout, no después. La opción más barata es que el editor de traducciones del backoffice marque lo que falta y alguien lo revise periódicamente.
 
 **Nota sobre la retención de fotos (P7):** posponerla es razonable, pero tiene un coste que conviene tener presente. Mientras no haya política, el sistema conserva indefinidamente, así que cuando se decida habrá que ejecutar un **borrado retroactivo** sobre fotos ya acumuladas — y si para entonces hay un año de operación, eso es mucho volumen y una conversación con legal. Lo barato es implementar el mecanismo de retención (un campo de fecha de expiración y un proceso de purga) aunque el plazo se configure más tarde. El mecanismo es el trabajo; el número es un parámetro.
@@ -226,6 +368,21 @@ P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no re
 ---
 
 ## 3. Riesgos identificados
+
+**Derivados del boceto funcional (2026-08-25):**
+
+| Riesgo | Impacto | Mitigación prevista |
+|---|---|---|
+| **Las dos aplicaciones conviviendo** | **Alto — produce justo el cuestionario largo que el cliente quiere evitar** | Resolver P19 *antes* de construir los flujos nuevos. Si el checklist y los flujos tipificados se lanzan juntos «por si acaso», el GPV acaba respondiendo a ambos |
+| **El panel del FSM se convierte en un cementerio de acciones** | Alto — si todo queda abierto para siempre, la lista deja de leerse y el seguimiento muere | Definir caducidad o escalado de acciones antiguas (P23); ordenar por antigüedad desde el primer día; el propio cliente pregunta *qué acciones llevan demasiado tiempo abiertas* |
+| **El seguimiento se percibe como deuda acumulada del GPV** | Alto — reaparecer cada visita lo pendiente puede leerse como reproche, y el GPV deja de detectar para no acumular | Presentar lo pendiente como contexto útil, no como lista de deberes; medir y comunicar **detección** y **resultado** por separado, nunca solo lo segundo |
+| **Facings autodeclarados sin verificación** | Medio — es la métrica más visible y la más fácil de inflar | Es una cifra declarada y conviene asumirlo: tratarla como indicador de tendencia, no como dato contable; contrastar en el piloto con revisión sobre el terreno |
+| **Top Pico como texto libre rompe el seguimiento** | **Alto — degrada la funcionalidad que el cliente considera más importante** | Resolver P25: catálogo mínimo de referencias, o normalización explícita del texto asumiendo su margen de error |
+| **El vídeo desborda almacenamiento y cola offline** | Alto — decenas de MB por evidencia frente a ~250 KB de una foto | Fijar límites antes de implementar (P20); compresión en dispositivo; revisar caducidad de la URL de subida y el espacio que la cola ocupa en el móvil |
+| **La regla de responsable queda desactualizada** | Medio — si alguna tienda de Dairy no tiene reponedor, la incidencia escala a quien no puede resolverla | Mantener la regla en servidor y en un solo sitio, para poder corregirla sin tocar la app; revisar los supuestos en el piloto |
+| **El registro de tiempo se usa antes de la revisión legal** | Medio — el dato existe en base de datos aunque no se muestre | Mantenerlo fuera de API, informes y exportaciones, no solo oculto en la interfaz; reabrir solo tras cerrar P30 |
+
+**Riesgos previos, vigentes:**
 
 | Riesgo | Impacto | Mitigación prevista |
 |---|---|---|
@@ -242,7 +399,7 @@ P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no re
 | **Cierre de jornada ejecutado a hora de servidor** | Bajo tras cerrar P13 — solo aplica si hay comerciales en Canarias | Marcas de tiempo en UTC; proceso de jornada por zona del usuario |
 | **Ruta planificada en festivo regional** | Medio — avalancha de no realizadas que ensucia la cobertura | Calendario laboral por zona en el planificador, o aviso al asignar ruta en festivo |
 | **El catálogo de categorías cambia después de arrancar** | Medio — se reescribiría el histórico | Las incidencias referencian categoría por `id`, nunca guardan el texto; los catálogos se desactivan, no se borran |
-| Checklist mal diseñado (genérico o demasiado largo) | Alto — el comercial lo completa mecánicamente y el dato pierde valor | Checklist por tipo de tienda; validar en el piloto |
+| Checklist mal diseñado (genérico o demasiado largo) | Alto — el comercial lo completa mecánicamente y el dato pierde valor | *Condicionado a P19: el boceto sustituye el checklist por flujos tipificados. El riesgo se traslada a que los propios flujos crezcan hasta convertirse en el cuestionario que se quería evitar* |
 | **Migración futura al ERP** | Medio — riesgo alto si no se prepara ahora | `id_externo` y `origen` en el modelo desde v1; el nº de referencia no es clave primaria; CSV como ensayo del mapeo |
 | Volumen y coste de almacenamiento de fotos | Medio — crece rápido con cientos de visitas/día | Compresión y redimensionado en dispositivo; mecanismo de retención implementado aunque el plazo esté sin decidir |
 | Consumo de datos móviles del comercial | Medio — queja frecuente en apps de campo | Compresión antes de subir; sincronizar por lotes |
@@ -457,7 +614,34 @@ Espacio reservado para lo que salga de la prueba con 5–10 comerciales durante 
 | **Ruta del día** | Conjunto de tiendas asignadas a un comercial para una fecha, sin franjas horarias |
 | **Incidencia** | Evento negativo detectado en tienda (rotura de stock, problema de exposición…) |
 | **Oportunidad** | Evento positivo detectable (espacio para nevera, ampliación de lineal…) |
-| **Checklist template** | Plantilla de tareas configurable desde backoffice, asignable por tipo de tienda |
+| **Checklist template** | Plantilla de tareas configurable desde backoffice, asignable por tipo de tienda *(su continuidad depende de P19)* |
+
+**Vocabulario del cliente (boceto funcional, 2026-08-25).** Conviene usarlo tal cual en la interfaz y en el código: es el idioma en el que el cliente piensa el problema.
+
+| Término | Significado |
+|---|---|
+| **GPV** | Gestor del Punto de Venta. El usuario de campo. En el modelo de datos es el rol `comercial` |
+| **FSM** | Field Sales Manager. Gestiona un equipo de GPVs y **recibe las acciones que el GPV no puede resolver**. Es el rol `supervisor` |
+| **RSM** | Regional Sales Manager. Nivel por encima del FSM *(alcance de acceso pendiente, P21)* |
+| **Reponedor** | Repone en Dairy. **No es usuario del sistema**: recibe instrucciones a través del FSM |
+| **Responsable / encargado** | Interlocutor del GPV en la tienda. Destinatario de las gestiones de Waters y PBB. No es usuario del sistema |
+| **Dairy** | Categoría de lácteos. La única con reponedor de Danone, lo que cambia quién actúa en casi todos sus flujos |
+| **Waters** | Categoría de aguas |
+| **PBB** | *Plant-Based & Beverages*. Categoría de vegetales y bebidas |
+| **Modern** | Canal de gran superficie |
+| **Proximity** | Canal de tienda de proximidad |
+| **Top Pico** | Referencia que Danone considera prioritaria y que debería estar en el surtido de determinadas tiendas. Su catálogo vive en **otra aplicación**; aquí solo se registran las que faltan |
+| **Facing** | Cada unidad de producto visible en el frente del lineal. Ganar facings es ganar presencia |
+| **Extraespacio** | Punto de carga adicional fuera del lineal: cabecera, isla, pila o nevera |
+| **Cabecera** | Expositor al final de un pasillo |
+| **Isla** | Exposición exenta, accesible por todos los lados |
+| **Pila** | Apilamiento de producto en el suelo de la sala |
+| **Palomar** | Balda superior del lineal, por encima de la altura de los ojos. **Posición desfavorable** que conviene evitar |
+| **Foso** | Balda inferior del lineal. También desfavorable |
+| **Altura de ojos** | La mejor posición del lineal |
+| **FIFO** | *First In, First Out*. Rotación correcta: lo que caduca antes se coloca delante |
+| **Acción** | Lo detectado en una visita que **permanece abierto hasta tener resultado**. Pertenece a la tienda, no a la visita |
+| **Hueco** | Espacio vacío en el lineal por rotura de stock. En Dairy debe cubrirse con una referencia Danone adyacente para que no lo gane la competencia |
 | **Visita incompleta** | Visita finalizada con ítems obligatorios del checklist sin completar |
 | **Visita no realizada** | Visita planificada que no se hizo; exige justificación del comercial |
 | **Justificación** | Motivo de catálogo + comentario con el que el comercial explica una visita no realizada |

@@ -31,6 +31,23 @@ Es una decisión deliberada, no descuido. La especificación está en castellano
 - **TypeScript:** `camelCase` en castellano — `numeroTrabajador`, `capturadaEn`.
 - **Comentarios y commits:** castellano.
 
+### Vocabulario del cliente
+
+El boceto funcional trae terminología propia del sector, y **se usa tal cual**. Traducirla o suavizarla obligaría al mismo diccionario mental que la regla de arriba quiere evitar.
+
+| En el código | Es | No escribir |
+|---|---|---|
+| `gpv` | Gestor del Punto de Venta — el usuario de campo | `rep`, `vendedor` |
+| `fsm` | Field Sales Manager — su responsable | `manager`, `jefe` |
+| `rsm` | Regional Sales Manager | — |
+| `dairy` · `waters` · `pbb` | Las tres categorías de producto | `lacteos`, `aguas` |
+| `topPico` | Referencia prioritaria que debería estar en el surtido | `referenciaPrioritaria` |
+| `facing` | Unidad de producto visible en el frente del lineal | `frente`, `cara` |
+| `extraespacio` | Punto de carga fuera del lineal | `espacioExtra` |
+| `palomar` · `foso` | Balda superior / inferior del lineal | — |
+
+En el modelo de datos, **`gpv` y `fsm` son nomenclatura del cliente, no roles nuevos**: se corresponden con los roles `comercial` y `supervisor` que ya existen. Duplicarlos crearía dos verdades sobre lo mismo. El glosario completo está en [ANEXO.md](ANEXO.md).
+
 ## Reglas del esquema
 
 Estas no son preferencias, son invariantes del dominio. Romperlas rompe datos.
@@ -107,6 +124,18 @@ Abrir el checklist **materializa las filas de resultado**, igual que la vista de
 **Desmarcar se permite mientras la visita siga abierta.** El comercial puede equivocarse de fila en una lista de nueve ítems mirando el móvil en un pasillo; obligarle a cerrar la visita mal por un toque erróneo sería absurdo. Al cerrar, el estado queda congelado.
 
 **La plantilla específica del tipo de tienda gana sobre la global, pero la global es el respaldo.** Sin respaldo, una tienda de tipo nuevo se quedaría sin checklist y toda visita a ella parecería completa: peor que no tener checklist es tener uno vacío que da la visita por buena.
+
+## Acciones — el ciclo detección → resultado
+
+Tres reglas que conviene no romper, porque las tres son fáciles de romper sin darse cuenta:
+
+**La acción cuelga de la tienda, no de la visita.** La visita es el momento en que algo se detectó o se comprobó, pero lo detectado sobrevive al cierre de la visita. Colgarla de `visita_id` es lo natural si se piensa en pantallas, y convierte el seguimiento entre visitas en una consulta retorcida.
+
+**Cada comprobación se añade; ninguna sobreescribe.** `ComprobacionAccion` es un registro de eventos. Actualizar un campo `estado` en la acción y perder el rastro haría imposible responder *cuánto tardó en resolverse*, que es una de las preguntas explícitas del dashboard.
+
+**`responsable_actuar` se calcula en servidor.** Es una regla de negocio derivada de la categoría y el tipo de situación, no una elección del usuario. Debe vivir **en un solo sitio** para poder corregirla sin tocar la app de campo. Si se replica en el cliente, la primera divergencia produce acciones que escalan a quien no puede resolverlas.
+
+Y una consecuencia de interfaz: **el GPV no habla con el reponedor**. Las incidencias de Dairy van al FSM, que las traslada. Nunca mostrar al GPV que «se ha avisado al reponedor»: prometería una notificación que el sistema no envía, porque el reponedor no es usuario del sistema.
 
 ## Incidencias
 
