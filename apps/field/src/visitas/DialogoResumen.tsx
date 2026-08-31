@@ -15,11 +15,22 @@ import { ICONO_CATEGORIA } from "./flujos";
 export function DialogoResumen({
   resumen,
   cerrando,
+  error,
   alConfirmar,
   alCancelar,
 }: {
   resumen: ResumenVisita | null;
   cerrando: boolean;
+  /**
+   * Del intento anterior de finalizar, si falló.
+   *
+   * Sin esto, un rechazo del servidor (por ejemplo, la visita ya se había
+   * finalizado en un reintento anterior que sí llegó) se pintaba en la
+   * página de detrás, tapada por este mismo modal — al GPV le parecía que
+   * "Finalizar" no hacía nada, cuando en realidad SÍ pasaba algo y no podía
+   * verlo.
+   */
+  error?: string | null;
   alConfirmar: () => void;
   alCancelar: () => void;
 }) {
@@ -120,6 +131,12 @@ export function DialogoResumen({
                 </ul>
               </div>
             )}
+          </div>
+        )}
+
+        {error && (
+          <div className="aviso aviso--error" role="alert">
+            {error}
           </div>
         )}
 

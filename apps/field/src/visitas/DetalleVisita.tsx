@@ -212,6 +212,7 @@ export function DetalleVisita() {
    */
   async function pedirCierre() {
     setConfirmandoCierre(true);
+    setError(null);
     try {
       const actual = await pedir<ResumenVisita>(`/visitas/${id}/resumen`, { idioma });
       setResumen(actual);
@@ -238,7 +239,19 @@ export function DetalleVisita() {
 
       navegar("/");
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      /**
+       * Si el rechazo es "ya está finalizada", el objetivo ya está cumplido:
+       * puede que un intento anterior sí llegara al servidor y la respuesta
+       * se perdiera por el camino (habitual con cobertura irregular en
+       * tienda). Tratarlo como error confundiría al GPV con un mensaje sobre
+       * algo que en realidad ya salió bien.
+       */
+      const mensaje = e instanceof Error ? e.message : String(e);
+      if (/estado\s*"finalizada"/.test(mensaje)) {
+        navegar("/");
+        return;
+      }
+      setError(mensaje);
     } finally {
       setAccionEnCurso(false);
     }
@@ -444,6 +457,7 @@ export function DetalleVisita() {
         <DialogoResumen
           resumen={resumen}
           cerrando={accionEnCurso}
+          error={error}
           alCancelar={() => setConfirmandoCierre(false)}
           alConfirmar={() => void finalizar()}
         />
