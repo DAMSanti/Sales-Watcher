@@ -72,3 +72,45 @@ button {
   white-space: nowrap;
   border: 0;
 }
+
+/*
+ * Aviso de actualización del service worker (main.tsx).
+ *
+ * Sin React a propósito: se puede disparar antes de que la app monte. Fijo
+ * abajo para no tapar la cabecera ni la navegación, y por encima de todo lo
+ * demás — es la única forma de que el GPV lo vea si está en mitad de un
+ * formulario largo.
+ */
+.aviso-actualizacion {
+  position: fixed;
+  left: var(--e3);
+  right: var(--e3);
+  bottom: var(--e3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  padding: var(--e3) var(--e4);
+  background: var(--azul-600);
+  color: #fff;
+  border-radius: var(--radio-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-size: 0.9rem;
+}
+
+.aviso-actualizacion__boton {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 var(--e3);
+  font-weight: 600;
+  color: var(--azul-600);
+  background: #fff;
+  border: 0;
+  border-radius: var(--radio-sm);
+  cursor: pointer;
+}
+
+.aviso-actualizacion__boton:disabled {
+  opacity: 0.7;
+}

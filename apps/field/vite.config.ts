@@ -6,9 +6,6 @@ import { VitePWA } from "vite-plugin-pwa";
 /** El `.env` compartido vive en la raíz del monorepo, no aquí. */
 const RAIZ = resolve(__dirname, "../..");
 
-import react from "@vitejs/plugin-react";
-import { defineConfig, loadEnv } from "vite";
-
 /**
  * Los puertos salen del `.env` de la raíz del monorepo.
  *
@@ -27,7 +24,20 @@ export default defineConfig(({ mode }) => {
     plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      /**
+       * "prompt" y no "autoUpdate": recargar solo, sin avisar, puede caer en
+       * mitad de una detección sin guardar (una foto ya hecha, marcas ya
+       * elegidas en una nueva implantación...) — justo lo que la cola offline
+       * existe para no perder. Se avisa con un pequeño banner y es el GPV
+       * quien decide cuándo actualizar, normalmente entre una tienda y otra.
+       */
+      registerType: "prompt",
+      /**
+       * El registro del service worker se hace a mano en `main.tsx`, no con
+       * el script que este plugin inyectaría por defecto: hace falta el
+       * control fino de `onNeedRefresh` para mostrar el banner de arriba.
+       */
+      injectRegister: false,
       /**
        * El service worker también se activa en desarrollo.
        *
