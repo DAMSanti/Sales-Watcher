@@ -570,7 +570,7 @@ Dos despliegues seguidos donde el cliente reportaba que un bug ya corregido segu
 
 **Lección de método:** cuando un cliente dice "sigue sin arreglarse" tras un despliegue verificado, comprobar las cabeceras HTTP reales con `curl -I` antes de asumir que el código está mal. Las dos veces anteriores se revisó el código (correcto) sin comprobar qué estaba sirviendo realmente el navegador.
 
-### 2026-08-31 — Rechazar una visita extra, y terminar la jornada sin esperar al cierre automático
+### 2026-08-31 — Rechazar una visita extra, y terminar la jornada sin esperar al cierre automático · ⚠️ SUPERADA por la entrada del 2026-09-01
 
 Dos peticiones de uso real, no de la especificación del cliente:
 
@@ -578,7 +578,25 @@ Dos peticiones de uso real, no de la especificación del cliente:
 
 **2. "Terminar mi jornada".** No existía ninguna acción manual: el cierre de jornada era enteramente automático, por hora configurada y por zona (`CierreJornadaService`, cada hora). Se añade `POST /visitas/cerrar-mi-jornada`: si queda alguna visita **planificada** pendiente, rechaza (alguien —el supervisor— espera saber qué pasó); si no queda ninguna, limpia las visitas extra que se quedaron sin empezar (mismo criterio que el punto 1) y confirma. No crea ningún estado nuevo — no hay una entidad "jornada" en el modelo, el día ya es un agregado de visitas — así que esto es una comprobación más una limpieza, no una fila nueva.
 
+**Corregido al día siguiente:** el punto 1 interpretaba mal la petición — el cliente no pedía borrar, pedía cancelar con motivo. Ver la entrada del 2026-09-01.
 
+### 2026-09-01 — Corrección: cancelar con motivo, no borrar — planificada o no
+
+El cliente fue explícito: *"yo no te he pedido rechazar/borrar visita no planificada, te he pedido una forma de cancelar visitas tanto planificadas como no planificadas, dando una razón de las registradas"*. La lectura de la entrada anterior — que una visita extra "no se borra, se justifica" — sonaba bien pero llevaba a la solución que el cliente no quería: **borrado silencioso, sin motivo, sin rastro**.
+
+**Corrección:** se revierte `DELETE /visitas/:id` por completo (controlador, servicio, frontend). `JustificacionesService.justificar` deja de rechazar las visitas no planificadas — el mismo formulario (motivo del catálogo + comentario) sirve para las dos. Ya no hay dos caminos distintos según el origen de la visita, que era la fuente de la confusión: hay un único "No he podido visitarla" que funciona igual sea la visita de la ruta o una añadida por el GPV.
+
+**`cerrarMiJornada` se simplifica en el mismo sentido:** ya no distingue planificada de no planificada ni limpia nada en silencio — rechaza si queda **cualquier** visita `pendiente`, sea del tipo que sea. Todas se resuelven por el mismo camino: finalizarla o cancelarla con motivo.
+
+**Lección de método, la segunda de esta ronda:** "tenemos un sistema completo, no lo has puesto en el front" — el cliente señalaba que el mecanismo correcto (justificación con motivo) ya existía y estaba bien diseñado; el error fue no reconocer que ya resolvía el caso pedido y construir un mecanismo nuevo (borrado) al lado. Antes de añadir una funcionalidad nueva, comprobar si el sistema existente ya la cubre y solo le falta el gancho en la interfaz.
+
+### 2026-09-01 — Corrección: la evidencia va siempre en el formulario, nunca en una pantalla aparte después
+
+La primera versión de "foto antes de guardar" (30/31 de agosto) solo aplicaba el patrón a los dos flujos donde la foto es **obligatoria** (falta de producto en Waters/PBB, recoger nevera). Para el resto de flujos con evidencia —stock en Dairy, visibilidad, nueva implantación— se mantuvo el patrón antiguo: guardar primero, y una pantalla aparte después ofreciendo la foto como opcional. El cliente lo probó en uno de esos flujos, vio la foto pedida después de guardar, y (con razón) lo leyó como que el fix no funcionaba.
+
+**Corrección, tal como lo pidió el cliente — "tiene que estar antes SIEMPRE, pero solo ser obligatoria en algunas":** se elimina la pantalla de evidencia posterior a guardar por completo. El botón de foto (y de vídeo, donde aplica) aparece en el propio formulario para **cualquier** flujo que admita evidencia, siempre antes de pulsar Guardar. La única diferencia entre flujos es si `evidenciaObligatoria()` bloquea el envío sin ella o no — la UI es la misma en los dos casos, solo cambia el texto de ayuda ("hace falta esta foto" frente a "es opcional").
+
+**Lección de método, la tercera:** una corrección parcial que arregla el caso más urgente pero deja el patrón antiguo vivo en el resto del código es peor que no arreglar nada, porque parece un fix que no funciona. Cuando la queja es "el flujo pide la foto después de guardar", la corrección tiene que barrer TODOS los sitios con ese patrón, no solo el que motivó la queja.
 
 Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuesta a la sección 1 como decisión.
 

@@ -244,8 +244,10 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Hueco conocido, sin resolver: la foto obligatoria capturada no se sube si el registro de la acción se encola sin cobertura (mismo límite que el vídeo)
 - [x] `index.html` sin caché en los dos frontends (`no-cache, no-store, must-revalidate`) — nginx no mandaba ninguna cabecera, causa real de que un fix ya desplegado tardara en verse
 - [x] `registerType: "prompt"` con banner propio en vez de `autoUpdate` silencioso — evita perder una detección sin guardar por una recarga a mitad de formulario
-- [x] `DELETE /visitas/:id`: el GPV puede quitar una visita EXTRA que sigue pendiente (las planificadas se justifican, no se borran)
-- [x] `POST /visitas/cerrar-mi-jornada`: "Terminar mi jornada" sin esperar al cierre automático por hora — rechaza si queda alguna planificada pendiente
+- [x] ~~`DELETE /visitas/:id`~~ — revertido el 2026-09-01: el cliente pidió cancelar con motivo para las dos (planificada y no), no borrar. Ver ANEXO
+- [x] `justificar` ya no rechaza las visitas no planificadas: mismo formulario (motivo + comentario) para las dos
+- [x] `POST /visitas/cerrar-mi-jornada`: "Terminar mi jornada" sin esperar al cierre automático por hora — rechaza si queda cualquier visita pendiente, sea planificada o no
+- [x] Evidencia SIEMPRE en el formulario, antes de guardar, para cualquier flujo que la admita — eliminada la pantalla de evidencia posterior a guardar que seguía existiendo para stock en Dairy, visibilidad y nueva implantación
 - [ ] **Migración 0007 sin aplicar contra una base real** — este entorno no tenía Docker/Postgres disponible para ejecutar `pnpm db:migrate` ni los scripts `db:pruebas` / `db:acciones` / `api:acciones`. Todo el código pasa `typecheck` y los 62 tests de `@sw/shared`, pero la migración y los scripts de integración solo se han revisado estáticamente — hace falta correrlos una vez contra Postgres real antes de dar esta ronda por cerrada
 
 **Añadidas tras la segunda pasada sobre la v2** (ver ANEXO.md, ronda 6):

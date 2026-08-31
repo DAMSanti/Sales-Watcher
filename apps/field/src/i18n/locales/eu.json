@@ -66,8 +66,6 @@
     "finalizada": "AMAITUTA",
     "noRealizada": "EGIN GABE",
     "noPuedoVisitarla": "Ezin izan dut bisitatu",
-    "quitarVisita": "Bisita hau kendu",
-    "confirmarQuitar": "Ziur zaude?",
     "duracion": "Iraupena: {{minutos}} min",
     "soloLectura": "Bisita hau itxita dago. Ezin da aldatu.",
     "incompletaAviso": "Nahitaezko zeregin batzuk osatu gabe geratu dira.",

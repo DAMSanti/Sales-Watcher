@@ -66,8 +66,6 @@
     "finalizada": "FINALITZADA",
     "noRealizada": "NO REALITZADA",
     "noPuedoVisitarla": "No l'he pogut visitar",
-    "quitarVisita": "Treure aquesta visita",
-    "confirmarQuitar": "Segur?",
     "duracion": "Durada: {{minutos}} min",
     "soloLectura": "Aquesta visita està tancada. No es pot modificar.",
     "incompletaAviso": "Han quedat tasques obligatòries sense completar.",

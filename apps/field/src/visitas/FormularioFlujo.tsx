@@ -15,9 +15,14 @@ import type {
 import { useSesion } from "../auth/sesion";
 import { obtenerUbicacion } from "../comun/ubicacion";
 import { ejecutar } from "../offline/cola";
-import { BotonEvidencia } from "../evidencias/BotonEvidencia";
 import { comprimir, type FotoComprimida } from "../evidencias/comprimir";
-import { subirFoto } from "../evidencias/subida";
+import {
+  VIDEO_MAX_BYTES,
+  VIDEO_MAX_SEGUNDOS,
+  duracionDeVideo,
+  subirFoto,
+  subirVideo,
+} from "../evidencias/subida";
 import { EVIDENCIA_POR_FLUJO, OPCIONES, evidenciaObligatoria } from "./flujos";
 
 /**
@@ -58,21 +63,23 @@ export function FormularioFlujo({
   const [encolado, setEncolado] = useState(false);
 
   /**
-   * La acción recién creada, para colgarle evidencia ADICIONAL (vídeo, o una
-   * foto opcional en flujos que no la exigen).
+   * Evidencia (foto y, si el flujo la admite, vídeo), capturada aquí mismo en
+   * el formulario, ANTES de guardar — nunca en una pantalla aparte después.
    *
-   * Cuando la foto es obligatoria (SPECS §9: "antes de guardar"), no se espera
-   * a esta pantalla: se captura y se comprime aquí mismo, en el formulario, y
-   * se sube en cuanto la acción existe — el GPV nunca ve un "Guardar" que
-   * funcione sin haber hecho la foto primero.
+   * Es la queja que motivó este cambio: no había ningún botón para hacer una
+   * foto en las secciones que la admiten hasta DESPUÉS de guardar la
+   * incidencia. Ahora se comprime y se guarda en memoria al momento; la
+   * subida real ocurre al pulsar Guardar, en cuanto la acción tiene id.
    */
-  const [creada, setCreada] = useState<{ id: string } | null>(null);
-  const [fotoObligatoria, setFotoObligatoria] = useState<FotoComprimida | null>(null);
+  const [fotoCapturada, setFotoCapturada] = useState<FotoComprimida | null>(null);
+  const [videoCapturado, setVideoCapturado] = useState<{ fichero: File; duracion: number } | null>(null);
   const [capturandoFoto, setCapturandoFoto] = useState(false);
-  const entradaFotoObligatoria = useRef<HTMLInputElement>(null);
+  const [capturandoVideo, setCapturandoVideo] = useState(false);
+  const entradaFoto = useRef<HTMLInputElement>(null);
+  const entradaVideo = useRef<HTMLInputElement>(null);
   /**
-   * La nevera solo pide evidencia cuando se recoge (foto del código); el resto
-   * de flujos lo decide su tipo sin más contexto.
+   * La nevera solo admite evidencia cuando se recoge (foto del código); el
+   * resto de flujos lo decide su tipo sin más contexto.
    */
   const admiteEvidencia = tipo === "nevera" ? (campos.decision === "recoger" ? "foto" : undefined) : EVIDENCIA_POR_FLUJO[tipo];
   const obligatoria = evidenciaObligatoria(tipo, categoria, campos);
@@ -80,10 +87,10 @@ export function FormularioFlujo({
   /** Al cambiar la respuesta que hace obligatoria la foto (p. ej. la decisión
    *  de nevera), se descarta una foto ya capturada para otra combinación. */
   useEffect(() => {
-    setFotoObligatoria(null);
+    setFotoCapturada(null);
   }, [obligatoria]);
 
-  async function alElegirFotoObligatoria(evento: ChangeEvent<HTMLInputElement>) {
+  async function alElegirFoto(evento: ChangeEvent<HTMLInputElement>) {
     const fichero = evento.target.files?.[0];
     evento.target.value = "";
     if (!fichero) return;
@@ -91,11 +98,43 @@ export function FormularioFlujo({
     setCapturandoFoto(true);
     setError(null);
     try {
-      setFotoObligatoria(await comprimir(fichero));
+      setFotoCapturada(await comprimir(fichero));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setCapturandoFoto(false);
+    }
+  }
+
+  /** Igual que en `BotonEvidencia`: se valida en el dispositivo antes de
+   *  aceptarlo, para no descubrir al pulsar Guardar que el vídeo no vale. */
+  async function alElegirVideo(evento: ChangeEvent<HTMLInputElement>) {
+    const fichero = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!fichero) return;
+
+    setCapturandoVideo(true);
+    setError(null);
+    try {
+      if (fichero.size > VIDEO_MAX_BYTES) {
+        throw new Error(
+          t("video.demasiadoGrande", {
+            mb: Math.round(fichero.size / 1024 / 1024),
+            max: Math.round(VIDEO_MAX_BYTES / 1024 / 1024),
+          }),
+        );
+      }
+      const duracion = await duracionDeVideo(fichero).catch(() => {
+        throw new Error(t("video.sinDuracion"));
+      });
+      if (duracion > VIDEO_MAX_SEGUNDOS) {
+        throw new Error(t("video.demasiadoLargo", { s: duracion, max: VIDEO_MAX_SEGUNDOS }));
+      }
+      setVideoCapturado({ fichero, duracion });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCapturandoVideo(false);
     }
   }
 
@@ -150,7 +189,7 @@ export function FormularioFlujo({
         return t("flujo.faltaOportunidadNevera");
       }
     }
-    if (obligatoria && !fotoObligatoria) {
+    if (obligatoria && !fotoCapturada) {
       return t("flujo.faltaFotoObligatoria");
     }
     return null;
@@ -222,12 +261,11 @@ export function FormularioFlujo({
 
       if (resultado.via === "encolado") {
         // Sin cobertura la pantalla avanza igual: el GPV está en el lineal y
-        // no puede quedarse esperando a que vuelva la red. Tampoco se le
-        // ofrece adjuntar evidencia: la acción aún no tiene identidad, y el
+        // no puede quedarse esperando a que vuelva la red. Tampoco se sube la
+        // evidencia ya capturada: la acción aún no tiene identidad, y el
         // endpoint de subida directa no resuelve `accionIdCliente` (solo lo
-        // hace el lote de sincronización). Si había una foto obligatoria ya
-        // capturada, se pierde aquí — limitación conocida, igual que el vídeo
-        // ya no se ofrece sin cobertura.
+        // hace el lote de sincronización). Limitación conocida, igual que el
+        // vídeo ya no se ofrece sin cobertura en ningún otro flujo.
         setEncolado(true);
         setTimeout(() => void alGuardar(), 600);
         return;
@@ -235,19 +273,23 @@ export function FormularioFlujo({
 
       const id = (resultado.datos as { id?: string })?.id;
 
-      if (obligatoria && fotoObligatoria && id) {
-        // La foto ya se capturó ANTES de pulsar Guardar (SPECS §9: "antes de
-        // guardar"); en cuanto la acción tiene identidad, se sube.
+      // La evidencia ya se capturó ANTES de pulsar Guardar (SPECS §9: "antes
+      // de guardar"); en cuanto la acción tiene identidad, se sube. Nunca hay
+      // una pantalla aparte después: si el GPV quería adjuntar algo, ya lo
+      // hizo, y si no quería, no hace falta preguntárselo dos veces.
+      if (id) {
         const ubicacion = await obtenerUbicacion();
-        await subirFoto(fotoObligatoria, { visitaId, ambito: "accion", accionId: id }, ubicacion);
-      }
-
-      if (admiteEvidencia && id && !obligatoria) {
-        // Se queda en el segundo paso en lugar de cerrar: adjuntar la foto es
-        // parte de registrar la situación, no un trámite aparte. Cuando la
-        // foto ya era obligatoria, ya se subió arriba y no hace falta este paso.
-        setCreada({ id });
-        return;
+        if (fotoCapturada) {
+          await subirFoto(fotoCapturada, { visitaId, ambito: "accion", accionId: id }, ubicacion);
+        }
+        if (videoCapturado) {
+          await subirVideo(
+            videoCapturado.fichero,
+            videoCapturado.duracion,
+            { visitaId, ambito: "accion", accionId: id },
+            ubicacion,
+          );
+        }
       }
 
       await alGuardar();
@@ -256,48 +298,6 @@ export function FormularioFlujo({
     } finally {
       setEnviando(false);
     }
-  }
-
-  /**
-   * Segundo paso: evidencia OPCIONAL adicional.
-   *
-   * Solo se llega aquí cuando la foto no era obligatoria: si lo era (falta de
-   * producto en Waters/PBB, recoger nevera), ya se capturó y se subió antes de
-   * guardar, más abajo en el formulario, y este paso se salta entero.
-   */
-  if (creada) {
-    return (
-      <div className="flujo">
-        <header className="flujo__cabecera">
-          <h3 className="flujo__titulo">{t("flujo.registrada")}</h3>
-          <p className="flujo__pregunta">{t("flujo.evidenciaOpcional")}</p>
-        </header>
-
-        <div className="flujo__campos">
-          <BotonEvidencia
-            tipo="foto"
-            destino={{ visitaId, ambito: "accion", accionId: creada.id }}
-            onSubida={() => {}}
-          />
-          {admiteEvidencia === "ambas" && (
-            <BotonEvidencia
-              tipo="video"
-              destino={{ visitaId, ambito: "accion", accionId: creada.id }}
-              onSubida={() => {}}
-            />
-          )}
-        </div>
-
-        <div className="flujo__acciones">
-          <button
-            className="boton boton--principal boton--ancho"
-            onClick={() => void alGuardar()}
-          >
-            {t("flujo.terminar")}
-          </button>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -316,20 +316,19 @@ export function FormularioFlujo({
 
       <div className="flujo__campos">
         {/*
-          Foto obligatoria ANTES de guardar (SPECS §9, v0.7): falta de
-          producto en Waters/PBB, y recoger una nevera. Aparece en cuanto la
-          respuesta la hace exigible, no escondida en un segundo paso después
-          de guardar — es la queja que motivó este cambio: no había ningún
-          botón visible para hacer la foto en las secciones que la piden.
+          Evidencia SIEMPRE en el propio formulario, antes de guardar — nunca
+          en una pantalla aparte después (SPECS §9, v0.7). Aparece con
+          cualquier flujo que la admita; el único matiz es si hace falta o es
+          un apoyo: "obligatoria" bloquea Guardar sin ella, "opcional" no.
         */}
-        {obligatoria && (
+        {admiteEvidencia && (
           <div className="campo">
             <input
-              ref={entradaFotoObligatoria}
+              ref={entradaFoto}
               type="file"
               accept="image/*"
               capture="environment"
-              onChange={(e) => void alElegirFotoObligatoria(e)}
+              onChange={(e) => void alElegirFoto(e)}
               className="solo-lectores"
               aria-hidden="true"
               tabIndex={-1}
@@ -337,17 +336,56 @@ export function FormularioFlujo({
             <button
               type="button"
               className="boton boton--secundario foto__boton"
-              onClick={() => entradaFotoObligatoria.current?.click()}
+              onClick={() => entradaFoto.current?.click()}
               disabled={capturandoFoto}
             >
               <span aria-hidden="true">📷</span>
               {capturandoFoto
                 ? t("foto.procesando")
-                : fotoObligatoria
+                : fotoCapturada
                   ? t("flujo.fotoObligatoriaLista")
-                  : t("flujo.fotoObligatoriaHacer")}
+                  : obligatoria
+                    ? t("flujo.fotoObligatoriaHacer")
+                    : t("foto.hacer")}
             </button>
-            <p className="campo__ayuda">{t("flujo.fotoObligatoriaAyuda")}</p>
+
+            {admiteEvidencia === "ambas" && (
+              <>
+                <input
+                  ref={entradaVideo}
+                  type="file"
+                  accept="video/*"
+                  capture="environment"
+                  onChange={(e) => void alElegirVideo(e)}
+                  className="solo-lectores"
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
+                <button
+                  type="button"
+                  className="boton boton--secundario foto__boton"
+                  onClick={() => entradaVideo.current?.click()}
+                  disabled={capturandoVideo}
+                >
+                  <span aria-hidden="true">🎥</span>
+                  {capturandoVideo
+                    ? t("video.procesando")
+                    : videoCapturado
+                      ? t("video.subido", {
+                          s: videoCapturado.duracion,
+                          mb: (videoCapturado.fichero.size / 1024 / 1024).toFixed(1),
+                        })
+                      : t("video.grabar")}
+                </button>
+                {videoCapturado && !capturandoVideo && (
+                  <p className="foto__aviso foto__aviso--sutil">{t("video.avisoAudio")}</p>
+                )}
+              </>
+            )}
+
+            <p className="campo__ayuda">
+              {obligatoria ? t("flujo.fotoObligatoriaAyuda") : t("flujo.evidenciaOpcional")}
+            </p>
           </div>
         )}
 

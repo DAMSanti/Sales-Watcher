@@ -66,8 +66,6 @@
     "finalizada": "FINALIZADA",
     "noRealizada": "NO REALIZADA",
     "noPuedoVisitarla": "No he podido visitarla",
-    "quitarVisita": "Quitar esta visita",
-    "confirmarQuitar": "¿Seguro?",
     "duracion": "Duración: {{minutos}} min",
     "soloLectura": "Esta visita está cerrada. No se puede modificar.",
     "incompletaAviso": "Quedaron tareas obligatorias sin completar.",

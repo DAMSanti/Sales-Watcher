@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -83,21 +82,6 @@ export class VisitasController {
     return this.visitas.crearNoPlanificada(dto.tiendaId, usuario, dto.idCliente);
   }
 
-  /**
-   * Quita una visita extra, mientras siga pendiente.
-   *
-   * Solo para no planificadas: una planificada se justifica
-   * (`POST :id/justificar`), no se borra.
-   */
-  @Roles("comercial")
-  @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async eliminar(
-    @Param("id", ParseUUIDPipe) id: string,
-    @UsuarioActual() usuario: PayloadToken,
-  ) {
-    await this.visitas.eliminarNoPlanificada(id, usuario);
-  }
 
   /**
    * Check-in. Devuelve la evaluación de desviación para que la app pueda

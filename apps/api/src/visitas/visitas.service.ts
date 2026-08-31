@@ -317,73 +317,15 @@ export class VisitasService {
   }
 
   /**
-   * Quita una visita extra que el GPV añadió por error o ya no va a hacer.
-   *
-   * SOLO para visitas NO planificadas y todavía `pendiente`. Las planificadas
-   * no se eliminan: se justifican (`JustificacionesService`), porque alguien
-   * las asignó y el supervisor necesita saber por qué no se hizo. Una visita
-   * extra es lo contrario — nadie la esperaba, así que quitarla es lo mismo
-   * que no haberla creado nunca (mismo criterio que ya usa `justificar` para
-   * rechazarlas: "una visita extra que no se hizo simplemente no se crea").
-   *
-   * Se borra también la fila de `rutas_diarias` que se creó junto a ella. Sin
-   * esto, la ruta quedaría huérfana y `vistaDelDia` la resucitaría como una
-   * visita planificada pendiente — el LEFT JOIN da `planificada: true` por
-   * defecto cuando no encuentra la visita que debería acompañarla.
-   */
-  async eliminarNoPlanificada(visitaId: string, usuario: PayloadToken) {
-    const [visita] = await this.db
-      .select()
-      .from(visitas)
-      .where(eq(visitas.id, visitaId))
-      .limit(1);
-    if (!visita) throw new NotFoundException("Visita no encontrada");
-    if (visita.usuarioId !== usuario.sub) {
-      throw new ForbiddenException("Esta visita no es tuya");
-    }
-    if (visita.planificada) {
-      throw new ConflictException(
-        "Las visitas planificadas no se eliminan: se justifican",
-      );
-    }
-    if (visita.estado !== "pendiente") {
-      throw new ConflictException("Solo se puede quitar mientras sigue pendiente");
-    }
-
-    await this.db.transaction(async (tx) => {
-      await tx.delete(visitas).where(eq(visitas.id, visitaId));
-      if (visita.rutaDiariaId) {
-        await tx.delete(rutasDiarias).where(eq(rutasDiarias.id, visita.rutaDiariaId));
-      }
-    });
-
-    await this.auditoria.registrar({
-      usuarioId: usuario.sub,
-      numeroTrabajador: usuario.numeroTrabajador,
-      accion: "visita.eliminada_no_planificada",
-      entidad: "visita",
-      entidadId: visitaId,
-    });
-
-    return { eliminada: true };
-  }
-
-  /**
    * "Terminar mi jornada": el GPV cierra su día sin esperar al cierre
    * automático por hora (`CierreJornadaService`).
    *
    * No hay una entidad "jornada" que marcar como cerrada — el día es un
-   * agregado de visitas, no una fila propia — así que esta operación hace dos
-   * cosas y ninguna crea estado nuevo:
-   *
-   *  1. Comprueba que no queda ninguna visita PLANIFICADA pendiente. Si
-   *     queda alguna, rechaza: hay alguien —el supervisor— esperando saber
-   *     qué pasó con ella, y eso se resuelve justificándola, no cerrando el
-   *     día por encima.
-   *  2. Las visitas EXTRA que se quedaron sin empezar se quitan solas: si el
-   *     GPV está cerrando el día, ya no van a hacerse, y una extra sin hacer
-   *     no es un incumplimiento que deba quedar registrado (mismo criterio
-   *     que `eliminarNoPlanificada`).
+   * agregado de visitas, no una fila propia — así que esta operación es solo
+   * una comprobación, no crea estado nuevo: rechaza si queda alguna visita
+   * PENDIENTE, planificada o no. Las dos se resuelven igual, cancelándolas
+   * con motivo (`JustificacionesService.justificar`) — no hay un camino
+   * "sin decir por qué" para ninguna de las dos.
    */
   async cerrarMiJornada(usuario: PayloadToken) {
     const zonaHoraria = await this.zonaHorariaDe(usuario.sub);
@@ -394,20 +336,11 @@ export class VisitasService {
       .from(visitas)
       .where(and(eq(visitas.usuarioId, usuario.sub), eq(visitas.fecha, fecha)));
 
-    const planificadasPendientes = deHoy.filter(
-      (v) => v.planificada && v.estado === "pendiente",
-    );
-    if (planificadasPendientes.length > 0) {
+    const pendientes = deHoy.filter((v) => v.estado === "pendiente");
+    if (pendientes.length > 0) {
       throw new ConflictException(
-        `Aún tienes ${planificadasPendientes.length} visita(s) planificada(s) sin hacer o sin justificar`,
+        `Aún tienes ${pendientes.length} visita(s) sin hacer ni cancelar`,
       );
-    }
-
-    const sueltasPendientes = deHoy.filter(
-      (v) => !v.planificada && v.estado === "pendiente",
-    );
-    for (const suelta of sueltasPendientes) {
-      await this.eliminarNoPlanificada(suelta.id, usuario);
     }
 
     await this.auditoria.registrar({
@@ -419,7 +352,7 @@ export class VisitasService {
       cambios: { fecha: { antes: null, despues: fecha } },
     });
 
-    return { cerrada: true, quitadas: sueltasPendientes.length };
+    return { cerrada: true };
   }
 
   /**

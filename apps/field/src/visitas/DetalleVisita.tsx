@@ -69,7 +69,6 @@ export function DetalleVisita() {
   const [accionEnCurso, setAccionEnCurso] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [justificando, setJustificando] = useState(false);
-  const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
   const [notas, setNotas] = useState("");
   /** Se muestra cuando la acción quedó guardada en el dispositivo. */
   const [encolado, setEncolado] = useState(false);
@@ -201,28 +200,6 @@ export function DetalleVisita() {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setAccionEnCurso(false);
-    }
-  }
-
-  /**
-   * Quita una visita EXTRA que sigue pendiente (SPECS: solo mientras dura la
-   * visita, y solo no planificadas — las planificadas se justifican).
-   *
-   * No hay `ejecutar()`/cola offline aquí: quitar algo que aún no ha
-   * empezado no necesita idempotencia por reenvío, y sin cobertura, mejor
-   * decírselo claramente que fingir un borrado que no ha llegado al servidor.
-   */
-  async function quitarVisita() {
-    setAccionEnCurso(true);
-    setError(null);
-    try {
-      await pedir(`/visitas/${id}`, { metodo: "DELETE" });
-      navegar("/");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setAccionEnCurso(false);
-      setConfirmandoQuitar(false);
     }
   }
 
@@ -436,45 +413,18 @@ export function DetalleVisita() {
                 {accionEnCurso ? t("visita.comenzando") : t("visita.comenzar")}
               </button>
               {/*
-                Justificar solo tiene sentido en una visita planificada: hay
-                alguien —el supervisor— esperando saber por qué no se hizo.
-                Una extra no tiene a quién rendirle cuentas: se quita, sin más.
+                Cancelar con motivo + comentario, planificada o no (mismo
+                sistema, mismo catálogo de motivos): el cliente lo quiere igual
+                para las dos, para que quede constancia de por qué no se hizo
+                incluso en una visita que el propio GPV había añadido.
               */}
-              {visita.planificada ? (
-                <button
-                  className="boton boton--aviso boton--ancho"
-                  onClick={() => setJustificando(true)}
-                  disabled={accionEnCurso}
-                >
-                  {t("visita.noPuedoVisitarla")}
-                </button>
-              ) : confirmandoQuitar ? (
-                <div className="detalle__confirmar-quitar">
-                  <span>{t("visita.confirmarQuitar")}</span>
-                  <button
-                    className="boton boton--aviso"
-                    onClick={() => void quitarVisita()}
-                    disabled={accionEnCurso}
-                  >
-                    {accionEnCurso ? t("comun.guardando") : t("comun.si")}
-                  </button>
-                  <button
-                    className="boton boton--secundario"
-                    onClick={() => setConfirmandoQuitar(false)}
-                    disabled={accionEnCurso}
-                  >
-                    {t("comun.no")}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  className="boton boton--aviso boton--ancho"
-                  onClick={() => setConfirmandoQuitar(true)}
-                  disabled={accionEnCurso}
-                >
-                  {t("visita.quitarVisita")}
-                </button>
-              )}
+              <button
+                className="boton boton--aviso boton--ancho"
+                onClick={() => setJustificando(true)}
+                disabled={accionEnCurso}
+              >
+                {t("visita.noPuedoVisitarla")}
+              </button>
             </>
           )}
 

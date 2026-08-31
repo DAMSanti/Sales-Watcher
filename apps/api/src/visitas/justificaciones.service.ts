@@ -76,11 +76,15 @@ export class JustificacionesService {
         "La visita está en curso. Finalízala en lugar de justificarla.",
       );
     }
-    if (!visita.planificada) {
-      throw new ConflictException(
-        "Solo se justifican las visitas planificadas: una visita extra que no se hizo simplemente no se crea",
-      );
-    }
+    /**
+     * Se justifica cualquier visita pendiente, planificada o no.
+     *
+     * Antes se rechazaba una extra con el razonamiento de que "una visita que
+     * no se hizo simplemente no se crea" — cierto para no ensuciar la
+     * cobertura, pero deja sin rastro el motivo de por qué se canceló. El
+     * cliente lo quiere igual para las dos: motivo + comentario, reutilizando
+     * el mismo catálogo, sin inventar un mecanismo de borrado aparte.
+     */
 
     // La justificación es inmutable, igual que la visita cerrada.
     const [yaJustificada] = await this.db

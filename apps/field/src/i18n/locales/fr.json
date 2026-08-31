@@ -66,8 +66,6 @@
     "finalizada": "TERMINÉE",
     "noRealizada": "NON RÉALISÉE",
     "noPuedoVisitarla": "Je n'ai pas pu la visiter",
-    "quitarVisita": "Retirer cette visite",
-    "confirmarQuitar": "Confirmer ?",
     "duracion": "Durée : {{minutos}} min",
     "soloLectura": "Cette visite est clôturée. Elle ne peut pas être modifiée.",
     "incompletaAviso": "Des tâches obligatoires sont restées non complétées.",
