@@ -242,6 +242,10 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] `DELETE /acciones/:id`: el GPV puede borrar un misclick, solo mientras la visita que lo originó sigue `en_curso` — borrado real, no un estado "descartada"
 - [x] `GET /visitas/:id/acciones` + sección "Registrado en esta visita" en la app de campo, con confirmación antes de borrar
 - [ ] Hueco conocido, sin resolver: la foto obligatoria capturada no se sube si el registro de la acción se encola sin cobertura (mismo límite que el vídeo)
+- [x] `index.html` sin caché en los dos frontends (`no-cache, no-store, must-revalidate`) — nginx no mandaba ninguna cabecera, causa real de que un fix ya desplegado tardara en verse
+- [x] `registerType: "prompt"` con banner propio en vez de `autoUpdate` silencioso — evita perder una detección sin guardar por una recarga a mitad de formulario
+- [x] `DELETE /visitas/:id`: el GPV puede quitar una visita EXTRA que sigue pendiente (las planificadas se justifican, no se borran)
+- [x] `POST /visitas/cerrar-mi-jornada`: "Terminar mi jornada" sin esperar al cierre automático por hora — rechaza si queda alguna planificada pendiente
 - [ ] **Migración 0007 sin aplicar contra una base real** — este entorno no tenía Docker/Postgres disponible para ejecutar `pnpm db:migrate` ni los scripts `db:pruebas` / `db:acciones` / `api:acciones`. Todo el código pasa `typecheck` y los 62 tests de `@sw/shared`, pero la migración y los scripts de integración solo se han revisado estáticamente — hace falta correrlos una vez contra Postgres real antes de dar esta ronda por cerrada
 
 **Añadidas tras la segunda pasada sobre la v2** (ver ANEXO.md, ronda 6):

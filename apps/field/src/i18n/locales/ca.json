@@ -23,6 +23,9 @@
     "vacioAyuda": "Pots afegir una visita amb el botó de sota.",
     "progreso": "{{hechas}} de {{total}} visites completades",
     "anadirVisita": "Afegeix visita",
+    "terminarJornada": "Acabar la meva jornada",
+    "cerrandoJornada": "Tancant…",
+    "jornadaCerrada": "Jornada tancada. Bona feina.",
     "sinJustificar_one": "{{count}} visita sense justificar",
     "sinJustificar_other": "{{count}} visites sense justificar"
   },
@@ -63,6 +66,8 @@
     "finalizada": "FINALITZADA",
     "noRealizada": "NO REALITZADA",
     "noPuedoVisitarla": "No l'he pogut visitar",
+    "quitarVisita": "Treure aquesta visita",
+    "confirmarQuitar": "Segur?",
     "duracion": "Durada: {{minutos}} min",
     "soloLectura": "Aquesta visita està tancada. No es pot modificar.",
     "incompletaAviso": "Han quedat tasques obligatòries sense completar.",
@@ -70,7 +75,7 @@
     "checklist": "Checklist",
     "incidencias": "Incidències i oportunitats",
     "notas": "Notes",
-    "notasPlaceholder": "Observacions que no encaixen al checklist…",
+    "notasPlaceholder": "Observacions",
     "categorias": "Categories",
     "volverCategorias": "Categories"
   },

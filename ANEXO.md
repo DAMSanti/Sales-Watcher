@@ -562,6 +562,22 @@ Dos correcciones que surgen de usar la v0.7 ya desplegada, no de una ronda de ne
 
 **Por qué no "descartada" en vez de borrado:** la tabla `estado_accion` ya tiene `descartada` para cuando el FSM decide que algo no procede. Reutilizarla para un misclick mezclaría dos cosas distintas — una decisión de gestión y un error de tecleo — bajo el mismo estado, y el panel del FSM empezaría a mostrar "descartadas" que en realidad nunca existieron como problema real.
 
+### 2026-08-31 — Caché de `index.html`: la causa real de "el fix no se ve"
+
+Dos despliegues seguidos donde el cliente reportaba que un bug ya corregido seguía reproduciéndose. La primera hipótesis (`registerType: autoUpdate` del service worker no recargaba una pestaña ya abierta) era cierta pero incompleta: nginx no mandaba **ninguna** cabecera `Cache-Control` para `index.html` en ninguno de los dos frontends. Sin ella, un navegador puede quedarse con un HTML viejo por caché heurística — apuntando a un JS con hash que ya no es el vigente — **sin que haga falta PWA ni service worker de por medio**. Es el error más básico de desplegar un SPA con assets con hash y se pasó por alto en el `Dockerfile.web`/`nginx-spa*.conf` originales.
+
+**Corrección:** `index.html` pasa a `no-cache, no-store, must-revalidate` en los dos frontends (`nginx-spa.conf` y `nginx-spa-backoffice.conf`). Los assets bajo `/assets/` siguen cacheados un año, que es donde de verdad interesa ahorrar descargas.
+
+**Lección de método:** cuando un cliente dice "sigue sin arreglarse" tras un despliegue verificado, comprobar las cabeceras HTTP reales con `curl -I` antes de asumir que el código está mal. Las dos veces anteriores se revisó el código (correcto) sin comprobar qué estaba sirviendo realmente el navegador.
+
+### 2026-08-31 — Rechazar una visita extra, y terminar la jornada sin esperar al cierre automático
+
+Dos peticiones de uso real, no de la especificación del cliente:
+
+**1. Quitar una visita no planificada pendiente.** "No he podido visitarla" (con motivo + comentario) ya existía, pero **solo para visitas planificadas** — el servidor lo rechaza explícitamente para una extra, con una razón ya documentada: *"una visita extra que no se hizo simplemente no se crea"*. En vez de forzar la justificación donde el propio diseño dice que no aplica, se añade `DELETE /visitas/:id`: borra la visita (y la fila de `rutas_diarias` que se creó junto a ella — dejarla huérfana resucitaría la tienda como una visita planificada pendiente, porque el `LEFT JOIN` de `vistaDelDia` da `planificada: true` por defecto cuando no encuentra la visita). Solo mientras sigue `pendiente` y es del propio GPV.
+
+**2. "Terminar mi jornada".** No existía ninguna acción manual: el cierre de jornada era enteramente automático, por hora configurada y por zona (`CierreJornadaService`, cada hora). Se añade `POST /visitas/cerrar-mi-jornada`: si queda alguna visita **planificada** pendiente, rechaza (alguien —el supervisor— espera saber qué pasó); si no queda ninguna, limpia las visitas extra que se quedaron sin empezar (mismo criterio que el punto 1) y confirma. No crea ningún estado nuevo — no hay una entidad "jornada" en el modelo, el día ya es un agregado de visitas — así que esto es una comprobación más una limpieza, no una fila nueva.
+
 
 
 Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuesta a la sección 1 como decisión.

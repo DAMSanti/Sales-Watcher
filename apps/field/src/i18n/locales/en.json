@@ -23,6 +23,9 @@
     "vacioAyuda": "You can add a visit using the button below.",
     "progreso": "{{hechas}} of {{total}} visits completed",
     "anadirVisita": "Add visit",
+    "terminarJornada": "Finish my day",
+    "cerrandoJornada": "Closing…",
+    "jornadaCerrada": "Day closed. Good work.",
     "sinJustificar_one": "{{count}} unjustified visit",
     "sinJustificar_other": "{{count}} unjustified visits"
   },
@@ -63,6 +66,8 @@
     "finalizada": "COMPLETED",
     "noRealizada": "NOT DONE",
     "noPuedoVisitarla": "I couldn't visit it",
+    "quitarVisita": "Remove this visit",
+    "confirmarQuitar": "Sure?",
     "duracion": "Duration: {{minutos}} min",
     "soloLectura": "This visit is closed and cannot be changed.",
     "incompletaAviso": "Some required tasks were left incomplete.",
@@ -70,7 +75,7 @@
     "checklist": "Checklist",
     "incidencias": "Issues and opportunities",
     "notas": "Notes",
-    "notasPlaceholder": "Observations that don't fit the checklist…",
+    "notasPlaceholder": "Observations",
     "categorias": "Categories",
     "volverCategorias": "Categories"
   },

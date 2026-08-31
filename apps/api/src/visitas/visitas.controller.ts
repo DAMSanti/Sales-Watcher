@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -60,6 +61,17 @@ export class VisitasController {
     return this.visitas.vistaDelDia(usuario, idioma, query.fecha);
   }
 
+  /**
+   * "Terminar mi jornada": cierra el día sin esperar al cierre automático
+   * por hora. Rechaza si queda alguna visita planificada sin hacer.
+   */
+  @Roles("comercial")
+  @Post("cerrar-mi-jornada")
+  @HttpCode(HttpStatus.OK)
+  async cerrarMiJornada(@UsuarioActual() usuario: PayloadToken) {
+    return this.visitas.cerrarMiJornada(usuario);
+  }
+
   /** Crea una visita fuera de ruta desde el buscador de tiendas. */
   @Roles("comercial")
   @Post()
@@ -69,6 +81,22 @@ export class VisitasController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.visitas.crearNoPlanificada(dto.tiendaId, usuario, dto.idCliente);
+  }
+
+  /**
+   * Quita una visita extra, mientras siga pendiente.
+   *
+   * Solo para no planificadas: una planificada se justifica
+   * (`POST :id/justificar`), no se borra.
+   */
+  @Roles("comercial")
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async eliminar(
+    @Param("id", ParseUUIDPipe) id: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    await this.visitas.eliminarNoPlanificada(id, usuario);
   }
 
   /**

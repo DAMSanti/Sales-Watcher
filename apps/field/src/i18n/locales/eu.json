@@ -23,6 +23,9 @@
     "vacioAyuda": "Beheko botoiarekin bisita bat gehi dezakezu.",
     "progreso": "{{total}}(e)tik {{hechas}} bisita eginda",
     "anadirVisita": "Gehitu bisita",
+    "terminarJornada": "Nire eguna amaitu",
+    "cerrandoJornada": "Ixten…",
+    "jornadaCerrada": "Eguna itxita. Lan ona.",
     "sinJustificar_one": "Bisita {{count}} justifikatu gabe",
     "sinJustificar_other": "{{count}} bisita justifikatu gabe"
   },
@@ -63,6 +66,8 @@
     "finalizada": "AMAITUTA",
     "noRealizada": "EGIN GABE",
     "noPuedoVisitarla": "Ezin izan dut bisitatu",
+    "quitarVisita": "Bisita hau kendu",
+    "confirmarQuitar": "Ziur zaude?",
     "duracion": "Iraupena: {{minutos}} min",
     "soloLectura": "Bisita hau itxita dago. Ezin da aldatu.",
     "incompletaAviso": "Nahitaezko zeregin batzuk osatu gabe geratu dira.",
@@ -70,7 +75,7 @@
     "checklist": "Egiaztapen-zerrenda",
     "incidencias": "Intzidentziak eta aukerak",
     "notas": "Oharrak",
-    "notasPlaceholder": "Zerrendan sartzen ez diren oharrak…",
+    "notasPlaceholder": "Oharrak",
     "categorias": "Kategoriak",
     "volverCategorias": "Kategoriak"
   },

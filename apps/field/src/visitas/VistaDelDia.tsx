@@ -24,6 +24,10 @@ export function VistaDelDia() {
   const [desdeCache, setDesdeCache] = useState(false);
   const { pendientes } = useSincronizacion();
 
+  const [cerrandoJornada, setCerrandoJornada] = useState(false);
+  const [jornadaCerrada, setJornadaCerrada] = useState(false);
+  const [errorCierre, setErrorCierre] = useState<string | null>(null);
+
   const cargar = useCallback(
     async (senal?: AbortSignal) => {
       setError(null);
@@ -90,6 +94,27 @@ export function VistaDelDia() {
   useEffect(() => {
     if (pendientes.length === 0) void cargar();
   }, [pendientes.length, cargar]);
+
+  /**
+   * "Terminar mi jornada": no espera al cierre automático por hora.
+   *
+   * El servidor rechaza si queda alguna visita PLANIFICADA pendiente — no
+   * hace la comprobación aquí para adelantarse porque el dato que importa es
+   * el suyo, no el que quedó en caché hace un rato.
+   */
+  async function terminarJornada() {
+    setCerrandoJornada(true);
+    setErrorCierre(null);
+    try {
+      await pedir("/visitas/cerrar-mi-jornada", { metodo: "POST", idioma });
+      setJornadaCerrada(true);
+      await cargar();
+    } catch (e) {
+      setErrorCierre(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCerrandoJornada(false);
+    }
+  }
 
   if (cargando && !datos) {
     return <p className="cargando">{t("comun.cargando")}</p>;
@@ -201,6 +226,18 @@ export function VistaDelDia() {
         )}
       </main>
 
+      {errorCierre && (
+        <div className="aviso aviso--error dia__aviso" role="alert">
+          {errorCierre}
+        </div>
+      )}
+
+      {jornadaCerrada && (
+        <div className="aviso dia__aviso" role="status">
+          {t("dia.jornadaCerrada")}
+        </div>
+      )}
+
       {/*
         Botón siempre visible, como pide SPECS §5.2. Flotante sobre la lista
         para que siga alcanzable con el pulgar tras desplazarse por una ruta
@@ -210,6 +247,19 @@ export function VistaDelDia() {
         <Link to="/anadir" className="boton boton--principal boton--ancho">
           <span aria-hidden="true">+</span> {t("dia.anadirVisita")}
         </Link>
+        {/*
+          No se oculta al terminar: cerrar es idempotente (el servidor solo
+          comprueba que no queden planificadas pendientes) y el GPV puede
+          querer volver a comprobarlo si añade algo después.
+        */}
+        <button
+          type="button"
+          className="boton boton--secundario boton--ancho"
+          onClick={() => void terminarJornada()}
+          disabled={cerrandoJornada}
+        >
+          {cerrandoJornada ? t("dia.cerrandoJornada") : t("dia.terminarJornada")}
+        </button>
       </div>
     </div>
   );

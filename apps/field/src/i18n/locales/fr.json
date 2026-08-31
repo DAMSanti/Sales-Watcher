@@ -23,6 +23,9 @@
     "vacioAyuda": "Vous pouvez ajouter une visite avec le bouton ci-dessous.",
     "progreso": "{{hechas}} visites sur {{total}} terminées",
     "anadirVisita": "Ajouter une visite",
+    "terminarJornada": "Terminer ma journée",
+    "cerrandoJornada": "Fermeture…",
+    "jornadaCerrada": "Journée terminée. Bon travail.",
     "sinJustificar_one": "{{count}} visite non justifiée",
     "sinJustificar_other": "{{count}} visites non justifiées"
   },
@@ -63,6 +66,8 @@
     "finalizada": "TERMINÉE",
     "noRealizada": "NON RÉALISÉE",
     "noPuedoVisitarla": "Je n'ai pas pu la visiter",
+    "quitarVisita": "Retirer cette visite",
+    "confirmarQuitar": "Confirmer ?",
     "duracion": "Durée : {{minutos}} min",
     "soloLectura": "Cette visite est clôturée. Elle ne peut pas être modifiée.",
     "incompletaAviso": "Des tâches obligatoires sont restées non complétées.",
@@ -70,7 +75,7 @@
     "checklist": "Checklist",
     "incidencias": "Incidents et opportunités",
     "notas": "Notes",
-    "notasPlaceholder": "Observations hors checklist…",
+    "notasPlaceholder": "Observations",
     "categorias": "Catégories",
     "volverCategorias": "Catégories"
   },
