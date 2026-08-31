@@ -314,81 +314,55 @@ export function FormularioFlujo({
         <p className="flujo__pregunta">{t(`flujo.${tipo}.pregunta`)}</p>
       </header>
 
-      <div className="flujo__campos">
-        {/*
-          Evidencia SIEMPRE en el propio formulario, antes de guardar — nunca
-          en una pantalla aparte después (SPECS §9, v0.7). Aparece con
-          cualquier flujo que la admita; el único matiz es si hace falta o es
-          un apoyo: "obligatoria" bloquea Guardar sin ella, "opcional" no.
-        */}
-        {admiteEvidencia && (
-          <div className="campo">
+      {/*
+        Evidencia SIEMPRE en el propio formulario, antes de guardar — nunca en
+        una pantalla aparte después (SPECS §9, v0.7). Un solo botón, compacto,
+        para foto y vídeo a la vez: si el flujo admite las dos, un modal
+        pregunta cuál; si solo admite foto, va directo a la cámara. El único
+        matiz entre flujos es si hace falta o es un apoyo — "obligatoria"
+        bloquea Guardar sin ella, "opcional" no — y eso ya lo dice el icono.
+      */}
+      {admiteEvidencia && (
+        <div className="evidencia">
+          <input
+            ref={entradaFoto}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(e) => void alElegirFoto(e)}
+            className="solo-lectores"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+          {admiteEvidencia === "ambas" && (
             <input
-              ref={entradaFoto}
+              ref={entradaVideo}
               type="file"
-              accept="image/*"
+              accept="video/*"
               capture="environment"
-              onChange={(e) => void alElegirFoto(e)}
+              onChange={(e) => void alElegirVideo(e)}
               className="solo-lectores"
               aria-hidden="true"
               tabIndex={-1}
             />
-            <button
-              type="button"
-              className="boton boton--secundario foto__boton"
-              onClick={() => entradaFoto.current?.click()}
-              disabled={capturandoFoto}
-            >
-              <span aria-hidden="true">📷</span>
-              {capturandoFoto
-                ? t("foto.procesando")
-                : fotoCapturada
-                  ? t("flujo.fotoObligatoriaLista")
-                  : obligatoria
-                    ? t("flujo.fotoObligatoriaHacer")
-                    : t("foto.hacer")}
-            </button>
+          )}
 
-            {admiteEvidencia === "ambas" && (
-              <>
-                <input
-                  ref={entradaVideo}
-                  type="file"
-                  accept="video/*"
-                  capture="environment"
-                  onChange={(e) => void alElegirVideo(e)}
-                  className="solo-lectores"
-                  aria-hidden="true"
-                  tabIndex={-1}
-                />
-                <button
-                  type="button"
-                  className="boton boton--secundario foto__boton"
-                  onClick={() => entradaVideo.current?.click()}
-                  disabled={capturandoVideo}
-                >
-                  <span aria-hidden="true">🎥</span>
-                  {capturandoVideo
-                    ? t("video.procesando")
-                    : videoCapturado
-                      ? t("video.subido", {
-                          s: videoCapturado.duracion,
-                          mb: (videoCapturado.fichero.size / 1024 / 1024).toFixed(1),
-                        })
-                      : t("video.grabar")}
-                </button>
-                {videoCapturado && !capturandoVideo && (
-                  <p className="foto__aviso foto__aviso--sutil">{t("video.avisoAudio")}</p>
-                )}
-              </>
-            )}
+          <BotonEvidenciaCompacto
+            admite={admiteEvidencia}
+            obligatoria={obligatoria}
+            capturando={capturandoFoto || capturandoVideo}
+            lista={Boolean(fotoCapturada || videoCapturado)}
+            alElegirFoto={() => entradaFoto.current?.click()}
+            alElegirVideo={() => entradaVideo.current?.click()}
+          />
 
-            <p className="campo__ayuda">
-              {obligatoria ? t("flujo.fotoObligatoriaAyuda") : t("flujo.evidenciaOpcional")}
-            </p>
-          </div>
-        )}
+          {videoCapturado && !capturandoVideo && (
+            <p className="evidencia__aviso">{t("video.avisoAudio")}</p>
+          )}
+        </div>
+      )}
 
+      <div className="flujo__campos">
         {tipo === "stock" && (
           <Eleccion
             etiqueta={t("flujo.stock.suficiencia")}
@@ -908,6 +882,88 @@ function SeleccionMultiple({
         </select>
       )}
     </div>
+  );
+}
+
+/**
+ * Botón de evidencia, compacto: solo icono, sin bloque de "campo" alrededor.
+ *
+ * Cuando el flujo admite foto Y vídeo, un modal pregunta cuál — no dos
+ * botones separados ocupando sitio permanentemente. Cuando solo admite foto,
+ * va directo a la cámara sin el paso intermedio, porque no hay nada que
+ * elegir.
+ */
+function BotonEvidenciaCompacto({
+  admite,
+  obligatoria,
+  capturando,
+  lista,
+  alElegirFoto,
+  alElegirVideo,
+}: {
+  admite: "foto" | "ambas";
+  obligatoria: boolean;
+  capturando: boolean;
+  lista: boolean;
+  alElegirFoto: () => void;
+  alElegirVideo: () => void;
+}) {
+  const { t } = useTranslation();
+  const [modalAbierto, setModalAbierto] = useState(false);
+
+  const etiqueta = obligatoria ? t("flujo.fotoObligatoriaHacer") : t("foto.hacer");
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`evidencia__boton ${lista ? "evidencia__boton--lista" : ""} ${
+          obligatoria && !lista ? "evidencia__boton--obligatoria" : ""
+        }`}
+        onClick={() => (admite === "ambas" ? setModalAbierto(true) : alElegirFoto())}
+        disabled={capturando}
+        aria-label={etiqueta}
+        title={etiqueta}
+      >
+        <span aria-hidden="true">{capturando ? "…" : lista ? "✅" : "📷"}</span>
+      </button>
+
+      {modalAbierto && (
+        <div className="modal" role="dialog" aria-modal="true" aria-label={t("flujo.elegirEvidencia")}>
+          <div className="modal__fondo" onClick={() => setModalAbierto(false)} />
+          <div className="modal__panel">
+            <h2 className="modal__titulo">{t("flujo.elegirEvidencia")}</h2>
+            <div className="motivos">
+              <button
+                type="button"
+                className="motivo"
+                onClick={() => {
+                  setModalAbierto(false);
+                  alElegirFoto();
+                }}
+              >
+                📷 {t("foto.hacer")}
+              </button>
+              <button
+                type="button"
+                className="motivo"
+                onClick={() => {
+                  setModalAbierto(false);
+                  alElegirVideo();
+                }}
+              >
+                🎥 {t("video.grabar")}
+              </button>
+            </div>
+            <div className="modal__acciones">
+              <button className="boton boton--sutil" onClick={() => setModalAbierto(false)}>
+                {t("comun.cancelar")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

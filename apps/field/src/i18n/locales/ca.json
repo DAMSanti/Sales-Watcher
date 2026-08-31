@@ -245,8 +245,7 @@
     "faltaOportunidadNevera": "Indica si es registra l'oportunitat d'afegir una nevera",
     "faltaFotoObligatoria": "Fes la foto abans de desar",
     "fotoObligatoriaHacer": "Fer foto (obligatòria)",
-    "fotoObligatoriaLista": "Foto llesta ✓",
-    "fotoObligatoriaAyuda": "Cal aquesta foto per poder desar.",
+    "elegirEvidencia": "Foto o vídeo?",
     "suficiencia": {
       "si": "Sí",
       "no": "No",
@@ -302,10 +301,7 @@
       "mejorable": "Millorable",
       "mala": "Dolenta",
       "no_ha_podido_hablar": "No he pogut parlar-hi"
-    },
-    "registrada": "Registrat",
-    "evidenciaOpcional": "Vols afegir una evidència? És opcional.",
-    "terminar": "Acabar"
+    }
   },
   "pendientes": {
     "titulo": "De la teva darrera visita",

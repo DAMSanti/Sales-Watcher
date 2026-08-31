@@ -245,8 +245,7 @@
     "faltaOportunidadNevera": "Indiquez si l'opportunité d'ajouter un frigo doit être enregistrée",
     "faltaFotoObligatoria": "Prenez la photo avant d'enregistrer",
     "fotoObligatoriaHacer": "Prendre une photo (obligatoire)",
-    "fotoObligatoriaLista": "Photo prête ✓",
-    "fotoObligatoriaAyuda": "Cette photo est obligatoire pour enregistrer.",
+    "elegirEvidencia": "Photo ou vidéo ?",
     "suficiencia": {
       "si": "Oui",
       "no": "Non",
@@ -302,10 +301,7 @@
       "mejorable": "À améliorer",
       "mala": "Mauvaise",
       "no_ha_podido_hablar": "Je n'ai pas pu lui parler"
-    },
-    "registrada": "Enregistré",
-    "evidenciaOpcional": "Ajouter une preuve ? C'est facultatif.",
-    "terminar": "Terminer"
+    }
   },
   "pendientes": {
     "titulo": "De votre dernière visite",

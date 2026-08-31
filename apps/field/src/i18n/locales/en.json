@@ -245,8 +245,7 @@
     "faltaOportunidadNevera": "Say whether to record the opportunity to add a cooler",
     "faltaFotoObligatoria": "Take the photo before saving",
     "fotoObligatoriaHacer": "Take photo (required)",
-    "fotoObligatoriaLista": "Photo ready ✓",
-    "fotoObligatoriaAyuda": "This photo is required to save.",
+    "elegirEvidencia": "Photo or video?",
     "suficiencia": {
       "si": "Yes",
       "no": "No",
@@ -302,10 +301,7 @@
       "mejorable": "Could be better",
       "mala": "Poor",
       "no_ha_podido_hablar": "Couldn't speak to them"
-    },
-    "registrada": "Recorded",
-    "evidenciaOpcional": "Add evidence? It's optional.",
-    "terminar": "Done"
+    }
   },
   "pendientes": {
     "titulo": "From your last visit",

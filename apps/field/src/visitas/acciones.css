@@ -170,6 +170,52 @@
   gap: var(--e4);
 }
 
+/* ── Evidencia: un solo botón compacto, integrado bajo la pregunta ───── */
+/*
+ * Deliberadamente pequeño y solo icono: la evidencia es un apoyo del flujo,
+ * no un campo más del formulario, y no debe competir en tamaño con las
+ * preguntas que sí hay que responder siempre.
+ */
+
+.evidencia {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  margin: var(--e2) 0 var(--e2);
+}
+
+.evidencia__boton {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.evidencia__boton--obligatoria {
+  border-color: var(--aviso);
+  color: var(--aviso);
+}
+
+.evidencia__boton--lista {
+  color: #fff;
+  background: var(--azul-600);
+  border-color: var(--azul-600);
+}
+
+.evidencia__aviso {
+  margin: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--texto-suave);
+}
+
 /* Lo que le pasará a lo que registra: sin esto, registrar algo de Dairy y no
    ver consecuencia parece que no sirvió de nada. */
 .flujo__responsable {

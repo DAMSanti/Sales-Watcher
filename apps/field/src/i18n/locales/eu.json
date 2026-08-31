@@ -245,8 +245,7 @@
     "faltaOportunidadNevera": "Adierazi hozkailu bat gehitzeko aukera erregistratuko den",
     "faltaFotoObligatoria": "Atera argazkia gorde aurretik",
     "fotoObligatoriaHacer": "Argazkia atera (nahitaezkoa)",
-    "fotoObligatoriaLista": "Argazkia prest ✓",
-    "fotoObligatoriaAyuda": "Argazki hau nahitaezkoa da gordetzeko.",
+    "elegirEvidencia": "Argazkia ala bideoa?",
     "suficiencia": {
       "si": "Bai",
       "no": "Ez",
@@ -302,10 +301,7 @@
       "mejorable": "Hobegarria",
       "mala": "Txarra",
       "no_ha_podido_hablar": "Ezin izan dut berarekin hitz egin"
-    },
-    "registrada": "Erregistratuta",
-    "evidenciaOpcional": "Frogarik gehitu nahi duzu? Aukerakoa da.",
-    "terminar": "Amaitu"
+    }
   },
   "pendientes": {
     "titulo": "Zure azken bisitatik",
