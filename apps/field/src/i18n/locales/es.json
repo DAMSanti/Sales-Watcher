@@ -240,6 +240,10 @@
     "faltaCodigoNevera": "Hace falta el código para no retirar otra nevera",
     "faltaDecisionNevera": "Indica si se mantiene o se recoge la nevera",
     "faltaOportunidadNevera": "Indica si se registra la oportunidad de añadir una nevera",
+    "faltaFotoObligatoria": "Haz la foto antes de guardar",
+    "fotoObligatoriaHacer": "Hacer foto (obligatoria)",
+    "fotoObligatoriaLista": "Foto lista ✓",
+    "fotoObligatoriaAyuda": "Hace falta esta foto para poder guardar.",
     "suficiencia": {
       "si": "Sí",
       "no": "No",
@@ -298,8 +302,6 @@
     },
     "registrada": "Registrado",
     "evidenciaOpcional": "¿Quieres añadir una evidencia? Es opcional.",
-    "evidenciaObligatoria": "Adjunta una foto antes de continuar.",
-    "evidenciaObligatoriaAyuda": "Hace falta al menos una foto para poder guardar.",
     "terminar": "Terminar"
   },
   "pendientes": {

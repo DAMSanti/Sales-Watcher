@@ -240,6 +240,10 @@
     "faltaCodigoNevera": "The code prevents collecting the wrong cooler",
     "faltaDecisionNevera": "Say whether the cooler is kept or collected",
     "faltaOportunidadNevera": "Say whether to record the opportunity to add a cooler",
+    "faltaFotoObligatoria": "Take the photo before saving",
+    "fotoObligatoriaHacer": "Take photo (required)",
+    "fotoObligatoriaLista": "Photo ready ✓",
+    "fotoObligatoriaAyuda": "This photo is required to save.",
     "suficiencia": {
       "si": "Yes",
       "no": "No",
@@ -298,8 +302,6 @@
     },
     "registrada": "Recorded",
     "evidenciaOpcional": "Add evidence? It's optional.",
-    "evidenciaObligatoria": "Attach a photo before continuing.",
-    "evidenciaObligatoriaAyuda": "At least one photo is required to save.",
     "terminar": "Done"
   },
   "pendientes": {

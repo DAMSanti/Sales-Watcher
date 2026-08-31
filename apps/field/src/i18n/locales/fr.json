@@ -240,6 +240,10 @@
     "faltaCodigoNevera": "Le code évite de retirer le mauvais frigo",
     "faltaDecisionNevera": "Indiquez si le frigo est conservé ou récupéré",
     "faltaOportunidadNevera": "Indiquez si l'opportunité d'ajouter un frigo doit être enregistrée",
+    "faltaFotoObligatoria": "Prenez la photo avant d'enregistrer",
+    "fotoObligatoriaHacer": "Prendre une photo (obligatoire)",
+    "fotoObligatoriaLista": "Photo prête ✓",
+    "fotoObligatoriaAyuda": "Cette photo est obligatoire pour enregistrer.",
     "suficiencia": {
       "si": "Oui",
       "no": "Non",
@@ -298,8 +302,6 @@
     },
     "registrada": "Enregistré",
     "evidenciaOpcional": "Ajouter une preuve ? C'est facultatif.",
-    "evidenciaObligatoria": "Ajoutez une photo avant de continuer.",
-    "evidenciaObligatoriaAyuda": "Il faut au moins une photo pour enregistrer.",
     "terminar": "Terminer"
   },
   "pendientes": {

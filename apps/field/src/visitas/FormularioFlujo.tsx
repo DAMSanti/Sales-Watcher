@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   opcionesSuficienciaStock,
@@ -13,8 +13,11 @@ import type {
   TipoSituacion,
 } from "../api/tipos";
 import { useSesion } from "../auth/sesion";
+import { obtenerUbicacion } from "../comun/ubicacion";
 import { ejecutar } from "../offline/cola";
 import { BotonEvidencia } from "../evidencias/BotonEvidencia";
+import { comprimir, type FotoComprimida } from "../evidencias/comprimir";
+import { subirFoto } from "../evidencias/subida";
 import { EVIDENCIA_POR_FLUJO, OPCIONES, evidenciaObligatoria } from "./flujos";
 
 /**
@@ -55,20 +58,46 @@ export function FormularioFlujo({
   const [encolado, setEncolado] = useState(false);
 
   /**
-   * La acción recién creada, para colgarle la evidencia.
+   * La acción recién creada, para colgarle evidencia ADICIONAL (vídeo, o una
+   * foto opcional en flujos que no la exigen).
    *
-   * La evidencia se pide DESPUÉS de guardar y no antes porque necesita el
-   * identificador de la acción: una foto que no se puede asociar a lo que
-   * documenta acaba colgando de la visita en general, donde nadie la busca.
+   * Cuando la foto es obligatoria (SPECS §9: "antes de guardar"), no se espera
+   * a esta pantalla: se captura y se comprime aquí mismo, en el formulario, y
+   * se sube en cuanto la acción existe — el GPV nunca ve un "Guardar" que
+   * funcione sin haber hecho la foto primero.
    */
   const [creada, setCreada] = useState<{ id: string } | null>(null);
-  const [evidenciaLista, setEvidenciaLista] = useState(false);
+  const [fotoObligatoria, setFotoObligatoria] = useState<FotoComprimida | null>(null);
+  const [capturandoFoto, setCapturandoFoto] = useState(false);
+  const entradaFotoObligatoria = useRef<HTMLInputElement>(null);
   /**
    * La nevera solo pide evidencia cuando se recoge (foto del código); el resto
    * de flujos lo decide su tipo sin más contexto.
    */
   const admiteEvidencia = tipo === "nevera" ? (campos.decision === "recoger" ? "foto" : undefined) : EVIDENCIA_POR_FLUJO[tipo];
   const obligatoria = evidenciaObligatoria(tipo, categoria, campos);
+
+  /** Al cambiar la respuesta que hace obligatoria la foto (p. ej. la decisión
+   *  de nevera), se descarta una foto ya capturada para otra combinación. */
+  useEffect(() => {
+    setFotoObligatoria(null);
+  }, [obligatoria]);
+
+  async function alElegirFotoObligatoria(evento: ChangeEvent<HTMLInputElement>) {
+    const fichero = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!fichero) return;
+
+    setCapturandoFoto(true);
+    setError(null);
+    try {
+      setFotoObligatoria(await comprimir(fichero));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCapturandoFoto(false);
+    }
+  }
 
   const regla = resolverResponsable(tipo, categoria);
   const necesitaMarca = tipo === "facings" || tipo === "visibilidad";
@@ -120,6 +149,9 @@ export function FormularioFlujo({
       if (campos.hayNevera === false && campos.oportunidadAnadir === undefined) {
         return t("flujo.faltaOportunidadNevera");
       }
+    }
+    if (obligatoria && !fotoObligatoria) {
+      return t("flujo.faltaFotoObligatoria");
     }
     return null;
   }
@@ -191,16 +223,29 @@ export function FormularioFlujo({
       if (resultado.via === "encolado") {
         // Sin cobertura la pantalla avanza igual: el GPV está en el lineal y
         // no puede quedarse esperando a que vuelva la red. Tampoco se le
-        // ofrece adjuntar evidencia: la acción aún no tiene identidad.
+        // ofrece adjuntar evidencia: la acción aún no tiene identidad, y el
+        // endpoint de subida directa no resuelve `accionIdCliente` (solo lo
+        // hace el lote de sincronización). Si había una foto obligatoria ya
+        // capturada, se pierde aquí — limitación conocida, igual que el vídeo
+        // ya no se ofrece sin cobertura.
         setEncolado(true);
         setTimeout(() => void alGuardar(), 600);
         return;
       }
 
       const id = (resultado.datos as { id?: string })?.id;
-      if (admiteEvidencia && id) {
+
+      if (obligatoria && fotoObligatoria && id) {
+        // La foto ya se capturó ANTES de pulsar Guardar (SPECS §9: "antes de
+        // guardar"); en cuanto la acción tiene identidad, se sube.
+        const ubicacion = await obtenerUbicacion();
+        await subirFoto(fotoObligatoria, { visitaId, ambito: "accion", accionId: id }, ubicacion);
+      }
+
+      if (admiteEvidencia && id && !obligatoria) {
         // Se queda en el segundo paso en lugar de cerrar: adjuntar la foto es
-        // parte de registrar la situación, no un trámite aparte.
+        // parte de registrar la situación, no un trámite aparte. Cuando la
+        // foto ya era obligatoria, ya se subió arriba y no hace falta este paso.
         setCreada({ id });
         return;
       }
@@ -214,28 +259,25 @@ export function FormularioFlujo({
   }
 
   /**
-   * Segundo paso: la evidencia.
+   * Segundo paso: evidencia OPCIONAL adicional.
    *
-   * Opcional salvo en dos casos (SPECS §9, v0.7): falta de producto en
-   * Waters/PBB, y recoger una nevera. Ahí el botón de terminar queda
-   * deshabilitado hasta que se sube al menos una foto — es el único punto del
-   * MVP donde la evidencia deja de ser un apoyo y pasa a ser un requisito.
+   * Solo se llega aquí cuando la foto no era obligatoria: si lo era (falta de
+   * producto en Waters/PBB, recoger nevera), ya se capturó y se subió antes de
+   * guardar, más abajo en el formulario, y este paso se salta entero.
    */
   if (creada) {
     return (
       <div className="flujo">
         <header className="flujo__cabecera">
           <h3 className="flujo__titulo">{t("flujo.registrada")}</h3>
-          <p className="flujo__pregunta">
-            {obligatoria ? t("flujo.evidenciaObligatoria") : t("flujo.evidenciaOpcional")}
-          </p>
+          <p className="flujo__pregunta">{t("flujo.evidenciaOpcional")}</p>
         </header>
 
         <div className="flujo__campos">
           <BotonEvidencia
             tipo="foto"
             destino={{ visitaId, ambito: "accion", accionId: creada.id }}
-            onSubida={() => setEvidenciaLista(true)}
+            onSubida={() => {}}
           />
           {admiteEvidencia === "ambas" && (
             <BotonEvidencia
@@ -246,17 +288,10 @@ export function FormularioFlujo({
           )}
         </div>
 
-        {obligatoria && !evidenciaLista && (
-          <p className="campo__ayuda" role="status">
-            {t("flujo.evidenciaObligatoriaAyuda")}
-          </p>
-        )}
-
         <div className="flujo__acciones">
           <button
             className="boton boton--principal boton--ancho"
             onClick={() => void alGuardar()}
-            disabled={obligatoria && !evidenciaLista}
           >
             {t("flujo.terminar")}
           </button>
@@ -280,6 +315,42 @@ export function FormularioFlujo({
       </header>
 
       <div className="flujo__campos">
+        {/*
+          Foto obligatoria ANTES de guardar (SPECS §9, v0.7): falta de
+          producto en Waters/PBB, y recoger una nevera. Aparece en cuanto la
+          respuesta la hace exigible, no escondida en un segundo paso después
+          de guardar — es la queja que motivó este cambio: no había ningún
+          botón visible para hacer la foto en las secciones que la piden.
+        */}
+        {obligatoria && (
+          <div className="campo">
+            <input
+              ref={entradaFotoObligatoria}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => void alElegirFotoObligatoria(e)}
+              className="solo-lectores"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            <button
+              type="button"
+              className="boton boton--secundario foto__boton"
+              onClick={() => entradaFotoObligatoria.current?.click()}
+              disabled={capturandoFoto}
+            >
+              <span aria-hidden="true">📷</span>
+              {capturandoFoto
+                ? t("foto.procesando")
+                : fotoObligatoria
+                  ? t("flujo.fotoObligatoriaLista")
+                  : t("flujo.fotoObligatoriaHacer")}
+            </button>
+            <p className="campo__ayuda">{t("flujo.fotoObligatoriaAyuda")}</p>
+          </div>
+        )}
+
         {tipo === "stock" && (
           <Eleccion
             etiqueta={t("flujo.stock.suficiencia")}

@@ -113,7 +113,9 @@ export function evidenciaObligatoria(
   categoria: CategoriaProducto,
   campos: Record<string, unknown>,
 ): boolean {
-  if (tipo === "stock") return categoria !== "dairy";
+  // Solo cuando hay incidencia de verdad: si el producto es suficiente, no
+  // hay nada que fotografiar ni incidencia que documentar.
+  if (tipo === "stock") return categoria !== "dairy" && campos.suficiencia === "no";
   if (tipo === "nevera") return campos.decision === "recoger";
   return false;
 }

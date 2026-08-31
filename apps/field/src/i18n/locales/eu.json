@@ -240,6 +240,10 @@
     "faltaCodigoNevera": "Kodea behar da beste hozkailu bat ez kentzeko",
     "faltaDecisionNevera": "Adierazi hozkailua mantendu edo jaso egingo den",
     "faltaOportunidadNevera": "Adierazi hozkailu bat gehitzeko aukera erregistratuko den",
+    "faltaFotoObligatoria": "Atera argazkia gorde aurretik",
+    "fotoObligatoriaHacer": "Argazkia atera (nahitaezkoa)",
+    "fotoObligatoriaLista": "Argazkia prest ✓",
+    "fotoObligatoriaAyuda": "Argazki hau nahitaezkoa da gordetzeko.",
     "suficiencia": {
       "si": "Bai",
       "no": "Ez",
@@ -298,8 +302,6 @@
     },
     "registrada": "Erregistratuta",
     "evidenciaOpcional": "Frogarik gehitu nahi duzu? Aukerakoa da.",
-    "evidenciaObligatoria": "Erantsi argazki bat jarraitu aurretik.",
-    "evidenciaObligatoriaAyuda": "Gutxienez argazki bat behar da gordetzeko.",
     "terminar": "Amaitu"
   },
   "pendientes": {

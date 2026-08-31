@@ -240,6 +240,10 @@
     "faltaCodigoNevera": "Cal el codi per no retirar una altra nevera",
     "faltaDecisionNevera": "Indica si es manté o es recull la nevera",
     "faltaOportunidadNevera": "Indica si es registra l'oportunitat d'afegir una nevera",
+    "faltaFotoObligatoria": "Fes la foto abans de desar",
+    "fotoObligatoriaHacer": "Fer foto (obligatòria)",
+    "fotoObligatoriaLista": "Foto llesta ✓",
+    "fotoObligatoriaAyuda": "Cal aquesta foto per poder desar.",
     "suficiencia": {
       "si": "Sí",
       "no": "No",
@@ -298,8 +302,6 @@
     },
     "registrada": "Registrat",
     "evidenciaOpcional": "Vols afegir una evidència? És opcional.",
-    "evidenciaObligatoria": "Adjunta una foto abans de continuar.",
-    "evidenciaObligatoriaAyuda": "Cal almenys una foto per poder desar.",
     "terminar": "Acabar"
   },
   "pendientes": {
