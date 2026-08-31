@@ -267,6 +267,13 @@ export function FormularioFlujo({
 
   return (
     <div className="flujo">
+      {/* Mismo patrón que "← Categorías" en PanelCategoria: sin esto, la
+          única forma de salir era bajar hasta el botón "Cancelar" al final
+          del formulario, y en un formulario largo eso no se ve sin desplazar. */}
+      <button className="categoria__volver" onClick={alCancelar} disabled={enviando}>
+        <span aria-hidden="true">←</span> {t("flujo.volver")}
+      </button>
+
       <header className="flujo__cabecera">
         <h3 className="flujo__titulo">{t(`situacion.${tipo}`)}</h3>
         <p className="flujo__pregunta">{t(`flujo.${tipo}.pregunta`)}</p>
