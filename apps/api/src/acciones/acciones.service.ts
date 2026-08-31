@@ -18,6 +18,7 @@ import {
   gananciasFacings,
   marcas,
   neveras,
+  nuevaImplantacionMarcas,
   oportunidadesReorganizacion,
   oportunidadesVisibilidad,
   referenciasProducto,
@@ -204,7 +205,6 @@ export class AccionesService {
         await tx.insert(deteccionesStock).values({
           accionId,
           suficiencia: dto.suficiencia,
-          comunicadoAlResponsable: dto.comunicadoAlResponsable ?? null,
         });
         return;
 
@@ -220,7 +220,6 @@ export class AccionesService {
         await tx.insert(deteccionesHueco).values({
           accionId,
           existeHueco: dto.existeHueco,
-          cubiertoConAdyacente: dto.cubiertoConAdyacente ?? null,
           correccion: dto.correccion ?? null,
         });
         return;
@@ -250,11 +249,22 @@ export class AccionesService {
         });
         return;
 
-      case "reorganizacion":
+      case "reorganizacion": {
+        // "Nueva implantación" (v0.7): marcas de catálogo en vez de texto libre.
         await tx.insert(oportunidadesReorganizacion).values({
           accionId,
-          propuesta: dto.propuesta.trim(),
+          todoLineal: dto.todoLineal,
         });
+        if (dto.marcaIds.length > 0) {
+          await tx
+            .insert(nuevaImplantacionMarcas)
+            .values(dto.marcaIds.map((marcaId) => ({ accionId, marcaId })));
+        }
+        return;
+      }
+
+      case "bloque_marca":
+        // Sin tabla de detalle: la propia acción ya contiene todo lo necesario.
         return;
 
       case "extraespacio":
@@ -265,23 +275,20 @@ export class AccionesService {
         });
         return;
 
-      case "nevera": {
-        // La nevera ES un extraespacio según el boceto; `neveras` solo añade lo
-        // que es específico suyo.
-        const [extra] = await tx
-          .insert(extraespacios)
-          .values({ accionId, tipo: "nevera", motivo: dto.motivo })
-          .returning();
+      case "nevera":
+        // Rediseñada en v0.7: ya no cuelga de `extraespacios`, cuelga
+        // directamente de la acción, como el resto de flujos.
         await tx.insert(neveras).values({
-          extraespacioId: extra!.id,
-          situacion: dto.situacion,
+          accionId,
+          hayNevera: dto.hayNevera,
+          decision: dto.decision ?? null,
           // Se guarda TAL CUAL: es la clave con la que el FSM informa en su
           // aplicación de neveras. Normalizarlo podría romper esa
           // correspondencia y hacer que se retire la unidad equivocada.
           codigoNevera: dto.codigoNevera ?? null,
+          oportunidadAnadir: dto.oportunidadAnadir ?? null,
         });
         return;
-      }
     }
   }
 
@@ -307,12 +314,23 @@ export class AccionesService {
         : undefined;
 
     if (marcaId) {
-      const [marca] = await this.db
-        .select({ id: marcas.id })
-        .from(marcas)
-        .where(and(eq(marcas.id, marcaId), eq(marcas.activo, true)))
-        .limit(1);
-      if (!marca) throw new BadRequestException("Marca no válida o dada de baja");
+      await this.validarMarcasActivas([marcaId]);
+    }
+
+    if (dto.tipoSituacion === "reorganizacion" && dto.marcaIds.length > 0) {
+      await this.validarMarcasActivas(dto.marcaIds);
+    }
+  }
+
+  /** Todas las marcas del lote deben existir y estar activas. */
+  private async validarMarcasActivas(marcaIds: string[]) {
+    const activas = await this.db
+      .select({ id: marcas.id })
+      .from(marcas)
+      .where(and(inArray(marcas.id, marcaIds), eq(marcas.activo, true)));
+
+    if (activas.length !== new Set(marcaIds).size) {
+      throw new BadRequestException("Alguna marca no es válida o está dada de baja");
     }
   }
 
@@ -561,8 +579,7 @@ export class AccionesService {
         },
         codigoNevera: sql<string | null>`(
           select n.codigo_nevera from ${neveras} n
-          join ${extraespacios} e on e.id = n.extraespacio_id
-          where e.accion_id = ${acciones.id}
+          where n.accion_id = ${acciones.id}
         )`,
         comprobaciones: sql<number>`(
           select count(*)::int from ${comprobacionesAccion}

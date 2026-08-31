@@ -165,32 +165,31 @@
     "stock": "Rupture de produit",
     "fechas": "Problème de dates",
     "hueco": "Trou dans le linéaire",
-    "top_pico": "Top Pico non référencé",
+    "top_pico": "Top Picks",
     "facings": "Gagner des facings",
     "visibilidad": "Améliorer la visibilité",
-    "reorganizacion": "Réorganiser le linéaire",
+    "reorganizacion": "Nouvelle implantation",
+    "bloque_marca": "Bloc de marque",
     "extraespacio": "Espace additionnel",
     "nevera": "Frigo"
   },
   "flujo": {
     "stock": {
       "pregunta": "Y a-t-il assez de produit pour la journée ?",
-      "suficiencia": "Produit suffisant",
-      "comunicado": "L'avez-vous signalé au responsable ?"
+      "suficiencia": "Produit suffisant"
     },
     "fechas": {
       "pregunta": "Avez-vous détecté un problème de dates ?",
       "problema": "Type de problème"
     },
     "hueco": {
-      "pregunta": "Y a-t-il un trou sur notre produit ?",
-      "existe": "Il y a un trou",
-      "cubierto": "Est-il couvert par une référence Danone voisine ?",
+      "pregunta": "Y a-t-il un trou dans le linéaire qui devrait être couvert par une référence Danone et qui ne l'est pas ?",
+      "existe": "Il y a un trou non couvert",
       "corregido": "Avez-vous pu le corriger ?"
     },
     "topPico": {
-      "pregunta": "Quelle référence Top Pico manque à l'assortiment ?",
-      "referencia": "Référence"
+      "pregunta": "Y a-t-il une référence Top Picks absente de l'assortiment ?",
+      "referencia": "Références"
     },
     "facings": {
       "pregunta": "Y a-t-il une opportunité de gagner des facings ?",
@@ -203,8 +202,12 @@
       "propuesta": "Que proposez-vous"
     },
     "reorganizacion": {
-      "pregunta": "Que proposez-vous de changer dans le linéaire ?",
-      "propuesta": "Votre proposition"
+      "pregunta": "Y a-t-il une opportunité de réaliser une nouvelle implantation ?",
+      "marcas": "Marque(s)",
+      "todoLineal": "Tout le linéaire"
+    },
+    "bloque_marca": {
+      "pregunta": "Y a-t-il une opportunité de faire un bloc de marque Danone ?"
     },
     "extraespacio": {
       "pregunta": "Où et pourquoi un point de vente additionnel serait-il justifié ?",
@@ -212,8 +215,10 @@
       "motivo": "Motif"
     },
     "nevera": {
-      "pregunta": "Dans quel état est le frigo ?",
-      "situacion": "Situation",
+      "pregunta": "Y a-t-il un frigo Danone dans le point de vente ?",
+      "hayNevera": "Il y a un frigo Danone",
+      "decision": "Qu'en faisons-nous ?",
+      "oportunidadAnadir": "Enregistrer l'opportunité d'ajouter un frigo Danone ?",
       "codigo": "Code du frigo",
       "codigoAyuda": "Il se trouve à l'intérieur du frigo. Sans lui, la mauvaise unité peut être retirée."
     },
@@ -221,14 +226,19 @@
     "detalle": "Détail",
     "sinMarcas": "Aucune marque disponible",
     "sinReferencias": "Aucune référence disponible",
+    "anadirReferencia": "Ajouter une référence",
+    "anadirMarca": "Ajouter une marque",
     "iraAlFsm": "Une action sera créée pour votre responsable.",
     "actuasTu": "Vous pouvez le résoudre en magasin.",
     "hablasConEncargado": "Parlez-en au responsable du magasin.",
+    "seRegistraSolo": "Enregistré automatiquement.",
     "faltaDetalle": "Indiquez le problème",
-    "faltaReferencia": "Choisissez une référence",
-    "faltaPropuesta": "Écrivez votre proposition",
+    "faltaReferencia": "Choisissez au moins une référence",
+    "faltaMarcaImplantacion": "Choisissez au moins une marque, ou cochez « tout le linéaire »",
     "faltaFacings": "Indiquez combien de facings",
     "faltaCodigoNevera": "Le code évite de retirer le mauvais frigo",
+    "faltaDecisionNevera": "Indiquez si le frigo est conservé ou récupéré",
+    "faltaOportunidadNevera": "Indiquez si l'opportunité d'ajouter un frigo doit être enregistrée",
     "suficiencia": {
       "si": "Oui",
       "no": "Non",
@@ -258,15 +268,9 @@
       "oportunidad_estacional": "Opportunité saisonnière",
       "otro": "Autre"
     },
-    "situacionNevera": {
-      "uso_correcto": "Bien utilisé",
-      "uso_parcial": "Partiellement utilisé",
-      "uso_incorrecto": "Mal utilisé",
-      "retirada": "Il a été retiré",
-      "vacia_desaprovechada": "Vide ou sous-utilisé",
-      "necesita_nueva": "Un nouveau est nécessaire",
-      "necesita_recogida": "À récupérer",
-      "otro": "Autre"
+    "decisionNevera": {
+      "mantener": "Conserver",
+      "recoger": "Récupérer"
     },
     "ubicacion": {
       "palomar": "Étagère haute",
@@ -293,6 +297,8 @@
     },
     "registrada": "Enregistré",
     "evidenciaOpcional": "Ajouter une preuve ? C'est facultatif.",
+    "evidenciaObligatoria": "Ajoutez une photo avant de continuer.",
+    "evidenciaObligatoriaAyuda": "Il faut au moins une photo pour enregistrer.",
     "terminar": "Terminer"
   },
   "pendientes": {

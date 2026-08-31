@@ -427,6 +427,82 @@ Coincide con lo documentado, con un matiz: **buscar por nombre está al mismo ni
 
 ---
 
+### Especificación funcional v2 del cliente — ronda 6 *(2026-08-31)*
+
+> Documento recibido: *«Especificación funcional — MVP GPV · DANONE · DAIRY · WATERS · PBB»* (`Especificacion_MVP_GPV_Danone_v2.pdf`), 8 páginas, en la raíz del repositorio. Incorporado a [SPECS.md](SPECS.md) v0.7 el 2026-08-31.
+
+A diferencia del boceto de la ronda 4, **este documento no reencuadra el producto** — confirma el reencuadre ya cerrado y corrige el detalle de nueve puntos concretos. El propio cliente lo enmarca así: *«este documento recoge los cambios acordados sobre el MVP actual»*.
+
+### 2026-08-31 — El seguimiento por PDV, que el cliente marca como lo más importante, ya estaba construido
+
+El cliente escribe: *«una de las cosas que para mí es más importante: que todas las oportunidades e incidencias queden guardadas automáticamente por PDV, para que después podamos ver qué se detectó, quién tiene que solucionarlo y si finalmente se solucionó o no»*.
+
+Es exactamente el modelo `Acción` + `ComprobacionAccion` de la ronda 4 (SPECS §7.1), ya construido y con endpoints en producción (ROADMAP fase 1-2). No hace falta diseño nuevo aquí — el trabajo es asegurarse de que los flujos nuevos y modificados de esta ronda (nueva implantación, bloque de marca, nevera) cuelguen del mismo mecanismo y no reinventen su propio guardado.
+
+### 2026-08-31 — GPS: queda un resto visible que la ronda 4 no había detectado
+
+La decisión de la ronda 4 (*"Geolocalización: se registra, no se bloquea"*, sección 1) ya dejaba la captura silenciosa y sin bloqueo. Lo que no se había registrado es que el **aviso de desviación se muestra al propio GPV**, no solo al FSM — un resto de interfaz que contradice la intención del cliente aunque no bloquee nada.
+
+**Decisión:** el aviso de desviación deja de mostrarse al GPV. Sigue calculándose y queda disponible para el FSM/backoffice como señal de alerta, que es para quien tenía sentido desde el principio.
+
+**Cita del cliente, textual, porque aclara el motivo real:** *«no me importa tanto ver si ha estado en la tienda o no porque tengo otra aplicación que sale»*. No pide dejar de calcular la desviación — pide dejar de imponérsela al GPV, porque ya tiene otra herramienta para esa pregunta.
+
+### 2026-08-31 — Nevera: se sustituye el modelo entero, no se amplía
+
+La ronda 5 (P26) fijó que el código de nevera es *«un puente a la aplicación de neveras del FSM»*, y esa decisión **sigue vigente sin cambios**. Lo que cambia es todo lo demás: el árbol de ocho situaciones (`uso_correcto`, `uso_parcial`, `retirada`, `vacía_desaprovechada`, …) se sustituye por un árbol binario — existe/no existe → mantener/recoger → código + foto obligatoria si se recoge.
+
+**Por qué se sustituye entero y no se deja el antiguo como alternativa:** mantener las dos versiones sería la trampa de "las dos aplicaciones a la vez" ya identificada en la ronda 4 — dos formas de registrar lo mismo que acaban divergiendo. Como el proyecto está en fase 1-2 y no hay datos de producción todavía, sustituir es más barato que migrar: no hay histórico real que preservar bajo el esquema antiguo.
+
+**Foto deja de ser "conviene" y pasa a ser obligatoria** cuando se recoge — la ronda 5 decía *"conviene foto del código"*; la v2 lo hace estricto.
+
+### 2026-08-31 — Nueva implantación: se revierte la única decisión de texto libre del sistema
+
+La ronda 4 (SPECS §5.5.7 en su versión original) justificaba el texto libre precisamente porque *"una propuesta de cambio estructural del lineal no se deja tipificar en un desplegable"*. El cliente lo revierte: quiere el mismo patrón de categoría-por-marca que ya usa en visibilidad y facings, con una opción "todo el lineal" para cuando no aplica a una marca concreta.
+
+**Consecuencia para el dashboard:** con texto libre, "¿qué marcas piden nueva implantación con más frecuencia?" no era una pregunta que se pudiera responder sin leer cada texto a mano. Con marca de catálogo, se convierte en un agregado más, igual que facings o visibilidad. Es una simplificación que además mejora el dato.
+
+### 2026-08-31 — Bloque de marca: el flujo más simple del sistema, y deliberadamente así
+
+Pregunta única, sin ningún campo adicional, exclusivo de Waters y PBB. El cliente es explícito: *«no añadir preguntas adicionales dentro de este bloque»*. Es el caso límite de la regla de preguntas sin redundancia — cuando la pregunta principal ya es toda la información que hace falta, no hay preguntas secundarias que rescatar.
+
+**No necesita tabla de detalle propia** (ver SPECS §7.1): la `Acción` con `tipo_situacion = 'bloque_marca'` ya contiene todo lo que hay que guardar.
+
+### 2026-08-31 — Top Picos: nombre correcto, y un requisito de interfaz que sí toca UX
+
+El cliente señala su propio error de nomenclatura con humor (*"con S final que lo he puesto mal todo el tiempo"*) y pide "Top Picos" en todas partes. Es una corrección de etiqueta de interfaz en los cinco idiomas — el identificador interno `top_pico` no cambia, porque cambiarlo sería una migración sin ningún beneficio funcional.
+
+**El requisito real de esta ronda es otro: selección múltiple sin salir de la pantalla.** El modelo ya lo permite sin cambios — cada referencia genera su propia `Acción` y necesita seguimiento independiente, así que no hay que fusionar varias referencias en una fila. Lo que falta verificar es si el buscador de referencias en la app de campo ya soporta añadir varias antes de confirmar, o si hoy obliga a una vuelta atrás por referencia.
+
+### 2026-08-31 — Foto obligatoria en falta de stock (Waters/PBB): coherente con el resto del sistema
+
+La ronda 4 ya distinguía Dairy (sin reponedor visible al GPV, foto o vídeo como evidencia) de Waters/PBB (el GPV negocia con el encargado, evidencia como munición para esa conversación). La v2 endurece esa evidencia de opcional a obligatoria, y de paso retira la pregunta *"¿se ha comunicado al responsable?"* — aplicando la propia regla de preguntas sin redundancia del documento a un flujo que ya existía antes de que esa regla se escribiera explícitamente.
+
+### 2026-08-31 — Regla de preguntas sin redundancia, ahora explícita
+
+La ronda 4 ya practicaba esta regla de forma implícita (por ejemplo, en facings: si no hay oportunidad, no se pregunta marca ni resultado). La v2 la convierte en principio explícito y pide auditar **todos** los flujos existentes contra ella, no solo los que cambian en esta ronda. Se traslada a SPECS §5.5 como nota de diseño transversal, y queda como tarea de revisión en el ROADMAP.
+
+### 2026-08-31 — Segunda lectura de la v2: seis hallazgos que la primera pasada no recogió
+
+El usuario pidió una segunda vuelta explícita sobre `Especificacion_MVP_GPV_Danone_v2.pdf` para no dejarse nada. Releer el documento completo, sección por sección, y contrastarlo contra el código real (no solo contra la SPECS.md ya escrita) sacó seis cosas que la primera pasada había pasado por alto:
+
+**1. Bledina queda fuera del MVP.** El documento lo dice en su segunda sección, de pasada: *«Bledina: no forma parte de este MVP»*. No estaba en la lista de exclusiones de SPECS §2. Es la clase de frase que se pierde fácil porque no abre su propio apartado — va suelta entre "estructura general" y "GPS". Añadida.
+
+**2. El hueco de Dairy pasa de dos preguntas a una.** La v0.5 (ronda 4) modelaba la comprobación en dos pasos: *"¿existe un hueco de nuestro producto?"* y, solo si existía, *"¿está cubierto con una referencia Danone adyacente?"*, con incidencia solo si la respuesta a la segunda era no. La v2 lo escribe como **una sola pregunta ya combinada**: *"¿hay algún hueco que debería estar cubierto por una referencia Danone y no lo está?"*. Es la misma lógica de negocio, pero con un paso de interacción menos — el GPV decide en su cabeza si el hueco "cuenta" en vez de que la aplicación se lo pregunte en dos tandas.
+
+**Por qué esto no se vio en la primera pasada:** la primera pasada comparó la v2 contra la SPECS.md ya escrita y encontró que "el resultado final es el mismo" (incidencia si no está cubierto), y ahí paró. No comparó la **redacción exacta de la pregunta** contra el número de campos que existen hoy en `detecciones_hueco` (`existe_hueco` + `cubierto_con_adyacente`, dos columnas). El resultado es el mismo; el número de preguntas para llegar a él no. La lección de método: cuando el cliente reescribe una pregunta, comparar la redacción literal, no solo el desenlace.
+
+**3. Desajuste de documentación anterior a la v2, encontrado de rebote.** SPECS.md (desde la ronda 4) listaba "Nevera" como uno de los tipos del desplegable genérico de extraespacio (`Cabecera · Isla · Pila · Nevera · Otro`), pero el código (`flujos.ts`) nunca la incluyó ahí — la trata como flujo propio con su propio árbol de preguntas desde el principio. No es un cambio que pida la v2; es un error de esta documentación, visible solo al ir sección por sección contrastando contra el código real. Corregido en SPECS §5.5.8.
+
+**4. Vocabulario de estados sin resolver.** La sección 11 de la v2 (histórico y seguimiento) pide poder distinguir cuatro desenlaces: `pendiente` / `resuelta` / `no resuelta` / `corregida en visita`. El modelo real tiene `estado_accion` (`abierta`/`en_curso`/`resuelta`/`descartada`) y `desenlace_comprobacion` (`sigue_pendiente`/`resuelta`/`no_procede`). "Corregida en visita" no tiene equivalente en ninguno de los dos — hoy vive solo como el campo `correccion` de `DeteccionHueco`, invisible al mirar solo el estado de la `Acción`. Y "no resuelta" (se intentó y no se consiguió) es conceptualmente distinto de "descartada" (se decidió no actuar), aunque hoy se guardarían igual. **No lo resuelvo yo unilateralmente** porque toca el esquema y el panel del FSM ya construidos — queda como pendiente técnico explícito en SPECS §7.1, con dos salidas posibles (derivarlo en el panel sin tocar el esquema, o ampliar alguno de los dos enums) y sin decidir cuál todavía.
+
+**5. Campo `tipo` (incidencia/oportunidad) frente a la agrupación real en tres bloques.** La misma sección 11 pide guardar un `tipo` de solo dos valores, pero la aplicación ya organiza los flujos en tres bloques — incidencias, oportunidades, extraespacios. La lectura más simple es que extraespacio y nevera cuenten como `oportunidad`, pero quedaba implícito en la interfaz y no explícito en el modelo. Señalado en SPECS §7.1 para decidirlo a conciencia antes de construir el dashboard de resultados sobre ese campo.
+
+**6. Vista por PDV en el backoffice — el dato existe, la pantalla no está confirmada.** El punto que el cliente marca como más importante (*"todas las oportunidades e incidencias queden guardadas automáticamente por PDV […] para ver qué se detectó, quién tiene que solucionarlo y si finalmente se solucionó"*) tiene ya su endpoint (`GET /tiendas/:id/acciones`, fase 2). Lo que la primera pasada no verificó es si el backoffice expone eso como una **ficha de tienda** navegable, o si el FSM solo tiene el listado plano de "Acciones pendientes" filtrable por tienda. Funcionalmente similar, pero no es lo mismo para un FSM que quiere entrar en un PDV concreto y ver su historial completo. Señalado en SPECS §6.2 como verificación pendiente.
+
+**Además, se consolidaron como referencia rápida** la matriz de responsabilidades por elemento/categoría, la tabla de evidencia fotográfica obligatoria, y los trece criterios de aceptación literales del cliente — las tres eran secciones propias en su documento (§8, §9, §14) y en la primera pasada quedaron diluidas dentro de la prosa de cada flujo en vez de reproducirse como tablas de consulta rápida. Están en SPECS §5.5.10 y §5.5.11.
+
+---
+
 ## 1-bis. Impacto sobre lo ya construido
 
 Balance honesto tras leer el boceto. Es la información más útil para decidir qué hacer a continuación, y conviene tenerla escrita antes de tocar código.

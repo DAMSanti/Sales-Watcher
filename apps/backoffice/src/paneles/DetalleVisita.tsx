@@ -336,13 +336,15 @@ function formatear(
 ) {
   if (typeof valor === "boolean") return t(valor ? "comun.si" : "comun.no");
   if (typeof valor === "number") return String(valor);
+  // Nueva implantación (v0.7): lista de nombres de marca, ya resueltos en servidor.
+  if (Array.isArray(valor)) return valor.length > 0 ? valor.join(", ") : "—";
 
   const texto = String(valor);
   const claves: Record<string, string> = {
     suficiencia: "flujo.suficiencia",
     problema: "flujo.problemaFechas",
     correccion: "flujo.correccion",
-    situacion: "flujo.situacionNevera",
+    decision: "flujo.decisionNevera",
     tipo: "flujo.tipoExtraespacio",
     motivo: "flujo.motivoExtraespacio",
     ubicacionActual: "flujo.ubicacion",

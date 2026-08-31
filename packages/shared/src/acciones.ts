@@ -45,6 +45,7 @@ export const TIPOS_SITUACION = [
   "facings",
   "visibilidad",
   "reorganizacion",
+  "bloque_marca",
   "extraespacio",
   "nevera",
   "relacion_responsable",
@@ -143,6 +144,18 @@ const REGLAS: Record<TipoSituacion, Definicion> = {
     motivo: "La relación con el encargado la mantiene el GPV",
   },
   /**
+   * Nuevo en v0.7. La matriz de responsabilidades de la v2 no le asigna
+   * responsable ("—"): se registra automáticamente y no escala a nadie. Se
+   * marca como `gpv` porque es quien la genera y no hay a quién trasladarla —
+   * no porque el GPV tenga una tarea pendiente sobre ella.
+   */
+  bloque_marca: {
+    modo: "fijo",
+    responsable: "gpv",
+    origen: "boceto",
+    motivo: "Se registra automáticamente como oportunidad, sin escalado",
+  },
+  /**
    * Derivada: conseguir una cabecera, una isla o una pila es negociación con el
    * establecimiento, y eso lo hace el GPV también en Dairy — el reponedor
    * repone, no negocia espacio adicional.
@@ -220,6 +233,7 @@ const GRUPOS: Record<TipoSituacion, GrupoSituacion> = {
   facings: "oportunidad",
   visibilidad: "oportunidad",
   reorganizacion: "oportunidad",
+  bloque_marca: "oportunidad",
   // Espacios adicionales, con la nevera como caso propio.
   extraespacio: "extraespacio",
   nevera: "extraespacio",
@@ -236,6 +250,12 @@ export function grupoSituacion(tipo: TipoSituacion): GrupoSituacion {
 /**
  * La comprobación de fechas es **exclusiva de Dairy** (boceto §10). Ofrecerla
  * en Waters o PBB pediría al GPV revisar caducidades de agua embotellada.
+ *
+ * `nevera` es exclusiva de Dairy y Waters — **no existe en PBB** (SPECS v0.7
+ * §5.5.9, §7.9 del documento del cliente: "no mostrar este apartado").
+ *
+ * `bloque_marca` es exclusiva de Waters y PBB — **no existe en Dairy** (SPECS
+ * v0.7 §5.5.7-bis).
  */
 export function situacionDisponible(
   tipo: TipoSituacion,
@@ -243,6 +263,8 @@ export function situacionDisponible(
 ): boolean {
   if (tipo === "fechas") return categoria === "dairy";
   if (tipo === "relacion_responsable") return categoria === "transversal";
+  if (tipo === "nevera") return categoria === "dairy" || categoria === "waters";
+  if (tipo === "bloque_marca") return categoria === "waters" || categoria === "pbb";
   return categoria !== "transversal";
 }
 
@@ -263,13 +285,18 @@ export function opcionesSuficienciaStock(
 }
 
 /**
- * En Dairy el GPV comprueba si el hueco está cubierto con una referencia
- * adyacente (y si no, escala); en Waters y PBB lo corrige él mismo y registra
- * el resultado de su propia actuación. Son dos preguntas distintas, no la
- * misma con distinto destinatario.
+ * Waters y PBB añaden una segunda pregunta tras detectar el hueco: el GPV
+ * intenta corregirlo en el momento y registra el resultado de su propia
+ * actuación.
+ *
+ * Dairy **ya no tiene segunda pregunta** desde v0.7: la v2 combina "¿existe un
+ * hueco?" y "¿está cubierto con una referencia adyacente?" en una sola
+ * pregunta (`existeHueco`), porque el GPV resuelve el criterio de cobertura
+ * mentalmente al responder. Devolver `null` es lo que le dice al formulario
+ * que no muestre ningún campo adicional.
  */
-export function preguntaHueco(categoria: CategoriaProducto): "cubierto" | "corregido" {
-  return categoria === "dairy" ? "cubierto" : "corregido";
+export function preguntaHueco(categoria: CategoriaProducto): "corregido" | null {
+  return categoria === "dairy" ? null : "corregido";
 }
 
 // ── Antigüedad ─────────────────────────────────────────────────────────

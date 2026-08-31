@@ -132,7 +132,6 @@ try {
       tipoSituacion: "stock",
       categoriaProducto: "waters",
       suficiencia: "no",
-      comunicadoAlResponsable: true,
     },
   });
   ok(
@@ -157,8 +156,8 @@ try {
     cuerpo: {
       tipoSituacion: "nevera",
       categoriaProducto: "waters",
-      motivo: "potencial_venta",
-      situacion: "necesita_recogida",
+      hayNevera: true,
+      decision: "recoger",
       codigoNevera: "NV-0442-GRA",
     },
   });
@@ -167,6 +166,48 @@ try {
     nevera.estado === 201 && nevera.datos.responsableActuar === "fsm",
     `responsable ${nevera.datos?.responsableActuar}`,
   );
+
+  const [marcaDairy] = await sql`select id from marcas where categoria_producto = 'dairy' limit 1`;
+  const implantacion = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: {
+      tipoSituacion: "reorganizacion",
+      categoriaProducto: "dairy",
+      marcaIds: marcaDairy ? [marcaDairy.id] : [],
+      todoLineal: false,
+    },
+  });
+  ok(
+    "nueva implantación por marca → FSM decide",
+    implantacion.estado === 201 && implantacion.datos.responsableActuar === "fsm",
+    `HTTP ${implantacion.estado}`,
+  );
+
+  const bloqueMarca = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "bloque_marca", categoriaProducto: "waters" },
+  });
+  ok(
+    "bloque de marca → sin escalado, del GPV",
+    bloqueMarca.estado === 201 && bloqueMarca.datos.responsableActuar === "gpv",
+    `HTTP ${bloqueMarca.estado}, responsable ${bloqueMarca.datos?.responsableActuar}`,
+  );
+
+  const bloqueMarcaEnDairy = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "bloque_marca", categoriaProducto: "dairy" },
+  });
+  ok(
+    "bloque de marca no existe en Dairy",
+    bloqueMarcaEnDairy.estado === 400,
+    `HTTP ${bloqueMarcaEnDairy.estado}`,
+  );
+
+  const neveraEnPbb = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "nevera", categoriaProducto: "pbb", hayNevera: false, oportunidadAnadir: false },
+  });
+  ok("la nevera no existe en PBB", neveraEnPbb.estado === 400, `HTTP ${neveraEnPbb.estado}`);
 
   const facings = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
     method: "POST",
@@ -226,11 +267,31 @@ try {
     cuerpo: {
       tipoSituacion: "nevera",
       categoriaProducto: "waters",
-      motivo: "otro",
-      situacion: "retirada",
+      hayNevera: true,
+      decision: "recoger",
     },
   });
-  ok("retirar nevera sin código", neveraSinCodigo.estado === 400, `HTTP ${neveraSinCodigo.estado}`);
+  ok("recoger nevera sin código", neveraSinCodigo.estado === 400, `HTTP ${neveraSinCodigo.estado}`);
+
+  const neveraDecisionSinNevera = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "nevera", categoriaProducto: "waters", hayNevera: false, decision: "mantener" },
+  });
+  ok(
+    "decisión sin que haya nevera",
+    neveraDecisionSinNevera.estado === 400,
+    `HTTP ${neveraDecisionSinNevera.estado}`,
+  );
+
+  const implantacionSinMarca = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "reorganizacion", categoriaProducto: "dairy", marcaIds: [], todoLineal: false },
+  });
+  ok(
+    "nueva implantación sin marca ni todo el lineal",
+    implantacionSinMarca.estado === 400,
+    `HTTP ${implantacionSinMarca.estado}`,
+  );
 
   const huecoConfundido = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
     method: "POST",
@@ -432,12 +493,11 @@ try {
   // Limpieza acotada a lo que creó esta prueba.
   if (visitaId) {
     const mias = sql`select id from acciones where visita_origen_id = ${visitaId}`;
-    await sql`delete from neveras where extraespacio_id in (
-                select id from extraespacios where accion_id in (${mias}))`;
     for (const tabla of [
       "detecciones_stock", "detecciones_fechas", "detecciones_hueco",
-      "top_picos_pendientes", "ganancias_facings",
-      "oportunidades_visibilidad", "oportunidades_reorganizacion", "extraespacios",
+      "top_picos_pendientes", "ganancias_facings", "neveras",
+      "oportunidades_visibilidad", "nueva_implantacion_marcas",
+      "oportunidades_reorganizacion", "extraespacios",
     ]) {
       await sql.unsafe(
         `delete from ${tabla} where accion_id in (select id from acciones where visita_origen_id = $1)`,

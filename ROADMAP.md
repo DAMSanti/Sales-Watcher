@@ -10,6 +10,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 > Reparto del impacto: **fases 1 y 2 aguantan bien** (son infraestructura), **la fase 3 se rehace en su mayor parte** (la pantalla de visita cambia entera) y **la fase 4 se amplía** más que se rehace. El balance completo está en [ANEXO.md](ANEXO.md) sección 1-bis.
 >
 > **Reencuadre cerrado (ronda 5).** El cliente ha respondido a las doce preguntas y ha delegado dos decisiones. **Nada bloquea ya el arranque.** Quedan abiertas P31 (audio en vídeo) y P32 (origen del catálogo de referencias), ninguna de las cuales impide diseñar ni construir — pero P31 conviene resolverla antes de implementar el flujo de vídeo, porque después sale caro.
+>
+> **📄 Especificación v2 (2026-08-31).** El cliente entrega una segunda especificación funcional que **ajusta, no reencuadra**: nueve cambios de detalle sobre los flujos ya diseñados (nevera, nueva implantación, bloque de marca, Top Picos, evidencia obligatoria, GPS, preguntas redundantes). Ver el detalle en [ANEXO.md](ANEXO.md) ronda 6 y las tareas nuevas con **🆕** en la fase 3. P32 (catálogo de referencias) sigue abierta — el cliente lo enviará más adelante.
 
 > **Actualizado tras tres rondas de respuestas de negocio (2026-08-24).** Multi-idioma en el MVP con cinco idiomas de interfaz, flujo de visita no realizada con ventana diaria de justificación, y catálogo de tiendas preparado para un ERP futuro. Fase 0 casi cerrada.
 
@@ -218,6 +220,30 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Checklist como **sección opcional, apagada por defecto** (`CHECKLIST_ACTIVO`) y nunca obligatoria para cerrar
 - [x] **Retirado el registro genérico de incidencias de la app de campo** *(`ContextoAnterior` y `SeccionIncidencias`)*: duplicaban lo que ya muestran las acciones
 - [ ] Probar el recorrido completo **sin cobertura**, no solo con red
+
+### 🆕 Especificación v2 del cliente (2026-08-31)
+
+> Ajuste sobre los nueve flujos ya construidos, no un reencuadre — ver [ANEXO.md](ANEXO.md) ronda 6 y [SPECS.md](SPECS.md) v0.7. La más importante de las peticiones del cliente (guardado automático de incidencias/oportunidades por PDV con seguimiento) **ya está construida** desde la fase 1-2; no genera tarea nueva, solo hay que enchufar los flujos de abajo al mismo mecanismo.
+
+- [x] Quitar el aviso de **desviación de geolocalización** de la vista del GPV — sigue calculándose en servidor, deja de mostrarse en `DetalleVisita.tsx`
+- [ ] Auditar **todos** los flujos existentes contra la regla de preguntas sin redundancia (SPECS §5.5), no solo los que cambian en esta ronda
+- [x] Renombrar "Top Pico" → **"Top Picos"** en las etiquetas de interfaz de los cinco idiomas (field) y castellano (backoffice); el identificador interno `top_pico` no cambia
+- [x] El buscador de Top Picos ahora permite **añadir varias referencias en una sola pantalla** sin volver atrás (`SeleccionMultiple`, una `Acción` por referencia)
+- [x] **Foto obligatoria** en falta de producto de Waters/PBB (`evidenciaObligatoria()` en cliente, bloquea "Terminar" sin foto); retirada la columna y la pregunta "¿se ha comunicado al responsable?"
+- [x] Renombrado y rehecho **"Reorganizar lineal" → "Nueva implantación"**: selección múltiple de marca de catálogo + "Todo el lineal", tabla `nueva_implantacion_marcas` nueva
+- [x] Nuevo flujo **"Bloque de marca"** (solo Waters/PBB): pregunta única, sin tabla de detalle propia
+- [x] Rehecho el flujo de **Nevera** (Dairy/Waters): árbol binario existe → mantener/recoger → código + foto obligatoria si se recoge; si no existe, oportunidad de añadir. Desacoplada de `extraespacios`, cuelga directo de `acciones`
+- [x] Disponibilidad de flujos por categoría en `situacionDisponible` de `@sw/shared`: bloque de marca (Waters/PBB, no Dairy), nevera (Dairy/Waters, no PBB) — con tests
+- [ ] Importación CSV del **listado de referencias de Danone por categoría** — pendiente de que el cliente lo envíe (P32 sigue abierta, sin bloquear el resto)
+- [ ] **Migración 0007 sin aplicar contra una base real** — este entorno no tenía Docker/Postgres disponible para ejecutar `pnpm db:migrate` ni los scripts `db:pruebas` / `db:acciones` / `api:acciones`. Todo el código pasa `typecheck` y los 62 tests de `@sw/shared`, pero la migración y los scripts de integración solo se han revisado estáticamente — hace falta correrlos una vez contra Postgres real antes de dar esta ronda por cerrada
+
+**Añadidas tras la segunda pasada sobre la v2** (ver ANEXO.md, ronda 6):
+
+- [x] Colapsado **hueco en Dairy** de dos preguntas a una sola combinada; `detecciones_hueco` pierde `cubierto_con_adyacente`
+- [x] Añadida la exclusión de **Bledina** en SPECS §2; no hay ninguna referencia a Bledina en catálogos ni código
+- [ ] Decidir cómo representar **"corregida en visita"** y **"no resuelta"** frente a los enums actuales (`estado_accion`, `desenlace_comprobacion`) — sin decidir todavía, ver SPECS §7.1
+- [x] **Ya estaba decidido y no hacía falta abrirlo**: `grupoSituacion()` en `@sw/shared` ya trata incidencias/oportunidades/extraespacios como tres grupos deliberadamente separados, con su propio comentario explicando por qué no colapsar extraespacio en oportunidad. La nota de ANEXO/SPECS que lo daba por abierto se corrige
+- [ ] Confirmar si el backoffice tiene (o hace falta construir) una **ficha de tienda** con histórico de acciones, más allá del listado plano filtrable
 
 ## Fase 4 — Backoffice — MVP
 

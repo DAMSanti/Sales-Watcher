@@ -229,6 +229,39 @@
   color: var(--texto-suave);
 }
 
+/* ── Selección múltiple (Top Picos, Nueva implantación) ────────────── */
+/* Elegir varias sin salir de la pantalla: cada elección queda como una
+   chip removible y el desplegable se ofrece de nuevo para la siguiente. */
+
+.seleccion-multiple__elegidos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+  margin: 0 0 var(--e2);
+  padding: 0;
+  list-style: none;
+}
+
+.seleccion-multiple__chip {
+  display: flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: var(--e1) var(--e2);
+  font-size: 0.85rem;
+  color: #fff;
+  background: var(--azul-600);
+  border-radius: var(--radio-sm);
+}
+
+.seleccion-multiple__quitar {
+  color: #fff;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
 /* ── Pendientes de visitas anteriores ──────────────────────────────── */
 /*
  * Deliberadamente sobrio. Es contexto útil, no una lista de deberes: el

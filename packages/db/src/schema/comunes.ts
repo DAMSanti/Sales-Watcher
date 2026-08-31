@@ -122,6 +122,14 @@ export const canalEnum = pgEnum("canal", ["modern", "proximity"]);
  * `nevera` se distingue de `extraespacio` aunque el boceto la considere un tipo
  * de extraespacio, porque **cambia el responsable**: una nevera siempre escala
  * al FSM y el resto los negocia el GPV.
+ *
+ * `bloque_marca` es nuevo en la especificación v2: exclusivo de Waters y PBB,
+ * pregunta única sin detalle adicional (SPECS §5.5.7-bis).
+ *
+ * `reorganizacion` conserva su nombre interno aunque la v2 la renombra a
+ * "Nueva implantación" y le cambia los campos (de texto libre a marca de
+ * catálogo). Cambiar el identificador sería una migración sin beneficio
+ * funcional — el mismo criterio que se aplicó a `top_pico` (SPECS v0.7).
  */
 export const tipoSituacionEnum = pgEnum("tipo_situacion", [
   "stock",
@@ -131,6 +139,7 @@ export const tipoSituacionEnum = pgEnum("tipo_situacion", [
   "facings",
   "visibilidad",
   "reorganizacion",
+  "bloque_marca",
   "extraespacio",
   "nevera",
   "relacion_responsable",
@@ -196,16 +205,14 @@ export const motivoExtraespacioEnum = pgEnum("motivo_extraespacio", [
   "otro",
 ]);
 
-export const situacionNeveraEnum = pgEnum("situacion_nevera", [
-  "uso_correcto",
-  "uso_parcial",
-  "uso_incorrecto",
-  "retirada",
-  "vacia_desaprovechada",
-  "necesita_nueva",
-  "necesita_recogida",
-  "otro",
-]);
+/**
+ * Qué hacer con una nevera Danone existente (SPECS §5.5.9, v0.7).
+ *
+ * Sustituye a `situacion_nevera` (8 valores). La v2 simplifica el árbol a un
+ * binario: si hay nevera, se mantiene o se recoge; no hay estados intermedios
+ * de "uso parcial/incorrecto" que el GPV tenga que diagnosticar.
+ */
+export const decisionNeveraEnum = pgEnum("decision_nevera", ["mantener", "recoger"]);
 
 /** El «palomar» y el «foso» son las posiciones desfavorables del lineal. */
 export const ubicacionLinealEnum = pgEnum("ubicacion_lineal", [

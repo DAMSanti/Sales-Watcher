@@ -48,6 +48,8 @@ const ESPERADO = {
   "reorganizacion/pbb": "fsm",
   "extraespacio/dairy": "gpv",
   "nevera/waters": "fsm",
+  // Nuevo en v0.7: sin escalado, se registra como del GPV (SPECS §5.5.7-bis).
+  "bloque_marca/waters": "gpv",
 };
 
 let fallos = 0;
@@ -102,12 +104,14 @@ try {
 
   await sql`insert into detecciones_stock (accion_id, suficiencia)
             values (${accionesCreadas["stock/dairy"]}, 'reponedor_no_ha_pasado')`;
-  await sql`insert into detecciones_stock (accion_id, suficiencia, comunicado_al_responsable)
-            values (${accionesCreadas["stock/waters"]}, 'no', true)`;
+  await sql`insert into detecciones_stock (accion_id, suficiencia)
+            values (${accionesCreadas["stock/waters"]}, 'no')`;
   await sql`insert into detecciones_fechas (accion_id, problema)
             values (${accionesCreadas["fechas/dairy"]}, 'fifo_incorrecto')`;
-  await sql`insert into detecciones_hueco (accion_id, existe_hueco, cubierto_con_adyacente)
-            values (${accionesCreadas["hueco/dairy"]}, true, false)`;
+  // Pregunta única desde v0.7: en Dairy, existe_hueco=true ya implica
+  // incidencia (SPECS §5.5.3). Ya no hay columna cubierto_con_adyacente.
+  await sql`insert into detecciones_hueco (accion_id, existe_hueco)
+            values (${accionesCreadas["hueco/dairy"]}, true)`;
   await sql`insert into detecciones_hueco (accion_id, existe_hueco, correccion)
             values (${accionesCreadas["hueco/pbb"]}, true, 'si')`;
 
@@ -120,22 +124,26 @@ try {
             values (${accionesCreadas["facings/dairy"]}, ${marca.id}, true, 2)`;
   await sql`insert into oportunidades_visibilidad (accion_id, marca_id, ubicacion_actual, propuesta)
             values (${accionesCreadas["visibilidad/dairy"]}, ${marca.id}, 'palomar', 'bajar_producto')`;
-  await sql`insert into oportunidades_reorganizacion (accion_id, propuesta)
-            values (${accionesCreadas["reorganizacion/pbb"]}, 'Agrupar todo el vegetal en un solo bloque')`;
 
-  const [extra] = await sql`insert into extraespacios (accion_id, tipo, motivo)
-            values (${accionesCreadas["extraespacio/dairy"]}, 'cabecera', 'alta_rotacion')
-            returning id`;
-  const [extraNevera] = await sql`insert into extraespacios (accion_id, tipo, motivo)
-            values (${accionesCreadas["nevera/waters"]}, 'nevera', 'potencial_venta')
-            returning id`;
-  await sql`insert into neveras (extraespacio_id, situacion, codigo_nevera)
-            values (${extraNevera.id}, 'necesita_recogida', 'NV-0012-ALM')`;
-  ok("nueve flujos con su detalle", true);
+  // "Nueva implantación" (v0.7): marca de catálogo en vez de texto libre.
+  await sql`insert into oportunidades_reorganizacion (accion_id, todo_lineal)
+            values (${accionesCreadas["reorganizacion/pbb"]}, false)`;
+  await sql`insert into nueva_implantacion_marcas (accion_id, marca_id)
+            values (${accionesCreadas["reorganizacion/pbb"]}, ${marca.id})`;
+
+  await sql`insert into extraespacios (accion_id, tipo, motivo)
+            values (${accionesCreadas["extraespacio/dairy"]}, 'cabecera', 'alta_rotacion')`;
+
+  // Nevera (v0.7): árbol binario, ya no cuelga de extraespacios.
+  await sql`insert into neveras (accion_id, hay_nevera, decision, codigo_nevera)
+            values (${accionesCreadas["nevera/waters"]}, true, 'recoger', 'NV-0012-ALM')`;
+
+  // "bloque_marca" no lleva tabla de detalle: la propia acción ya basta.
+  ok("diez flujos con su detalle (bloque_marca sin tabla propia)", true);
 
   // El código de nevera se guarda tal cual: es la clave con la que el FSM
   // informa en su propia aplicación de neveras.
-  const [nev] = await sql`select codigo_nevera from neveras where extraespacio_id = ${extraNevera.id}`;
+  const [nev] = await sql`select codigo_nevera from neveras where accion_id = ${accionesCreadas["nevera/waters"]}`;
   ok("código de nevera sin normalizar", nev.codigo_nevera === "NV-0012-ALM", nev.codigo_nevera);
 
   // ── Relación con el responsable: una por visita ──────────────────────
@@ -238,12 +246,11 @@ try {
   if (visitaId) {
     const mias = sql`select id from acciones where visita_origen_id = ${visitaId}`;
 
-    await sql`delete from neveras where extraespacio_id in (
-                select id from extraespacios where accion_id in (${mias}))`;
     for (const tabla of [
       "detecciones_stock", "detecciones_fechas", "detecciones_hueco",
-      "top_picos_pendientes", "ganancias_facings",
-      "oportunidades_visibilidad", "oportunidades_reorganizacion", "extraespacios",
+      "top_picos_pendientes", "ganancias_facings", "neveras",
+      "oportunidades_visibilidad", "nueva_implantacion_marcas",
+      "oportunidades_reorganizacion", "extraespacios",
     ]) {
       await sql.unsafe(
         `delete from ${tabla} where accion_id in (select id from acciones where visita_origen_id = $1)`,

@@ -165,32 +165,31 @@
     "stock": "Out of stock",
     "fechas": "Date issue",
     "hueco": "Gap on shelf",
-    "top_pico": "Missing Top Pico",
+    "top_pico": "Top Picks",
     "facings": "Gain facings",
     "visibilidad": "Improve visibility",
-    "reorganizacion": "Reorganise the shelf",
+    "reorganizacion": "New layout",
+    "bloque_marca": "Brand block",
     "extraespacio": "Extra space",
     "nevera": "Cooler"
   },
   "flujo": {
     "stock": {
       "pregunta": "Is there enough product to cover the day?",
-      "suficiencia": "Enough product",
-      "comunicado": "Have you told the store manager?"
+      "suficiencia": "Enough product"
     },
     "fechas": {
       "pregunta": "Have you spotted a date problem?",
       "problema": "Problem type"
     },
     "hueco": {
-      "pregunta": "Is there a gap in our product?",
-      "existe": "There is a gap",
-      "cubierto": "Is it covered with an adjacent Danone reference?",
+      "pregunta": "Is there a gap on the shelf that should be covered by a Danone reference and isn't?",
+      "existe": "There is an uncovered gap",
       "corregido": "Were you able to fix it?"
     },
     "topPico": {
-      "pregunta": "Which Top Pico reference is missing?",
-      "referencia": "Reference"
+      "pregunta": "Is there a Top Picks reference not in the assortment?",
+      "referencia": "References"
     },
     "facings": {
       "pregunta": "Is there an opportunity to gain facings?",
@@ -203,8 +202,12 @@
       "propuesta": "What do you propose"
     },
     "reorganizacion": {
-      "pregunta": "What would you change on the shelf?",
-      "propuesta": "Your proposal"
+      "pregunta": "Is there an opportunity for a new layout?",
+      "marcas": "Brand(s)",
+      "todoLineal": "Whole shelf"
+    },
+    "bloque_marca": {
+      "pregunta": "Is there an opportunity for a Danone brand block?"
     },
     "extraespacio": {
       "pregunta": "Where and why would an extra display fit?",
@@ -212,8 +215,10 @@
       "motivo": "Reason"
     },
     "nevera": {
-      "pregunta": "How is the cooler?",
-      "situacion": "Situation",
+      "pregunta": "Is there a Danone cooler at the store?",
+      "hayNevera": "There is a Danone cooler",
+      "decision": "What do we do with it?",
+      "oportunidadAnadir": "Record the opportunity to add a Danone cooler?",
       "codigo": "Cooler code",
       "codigoAyuda": "It is inside the cooler. Without it, the wrong unit may be collected."
     },
@@ -221,14 +226,19 @@
     "detalle": "Detail",
     "sinMarcas": "No brands available",
     "sinReferencias": "No references available",
+    "anadirReferencia": "Add reference",
+    "anadirMarca": "Add brand",
     "iraAlFsm": "An action will be created for your manager.",
     "actuasTu": "You can resolve this in store.",
     "hablasConEncargado": "Raise it with the store manager.",
+    "seRegistraSolo": "Recorded automatically.",
     "faltaDetalle": "Say what the problem is",
-    "faltaReferencia": "Pick a reference",
-    "faltaPropuesta": "Write your proposal",
+    "faltaReferencia": "Pick at least one reference",
+    "faltaMarcaImplantacion": "Pick at least one brand, or mark \"whole shelf\"",
     "faltaFacings": "Say how many facings",
     "faltaCodigoNevera": "The code prevents collecting the wrong cooler",
+    "faltaDecisionNevera": "Say whether the cooler is kept or collected",
+    "faltaOportunidadNevera": "Say whether to record the opportunity to add a cooler",
     "suficiencia": {
       "si": "Yes",
       "no": "No",
@@ -258,15 +268,9 @@
       "oportunidad_estacional": "Seasonal opportunity",
       "otro": "Other"
     },
-    "situacionNevera": {
-      "uso_correcto": "Used correctly",
-      "uso_parcial": "Partly used",
-      "uso_incorrecto": "Used incorrectly",
-      "retirada": "It was removed",
-      "vacia_desaprovechada": "Empty or wasted",
-      "necesita_nueva": "A new one is needed",
-      "necesita_recogida": "Needs collection",
-      "otro": "Other"
+    "decisionNevera": {
+      "mantener": "Keep",
+      "recoger": "Collect"
     },
     "ubicacion": {
       "palomar": "Top shelf",
@@ -293,6 +297,8 @@
     },
     "registrada": "Recorded",
     "evidenciaOpcional": "Add evidence? It's optional.",
+    "evidenciaObligatoria": "Attach a photo before continuing.",
+    "evidenciaObligatoriaAyuda": "At least one photo is required to save.",
     "terminar": "Done"
   },
   "pendientes": {

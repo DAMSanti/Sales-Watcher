@@ -19,7 +19,7 @@ export const BLOQUES: Bloque[] = ["incidencias", "oportunidades", "extraespacios
 
 export const FLUJOS_POR_BLOQUE: Record<Bloque, TipoSituacion[]> = {
   incidencias: ["stock", "fechas", "hueco"],
-  oportunidades: ["top_pico", "facings", "visibilidad", "reorganizacion"],
+  oportunidades: ["top_pico", "facings", "visibilidad", "reorganizacion", "bloque_marca"],
   extraespacios: ["extraespacio", "nevera"],
 };
 
@@ -55,16 +55,8 @@ export const OPCIONES = {
     "oportunidad_estacional",
     "otro",
   ],
-  situacionNevera: [
-    "uso_correcto",
-    "uso_parcial",
-    "uso_incorrecto",
-    "retirada",
-    "vacia_desaprovechada",
-    "necesita_nueva",
-    "necesita_recogida",
-    "otro",
-  ],
+  /** Sustituye a `situacionNevera` (8 valores) desde v0.7: árbol binario. */
+  decisionNevera: ["mantener", "recoger"],
   ubicacionLineal: ["palomar", "zona_intermedia", "altura_ojos", "foso", "otra"],
   propuestaVisibilidad: [
     "subir_producto",
@@ -85,18 +77,18 @@ export const OPCIONES = {
 } as const;
 
 /**
- * Flujos que admiten evidencia, y de qué clase (SPECS §5.5).
+ * Flujos que admiten evidencia, y de qué clase (SPECS §5.5, §9).
  *
  * No todos la piden. El boceto es explícito en que **fechas y huecos NO
  * requieren fotografía**: pedirla ahí sería fricción sin motivo, y el objetivo
  * declarado es que el GPV pase menos tiempo delante del móvil.
  *
- * - **Stock en Waters/PBB**: foto o vídeo. Es donde el boceto quiere apoyarse
- *   para hablar con el responsable del establecimiento, y una falta repetida
- *   documentada es la munición de esa conversación.
- * - **Visibilidad y reorganización**: fotografía del lineal, opcional.
- * - **Nevera**: fotografía, y con especial motivo cuando hay código — permite
- *   verificar una transcripción dudosa sin volver a la tienda.
+ * - **Stock**: foto o vídeo. Es donde el boceto quiere apoyarse para hablar con
+ *   el responsable del establecimiento, y una falta repetida documentada es la
+ *   munición de esa conversación.
+ * - **Visibilidad y nueva implantación**: fotografía del lineal, opcional.
+ * - **Nevera**: fotografía, obligatoria cuando se recoge — permite verificar una
+ *   transcripción dudosa del código sin volver a la tienda.
  */
 export const EVIDENCIA_POR_FLUJO: Partial<Record<TipoSituacion, "foto" | "ambas">> = {
   stock: "ambas",
@@ -106,10 +98,22 @@ export const EVIDENCIA_POR_FLUJO: Partial<Record<TipoSituacion, "foto" | "ambas"
 };
 
 /**
- * Situaciones de nevera que exigen el código de la unidad.
+ * Dónde la evidencia deja de ser opcional (SPECS §5.5.1, §5.5.9 — v0.7).
  *
- * El código existe para que el FSM identifique exactamente qué nevera hay que
- * mover en su propia aplicación, y no se retire la equivocada. Solo hace falta
- * cuando hay que mover una: preguntarlo siempre sería fricción sin motivo.
+ * Solo dos casos, y ambos condicionales — no basta con mirar el tipo de
+ * situación, hace falta el resto de la respuesta:
+ *
+ * - **Falta de producto en Waters/PBB**: foto obligatoria del lineal. En Dairy
+ *   sigue siendo opcional (la incidencia escala al FSM, que actúa con el
+ *   reponedor sin necesitar evidencia).
+ * - **Recoger nevera**: foto obligatoria del código. Mantener no la exige.
  */
-export const NEVERA_EXIGE_CODIGO: string[] = ["retirada", "necesita_recogida"];
+export function evidenciaObligatoria(
+  tipo: TipoSituacion,
+  categoria: CategoriaProducto,
+  campos: Record<string, unknown>,
+): boolean {
+  if (tipo === "stock") return categoria !== "dairy";
+  if (tipo === "nevera") return campos.decision === "recoger";
+  return false;
+}

@@ -50,6 +50,13 @@
       "when": 1787691353155,
       "tag": "0006_evidencia_de_accion",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788300000000,
+      "tag": "0007_especificacion_v2",
+      "breakpoints": true
     }
   ]
 }

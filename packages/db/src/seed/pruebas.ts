@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { fechaLocal, resolverResponsable, type TipoSituacion } from "@sw/shared";
+import { fechaLocal, resolverResponsable, situacionDisponible, type TipoSituacion } from "@sw/shared";
 import { cargarEnv } from "../cargar-env";
 import { crearCliente } from "../index";
 import {
@@ -25,6 +25,7 @@ import {
   gananciasFacings,
   marcas,
   neveras,
+  nuevaImplantacionMarcas,
   oportunidadesReorganizacion,
   oportunidadesVisibilidad,
   referenciasProducto,
@@ -96,6 +97,19 @@ function elegirCategoria(): "dairy" | "waters" | "pbb" {
   const r = azar();
   return r < 0.45 ? "dairy" : r < 0.75 ? "waters" : "pbb";
 }
+
+/**
+ * Categoría válida para un tipo, respetando las exclusiones de v0.7: nevera no
+ * existe en PBB, bloque de marca no existe en Dairy. Usa la misma función que
+ * valida el servidor para no generar combinaciones que la API rechazaría.
+ */
+function categoriaPara(tipo: TipoSituacion): "dairy" | "waters" | "pbb" {
+  if (tipo === "fechas") return "dairy";
+  const candidatas = (["dairy", "waters", "pbb"] as const).filter((c) =>
+    situacionDisponible(tipo, c),
+  );
+  return candidatas.length > 0 ? elegir(candidatas) : elegirCategoria();
+}
 const elegir = <T>(lista: T[]): T => lista[Math.floor(azar() * lista.length)]!;
 const entre = (min: number, max: number) => min + Math.floor(azar() * (max - min + 1));
 
@@ -158,13 +172,9 @@ const PESOS_SITUACION: Array<[TipoSituacion, number]> = [
   // llegaba a mostrar el dato más distintivo que tiene.
   ["nevera", 7],
   ["reorganizacion", 2],
-];
-
-const PROPUESTAS = [
-  "Agrupar todo el vegetal en un solo bloque, hoy está partido.",
-  "Subir Activia a altura de ojos y bajar marca blanca al foso.",
-  "Reordenar el lineal por formato en vez de por marca.",
-  "Juntar bebidas vegetales con lácteos refrigerados.",
+  // Nuevo en v0.7, exclusivo Waters/PBB: peso bajo porque es "sin escalado",
+  // no una incidencia recurrente.
+  ["bloque_marca", 4],
 ];
 
 async function principal() {
@@ -267,9 +277,13 @@ async function principal() {
 
   /**
    * El ciclo de acciones se borra de dentro hacia fuera, igual que las fotos:
-   * `neveras` cuelga de `extraespacios`, los detalles cuelgan de `acciones`, y
-   * `comprobaciones_accion` referencia acción y visita a la vez. Invertir
-   * cualquiera de estos pasos revienta con violación de integridad.
+   * los detalles cuelgan de `acciones`, y `comprobaciones_accion` referencia
+   * acción y visita a la vez. Invertir cualquiera de estos pasos revienta con
+   * violación de integridad.
+   *
+   * `neveras` ya no cuelga de `extraespacios` desde v0.7 (rediseño del flujo,
+   * ver SPECS §5.5.9): ambas cuelgan directamente de `acciones` y no dependen
+   * entre sí.
    */
   await db.delete(neveras);
   await db.delete(extraespacios);
@@ -279,6 +293,7 @@ async function principal() {
   await db.delete(topPicosPendientes);
   await db.delete(gananciasFacings);
   await db.delete(oportunidadesVisibilidad);
+  await db.delete(nuevaImplantacionMarcas);
   await db.delete(oportunidadesReorganizacion);
   await db.delete(comprobacionesAccion);
   await db.delete(acciones);
@@ -453,8 +468,7 @@ async function principal() {
 
           for (let i = 0; i < cuantas; i++) {
             const tipo = elegirSituacion();
-            // Las fechas solo existen en Dairy: es la única con reponedor.
-            const categoria = tipo === "fechas" ? "dairy" : elegirCategoria();
+            const categoria = categoriaPara(tipo);
             const { responsable } = resolverResponsable(tipo, categoria);
 
             const detectadaEn = new Date(inicio.getTime() + entre(5, 45) * 60_000);
@@ -513,7 +527,6 @@ async function principal() {
                 accionId,
                 suficiencia:
                   categoria === "dairy" && azar() < 0.4 ? "reponedor_no_ha_pasado" : "no",
-                comunicadoAlResponsable: categoria === "dairy" ? null : azar() < 0.7,
               });
             } else if (tipo === "fechas") {
               await db.insert(deteccionesFechas).values({
@@ -521,10 +534,11 @@ async function principal() {
                 problema: elegir(["fifo_incorrecto", "proximo_caducar", "mal_colocado"] as const),
               });
             } else if (tipo === "hueco") {
+              // Pregunta única desde v0.7: en Dairy, `existeHueco: true` ya
+              // implica incidencia (SPECS §5.5.3).
               await db.insert(deteccionesHueco).values({
                 accionId,
                 existeHueco: true,
-                cubiertoConAdyacente: categoria === "dairy" ? azar() < 0.35 : null,
                 correccion:
                   categoria === "dairy" ? null : azar() < 0.6 ? "si" : "no_posible",
               });
@@ -568,44 +582,51 @@ async function principal() {
                 propuesta: elegir(["subir_producto", "ganar_espacio", "cambiar_ubicacion"] as const),
               });
             } else if (tipo === "reorganizacion") {
-              await db.insert(oportunidadesReorganizacion).values({
+              // "Nueva implantación" (v0.7): marcas de catálogo en vez de
+              // texto libre, con "todo el lineal" como alternativa.
+              const posibles = catalogoMarcas.filter((m) => m.categoriaProducto === categoria);
+              const todoLineal = posibles.length === 0 || azar() < 0.2;
+              await db.insert(oportunidadesReorganizacion).values({ accionId, todoLineal });
+              if (!todoLineal) {
+                const elegidas = [...posibles].sort(() => azar() - 0.5).slice(0, entre(1, 2));
+                if (elegidas.length > 0) {
+                  await db
+                    .insert(nuevaImplantacionMarcas)
+                    .values(elegidas.map((m) => ({ accionId, marcaId: m.id })));
+                }
+              }
+            } else if (tipo === "extraespacio") {
+              await db.insert(extraespacios).values({
                 accionId,
-                propuesta: elegir(PROPUESTAS),
+                tipo: elegir(["cabecera", "isla", "pila"] as const),
+                motivo: elegir(["alta_rotacion", "promocion", "potencial_venta"] as const),
               });
-            } else if (tipo === "extraespacio" || tipo === "nevera") {
-              const esNevera = tipo === "nevera";
-              const [extra] = await db
-                .insert(extraespacios)
-                .values({
-                  accionId,
-                  tipo: esNevera ? "nevera" : elegir(["cabecera", "isla", "pila"] as const),
-                  motivo: elegir(["alta_rotacion", "promocion", "potencial_venta"] as const),
-                })
-                .returning({ id: extraespacios.id });
-
-              if (esNevera) {
-                // `necesita_recogida` y `retirada` repetidos: son los casos
-                // que llevan código de nevera, y los que el FSM traslada a su
-                // propia aplicación.
-                const situacion = elegir([
-                  "uso_parcial",
-                  "vacia_desaprovechada",
-                  "necesita_recogida",
-                  "necesita_recogida",
-                  "retirada",
-                  "necesita_nueva",
-                ] as const);
+            } else if (tipo === "nevera") {
+              // Árbol binario desde v0.7 (SPECS §5.5.9): ya no cuelga de
+              // `extraespacios`.
+              const hayNevera = azar() < 0.7;
+              if (hayNevera) {
+                const decision = azar() < 0.4 ? "recoger" : "mantener";
                 await db.insert(neveras).values({
-                  extraespacioId: extra!.id,
-                  situacion,
+                  accionId,
+                  hayNevera: true,
+                  decision,
                   // El código solo existe donde hay que mover una unidad concreta.
                   codigoNevera:
-                    situacion === "necesita_recogida" || situacion === "retirada"
+                    decision === "recoger"
                       ? `NV-${String(entre(100, 999))}-${categoria.slice(0, 3).toUpperCase()}`
                       : null,
                 });
+              } else {
+                await db.insert(neveras).values({
+                  accionId,
+                  hayNevera: false,
+                  oportunidadAnadir: azar() < 0.5,
+                });
               }
             }
+            // "bloque_marca" no tiene tabla de detalle (SPECS §5.5.7-bis):
+            // la propia acción ya es todo lo que hay que guardar.
 
             /**
              * Comprobaciones en visitas posteriores. Se generan sobre lo que ya

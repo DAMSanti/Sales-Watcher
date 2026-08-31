@@ -1,9 +1,36 @@
 # SPECS.md — Aplicación de gestión y rentabilidad de visitas GPV
 
-**Versión:** 0.6
-**Fecha:** 2026-08-25
+**Versión:** 0.7
+**Fecha:** 2026-08-31
 **Cliente:** DANONE
-**Estado:** Reencuadre cerrado. El cliente ha respondido a las doce preguntas que abrió el boceto funcional; quedan dos abiertas (audio en vídeo y origen del catálogo de referencias), ninguna de las cuales bloquea el diseño. **Listo para construir.**
+**Estado:** Segunda especificación funcional del cliente (*Especificación funcional MVP GPV v2*) incorporada. Es un ajuste sobre el reencuadre de la v0.6, no un reencuadre nuevo: confirma la mayor parte de lo ya diseñado y corrige el detalle de varios flujos. **Listo para construir**, salvo el catálogo de referencias (P32, sigue sin llegar).
+
+**Cambios respecto a v0.6 — especificación v2 del cliente.** El documento *Especificacion_MVP_GPV_Danone_v2.pdf* recoge nueve ajustes concretos sobre los flujos ya diseñados en v0.5/v0.6:
+
+| Cambio | Resultado |
+|---|---|
+| **GPS** | El cliente reafirma que no quiere ninguna interacción visible de ubicación. La captura silenciosa ya cumplía esto; se retira además el aviso de desviación que sí era visible para el GPV |
+| **Top Pico → Top Picos** | Renombrado de interfaz en los cinco idiomas. Sin cambio de modelo — el identificador interno `top_pico` no cambia |
+| **Selección múltiple en Top Picos** | Confirmado como requisito de aceptación: añadir varias referencias sin salir de la pantalla |
+| **Reorganizar lineal → Nueva implantación** | Deja de ser texto libre; pasa a categorizarse por marca (o "todo el lineal") |
+| **Bloque de marca** | Flujo nuevo, exclusivo de Waters y PBB: pregunta única, sin detalle adicional |
+| **Nevera (Dairy/Waters)** | Se simplifica de ocho situaciones a un árbol binario: existe → mantener/recoger → código + foto obligatoria si se recoge; si no existe → oportunidad de añadir |
+| **Foto obligatoria en falta de producto (Waters/PBB)** | Deja de ser evidencia opcional; se exige antes de guardar |
+| **Preguntas redundantes** | Regla de diseño explícita: ninguna pregunta secundaria debe aparecer si la respuesta principal es "No" |
+| **Histórico y seguimiento por PDV** | El cliente lo marca como lo más importante. Ya estaba construido en el modelo de `Acción` de la v0.5 (sección 7.1); no requiere diseño nuevo, solo que los flujos nuevos/modificados cuelguen de él |
+
+El registro completo con su justificación está en [ANEXO.md](ANEXO.md), ronda 6.
+
+**Segunda pasada sobre la v2 (mismo día).** Una relectura completa del documento del cliente, punto por punto y contrastada contra el código real, añade seis hallazgos que la primera pasada no recogió:
+
+| Hallazgo | Dónde |
+|---|---|
+| **Bledina queda fuera del MVP** — el cliente lo dice explícitamente y no estaba en la lista de exclusiones | §2 Alcance |
+| **Hueco en Dairy pasa de dos preguntas a una sola** — la v2 formula una pregunta combinada; el esquema actual tiene dos columnas separadas (`existe_hueco` + `cubierto_con_adyacente`) que hay que colapsar | §5.5.3 |
+| **Desajuste de documentación ya existente:** "Nevera" figuraba como tipo de extraespacio genérico en versiones previas de este documento, pero el código la trata como flujo propio — no es un cambio de la v2, es un error de esta documentación que se corrige de paso | §5.5.8 |
+| **Vocabulario de estados sin resolver:** la sección 11 del cliente pide distinguir `pendiente`/`resuelta`/`no resuelta`/`corregida en visita`; ni `estado_accion` ni `desenlace_comprobacion` tienen un valor equivalente a los dos últimos. Queda como pendiente técnico, no como decisión de negocio | §7.1 |
+| **Vista por PDV en backoffice, a confirmar:** el endpoint ya existe; falta verificar que hay una pantalla de ficha de tienda y no solo un listado plano filtrable | §6.2 |
+| **Matriz de responsabilidades, tabla de evidencia y criterios de aceptación**, que el cliente presenta como secciones propias, no estaban reproducidas como referencia consolidada | §5.5.10, §5.5.11 |
 
 **Cambios respecto a v0.5 — se cierra el reencuadre.** Doce decisiones, dos de ellas delegadas por el cliente:
 
@@ -60,6 +87,8 @@ Aplicación para convertir cada visita del GPV en una **visita comercialmente ú
 
 Si la respuesta es no, no debería formar parte de la aplicación.
 
+> **Reformulación del cliente en la v2, más precisa:** *«si una respuesta no genera una decisión, una acción, un dato de seguimiento o una oportunidad de análisis, no debería formar parte del MVP»*. Añade un caso que la formulación de la ronda 4 no cubría explícitamente — una respuesta puede no "vender más" ni "resolver un problema" de forma directa y aun así merecer registrarse porque **alimenta un análisis posterior** (por ejemplo, un patrón de incidencias repetidas). Es la misma regla, con el caso de la sección 6.4 (preguntas de repetición y patrón) ya incorporado a su propio enunciado.
+
 **El ciclo que hay que soportar:**
 
 ```
@@ -88,6 +117,7 @@ La aplicación no debe limitarse a almacenar lo detectado; debe gestionar el pro
 - **El tiempo de permanencia como métrica.** Se registra técnicamente inicio y fin, pero no se expone como indicador ni se usa como mecanismo de control, a la espera de la revisión legal correspondiente.
 - **Duplicar la aplicación de auditoría existente.** La comprobación sistemática de presencia, implantaciones y promociones ya la cubre otra herramienta.
 - **La base de datos de Top Picos.** Ya existe en otra aplicación; aquí solo se registran los que faltan y su seguimiento.
+- **Bledina.** El cliente lo excluye explícitamente en la especificación v2 (*«Bledina: no forma parte de este MVP»*). Las tres categorías del MVP son Dairy, Waters y PBB; ninguna pantalla, catálogo ni flujo debe contemplar Bledina como cuarta categoría.
 
 **Fuera de alcance en v1** (se documentan como fases futuras en la sección 10):
 
@@ -254,6 +284,8 @@ Al pulsar sobre una card se accede al detalle, con:
 **Botón de acción según estado:**
 - Si `Pendiente` → botón **"Comenzar visita"** (registra hora de inicio y geolocalización del check-in).
 - Si `En curso` → botón **"Finalizar visita"** (registra hora de fin y geolocalización). Si quedan ítems obligatorios del checklist sin completar, se avisa pero **no se bloquea** el cierre: la visita queda marcada como *incompleta*.
+
+> **GPS — sin interacción visible (v0.7).** El cliente reafirma que el GPV no debe gestionar nada de ubicación: ni pulsar "mostrar ubicación" ni ver un aviso que le pida actuar. La captura ya era silenciosa (sección 8, cumplimiento laboral), pero el aviso de **desviación** que hoy se muestra al propio GPV al comenzar la visita deja de ser visible para él — pasa a ser una señal solo para el FSM/backoffice. *«No me importa tanto ver si ha estado en la tienda, porque tengo otra aplicación que ya me lo dice»* — el cliente no pide dejar de calcular la desviación, pide dejar de enseñársela a quien la genera.
 - Si `Finalizada` → se sustituye el botón por la leyenda **"FINALIZADA"** y la vista pasa a modo solo-lectura (no se pueden editar checklist/incidencias/fotos ya enviadas, para preservar la integridad del registro).
 - Si `Pendiente` y se acerca el cierre de jornada → botón secundario **"No he podido visitarla"**, que abre el flujo de justificación (sección 5.9).
 
@@ -298,7 +330,8 @@ El contenido concreto de cada apartado **varía según la categoría** — el de
 | Top Pico de Waters/PBB no implantado | GPV → Encargado |
 | Gestión de una nevera | FSM |
 | Oportunidad de ganar facings | GPV / seguimiento |
-| Reorganización del lineal | GPV detecta → FSM decide |
+| Nueva implantación *(antes "Reorganización del lineal", v0.7)* | GPV detecta → FSM decide |
+| Bloque de marca — solo Waters/PBB *(nuevo en v0.7)* | — *(se registra automáticamente, sin escalado)* |
 | Relación con el responsable | GPV |
 
 El patrón es consistente: **en Dairy hay un reponedor de Danone** y el GPV no le da instrucciones directamente, así que casi todo escala al FSM; **en Waters y PBB no lo hay**, y el propio GPV actúa o negocia con el encargado. El responsable de actuar es por tanto un **campo derivado por reglas**, no una elección del usuario: pedirle al GPV que lo seleccione sería trasladarle una decisión que ya está tomada.
@@ -320,6 +353,8 @@ El patrón es consistente: **en Dairy hay un reponedor de Danone** y el GPV no l
 
 Principio común a todos: **registrar únicamente lo relevante**. El GPV no comprueba sistemáticamente todas las referencias; detecta visualmente durante la visita y registra rápido lo que ve.
 
+> ⚠️ **Regla de preguntas, sin redundancia (v0.7).** La pregunta principal de cada flujo debe bastar para detectar la oportunidad/incidencia; las preguntas secundarias solo aparecen si ayudan a concretarla. Si la respuesta a la pregunta principal es "No", no debe mostrarse ninguna pregunta adicional. Ejemplo del propio cliente: responder "No" a *«¿existe oportunidad de ganar facings?»* no debe abrir ni marca ni resultado; solo si la respuesta es "Sí" tiene sentido pedirlos. Cada flujo de esta sección debe auditarse contra esta regla antes de darlo por cerrado.
+
 #### 5.5.1 Falta de stock / producto insuficiente
 
 La comprobación principal es una sola pregunta:
@@ -335,9 +370,9 @@ La comprobación principal es una sola pregunta:
 La tercera opción existe únicamente en Dairy porque es la única categoría con reponedor de Danone. En Waters y PBB **no debe aparecer**: ofrecerla sería ofrecer una excusa que no existe.
 
 - **Dairy** → si el producto es insuficiente, la incidencia va al **FSM**, que actúa con el reponedor.
-- **Waters / PBB** → el GPV debe comunicarlo al **responsable del establecimiento**, y se registra:
-  - **¿Se ha comunicado al responsable?** Sí / No
-  - Evidencia: 📷 **foto** o 🎥 **vídeo**
+- **Waters / PBB** → incidencia para el **encargado del establecimiento**. **Foto del lineal obligatoria antes de guardar** *(v0.7 — deja de ser opcional)*.
+
+> ⚠️ **Cambio v0.7:** la pregunta *«¿se ha comunicado al responsable?»* se retira, por la regla de preguntas sin redundancia de arriba: el cliente no la pidió en la v2, y la incidencia para el encargado más la foto ya son suficientes para actuar. El vídeo sigue admitido como evidencia adicional, pero la **foto pasa a ser el mínimo obligatorio**, no una alternativa equivalente.
 
 La evidencia importa especialmente aquí: una falta de producto **repetida** en Waters o PBB es la munición para una conversación posterior con el responsable del establecimiento, o para escalar el problema. Sin registro acumulado, esa conversación no se puede tener.
 
@@ -358,17 +393,17 @@ Si responde **Sí**, tipo de problema:
 
 #### 5.5.3 Huecos en el lineal
 
-El tratamiento **difiere por categoría**, y es el ejemplo más claro de la regla de diseño.
+El tratamiento **difiere por categoría**, y es el ejemplo más claro de la regla de diseño. Las tres categorías comparten la misma pregunta base; lo que cambia es qué pasa después de un "Sí".
 
-**Dairy** — ante una rotura, el reponedor debe ocupar el hueco con una referencia Danone adyacente para que no lo gane la competencia. El GPV detecta:
+> ⚠️ **Cambio v0.7: la comprobación de Dairy pasa de dos preguntas a una.** La v0.5/v0.6 la partía en dos pasos — *"¿existe un hueco de nuestro producto?"* y, solo si existía, *"¿está cubierto con una referencia Danone adyacente?"* —, con incidencia solo si no estaba cubierto. La v2 la formula como **una sola pregunta** que ya incorpora el criterio de cobertura, y así debe implementarse: el GPV resuelve mentalmente en un solo paso si el hueco "cuenta" o no, en vez de que la aplicación se lo pregunte en dos tandas. **Afecta al esquema:** la tabla `detecciones_hueco` tiene hoy dos columnas para Dairy (`existe_hueco` + `cubierto_con_adyacente`); pasan a colapsarse en una sola.
 
-1. **¿Existe un hueco de nuestro producto?**
-2. Si existe: **¿está correctamente cubierto con una referencia Danone adyacente?**
-3. Si no lo está → **incidencia para el FSM**, que la traslada al reponedor.
+**Pregunta base (las tres categorías):**
 
-No requiere foto.
+> **¿Hay algún hueco en el lineal que debería estar cubierto por alguna referencia de Danone y no lo está?** No / Sí
 
-**Waters / PBB** — aquí el GPV **sí puede actuar**: debe intentar aprovechar el espacio colocando correctamente las referencias adyacentes. Se registra el resultado de su propia actuación:
+- **Dairy** — Si Sí → **incidencia para el FSM**, que la traslada al reponedor. No requiere foto ni identificar la referencia concreta.
+
+- **Waters / PBB** — aquí el GPV **sí puede actuar**: la aplicación le pide que intente corregirlo en el momento, colocando correctamente las referencias adyacentes. Se registra el resultado de su propia actuación:
 
 > **¿Se ha corregido el hueco?** Sí / No — no ha sido posible
 
@@ -376,9 +411,13 @@ Esto separa tres cosas que conviene no mezclar: **problema detectado → actuaci
 
 #### 5.5.4 Top Picos
 
+> **Nombre (v0.7):** el cliente escribe "Top Pico" en singular en su propio boceto y corrige en la v2: el nombre correcto, en todas partes donde se muestre al usuario, es **"Top Picos"**, con "S". Es un cambio de etiqueta en los cinco idiomas, no de identificador interno.
+
 Los **Top Picos** son referencias que Danone considera prioritarias y que deberían estar en el surtido de determinados puntos de venta. El GPV ya consulta en otra aplicación cuáles corresponden a cada tienda: **esta aplicación no duplica esa base de datos**, solo registra las que faltan.
 
 El GPV indica las referencias Top Pico **no incorporadas** al lineal o al surtido, **eligiéndolas de un catálogo de referencias de producto**, no escribiéndolas a mano.
+
+> ⚠️ **Requisito de aceptación (v0.7): selección múltiple sin salir de la pantalla.** El GPV debe poder buscar y añadir Referencia A + Referencia B + Referencia C en la misma pantalla, sin pulsar atrás y volver a entrar al buscador. Al terminar, todas las referencias añadidas quedan asociadas a la misma detección — no se crea una `Acción` por referencia y una visita distinta para cada una.
 
 > **El catálogo es lo que hace posible el seguimiento.** Con texto libre, «Activia Natural 4×125» y «activia natural 4x125» son dos referencias distintas, y comprobar en la visita siguiente si *la misma* referencia se incorporó deja de funcionar. Como el seguimiento es, según el propio boceto, la funcionalidad más importante del sistema, la elección es catálogo.
 >
@@ -427,48 +466,107 @@ Fotografía del lineal **opcional**.
 
 La filosofía es priorizar ubicaciones que favorezcan visibilidad y capacidad de stock, evitando especialmente posiciones desfavorables como el *palomar*.
 
-#### 5.5.7 Reorganización / nueva implantación
+#### 5.5.7 Nueva implantación *(antes "Reorganizar lineal" — renombrado y rediseñado en v0.7)*
 
-> **¿Existe una oportunidad de reorganización?** No / Sí
+> **¿Existe alguna oportunidad de realizar una nueva implantación?** No / Sí
 
-Si existe: **¿qué propones cambiar?** — campo de **texto libre**, acompañable de fotografía del estado actual del lineal.
+Si existe: **categorizar por marca**. Mostrar las marcas relevantes del catálogo (Activia, Actimel, etc.) y permitir seleccionar una o varias, más la opción **"Todo el lineal"** cuando la propuesta afecta al conjunto. Fotografía del estado actual del lineal, opcional.
 
-Es el único flujo esencialmente abierto, y con razón: una propuesta de cambio estructural del lineal no se deja tipificar en un desplegable. La oportunidad llega al **FSM, que decide** si se lleva a cabo.
+> ⚠️ **Cambio v0.7: deja de ser texto libre.** La v0.5/v0.6 lo modelaba como el único flujo abierto, con un campo de texto para que el GPV describiera su propuesta. El cliente lo revierte: quiere el mismo patrón que el resto de oportunidades — selección de marca(s) de catálogo, no redacción. Es una simplificación deliberada a costa de perder detalle libre; si hace falta matizar la propuesta, está la nota libre general de la visita (sección 5.4).
+
+La oportunidad llega al **FSM, que decide** si se lleva a cabo. Mismo guion en Dairy, Waters y PBB.
+
+#### 5.5.7-bis Bloque de marca — exclusivo de Waters y PBB *(nuevo en v0.7)*
+
+> **¿Existe alguna oportunidad de hacer un bloque de marca de Danone?** No / Sí
+
+**Pregunta única, sin detalle adicional.** Si la respuesta es Sí, se registra la oportunidad automáticamente — no hay marca, ubicación ni ningún otro campo que rellenar. Es el flujo más simple del sistema, y así debe quedarse: el propio boceto es explícito en que no hay que añadir preguntas dentro de este bloque.
+
+**No existe en Dairy.** Aparece únicamente en Waters y PBB, junto al resto de oportunidades de esas dos categorías (facings, visibilidad, nueva implantación, extraespacio).
 
 #### 5.5.8 Extraespacios
 
 Apartado independiente dentro de cada categoría. Secuencia:
 
 1. **Categoría:** Dairy · Waters · PBB
-2. **Tipo de extraespacio:** Cabecera · Isla · Pila · Nevera · Otro
+2. **Tipo de extraespacio:** Cabecera · Isla · Pila · Otro
 3. **Motivo:** Alta rotación · Promoción · Potencial de venta · Falta de espacio en lineal · Oportunidad estacional · Otro
 
 Fotografía **no obligatoria**. La idea es detectar los casos en los que el producto tiene rotación o potencial suficiente para justificar un punto adicional de carga.
 
-#### 5.5.9 Neveras
+> **Corrección de esta ronda: "Nevera" no es un tipo de este desplegable.** Versiones anteriores de este documento la listaban aquí, pero el código ya la trata como un **flujo propio** con su árbol de preguntas (sección siguiente), no como una opción más de extraespacio genérico. Era un desajuste entre documentación y código anterior a la v2; se corrige aquí de paso.
 
-Las neveras son un **tipo de extraespacio**. El GPV indica la situación:
+#### 5.5.9 Neveras — exclusivo de Dairy y Waters
 
-- Se utiliza correctamente
-- Se utiliza parcialmente
-- Se utiliza incorrectamente
-- Nos la han retirado
-- Está vacía / desaprovechada
-- Se necesita una nueva nevera
-- Necesita recogida
-- Otro
+> ⚠️ **Rediseño completo en v0.7.** La v0.5/v0.6 modelaba ocho situaciones posibles (uso correcto/parcial/incorrecto, retirada, vacía, necesita nueva, necesita recogida, otro). El cliente lo simplifica a un árbol binario. Se sustituye entero, no se añade encima.
 
-> **Cuando haya que retirar una nevera**, es especialmente importante poder adjuntar **fotografía** y registrar el **CÓDIGO DE NEVERA**. Sirve para identificar exactamente qué unidad debe recogerse y **evitar que se retire otra**.
+**No existe en PBB.** No mostrar este apartado en esa categoría.
 
-Toda gestión de nevera genera una **acción para el FSM**.
+Flujo:
 
-**El código de nevera es un puente a otro sistema, no un dato interno.** El cliente lo explica así: *«todas las neveras tienen que tener un código visible que está dentro de la nevera. Es un código que me permite saber cuál es la que está mal para yo informarlo en mi propia aplicación de neveras»*. El FSM tiene su propia aplicación de neveras, y nuestro papel es que allí llegue el código correcto. De ahí cinco consecuencias de diseño:
+> **¿Hay alguna nevera de Danone en el PDV?** Sí / No
+
+- **Si Sí → ¿qué hacemos con ella?** Mantener / Recoger
+  - **Si Recoger** → pedir **código de la nevera** + **foto obligatoria del código**. La foto sirve como evidencia de identificación, no es opcional en este caso.
+  - **Si Mantener** → no se pide nada más; no genera acción.
+- **Si No → ofrecer la oportunidad de añadir una nevera Danone.** No / Sí. Si Sí, se registra como oportunidad (mismo patrón que el resto: sin detalle adicional).
+
+Toda gestión de nevera (recogida u oportunidad de añadir) genera una **acción para el FSM**.
+
+**El código de nevera es un puente a otro sistema, no un dato interno** *(decisión de la ronda 5, sin cambios en v0.7)*. El cliente lo explica así: *«todas las neveras tienen que tener un código visible que está dentro de la nevera. Es un código que me permite saber cuál es la que está mal para yo informarlo en mi propia aplicación de neveras»*. El FSM tiene su propia aplicación de neveras, y nuestro papel es que allí llegue el código correcto. De ahí cinco consecuencias de diseño:
 
 - El código se guarda **tal cual se escribe**. Normalizarlo agresivamente podría romper la correspondencia con la otra aplicación, y el objetivo declarado es evitar que se retire la unidad equivocada.
 - En el panel del FSM el código debe ser **prominente y copiable**: es el dato que va a teclear en otro sistema.
 - Conviene **foto del código**, no solo el código transcrito, para poder verificar una lectura dudosa sin volver a la tienda.
 - Está **dentro** de la nevera, así que leerlo exige abrirla. La interfaz no debe dar a entender que se ve de lejos.
 - **Cerrar una acción de nevera significa «informado en la aplicación de neveras»**, no «nevera recogida». Redactarlo de otro modo haría creer que el problema físico está resuelto cuando solo se ha trasladado.
+
+#### 5.5.10 Resumen consolidado (v2) — matriz de responsabilidades y evidencia
+
+El documento del cliente presenta esta información como dos tablas independientes. Se reproducen aquí en forma compacta porque son las que sirven de referencia rápida en QA — el detalle completo de cada flujo está en las subsecciones anteriores.
+
+**Matriz de responsabilidades por elemento y categoría:**
+
+| Elemento | Dairy | Waters | PBB |
+|---|---|---|---|
+| Falta de producto | Reponedor (vía FSM) | Encargado + foto obligatoria | Encargado + foto obligatoria |
+| Hueco | Reponedor (vía FSM) | GPV corrige en el momento | GPV corrige en el momento |
+| Fechas/rotación | Reponedor (vía FSM) | — *(no existe)* | — *(no existe)* |
+| Top Picos | Reponedor (vía FSM) | Encargado (directo) | Encargado (directo) |
+| Nueva implantación | GPV detecta → FSM decide | GPV detecta → FSM decide | GPV detecta → FSM decide |
+| Bloque de marca | — *(no existe)* | Se registra, sin escalado | Se registra, sin escalado |
+| Nevera | FSM | FSM | — *(no existe)* |
+
+**Evidencia fotográfica — cuándo es obligatoria:**
+
+| Situación | Evidencia |
+|---|---|
+| Waters — Falta de producto | 📷 Foto obligatoria del lineal |
+| PBB — Falta de producto | 📷 Foto obligatoria del lineal |
+| Dairy — Recoger nevera | 📷 Foto obligatoria del código |
+| Waters — Recoger nevera | 📷 Foto obligatoria del código |
+| Dairy — Falta de producto | Sin evidencia obligatoria |
+| Fechas/rotación, Huecos (todas las categorías) | Sin evidencia obligatoria |
+| Visibilidad, Nueva implantación | Foto opcional del lineal |
+| Resto de oportunidades/incidencias | Foto opcional, salvo que se decida lo contrario más adelante |
+
+#### 5.5.11 Criterios de aceptación del MVP (v2, literales del cliente)
+
+Lista de comprobación para dar por cerrada la implementación de esta ronda:
+
+- [ ] El GPV puede completar una visita sin introducir datos innecesarios
+- [ ] Dairy, Waters y PBB mantienen un guion reconocible y consistente
+- [ ] Top Picos permite seleccionar múltiples referencias sin volver atrás
+- [ ] Nueva implantación sustituye a Reorganizar lineal y se categoriza por marca
+- [ ] Bloque de marca aparece exclusivamente en Waters y PBB
+- [ ] Nevera aparece exclusivamente en Dairy y Waters
+- [ ] Recoger nevera exige código + foto
+- [ ] Falta de producto en Waters/PBB exige foto y se asigna al encargado
+- [ ] Hueco en Waters/PBB genera una acción inmediata para que el GPV intente corregirlo
+- [ ] No aparece ninguna interacción visible de ubicación/GPS durante la visita, incluido el aviso de desviación
+- [ ] Las incidencias y oportunidades quedan automáticamente registradas
+- [ ] El sistema permite recuperar el histórico y pendientes del PDV
+- [ ] Las respuestas generan automáticamente las acciones y responsables correspondientes
 
 ### 5.6 Responsable de tienda
 
@@ -616,6 +714,7 @@ Cada línea debe permitir distinguir de un vistazo **categoría, tienda, tipo de
 
 - Dashboard con estado del día: visitas completadas vs. planificadas, GPVs activos, acciones abiertas, **visitas no realizadas pendientes de justificar**.
 - Vista de detalle de cualquier visita: lo detectado por categoría, evidencias, responsable de tienda y horarios.
+- **Ficha de tienda con histórico completo de acciones** — el endpoint `GET /tiendas/:id/acciones` ya existe (ROADMAP fase 2), pero conviene verificar que el backoffice lo expone como una **pantalla propia por PDV** (qué se detectó, quién debe solucionarlo, si se solucionó), y no solo como filtro sobre el listado plano de "Acciones pendientes". El cliente lo pide explícitamente por tienda: *«que todas las oportunidades e incidencias queden guardadas automáticamente por PDV […] para ver qué se detectó, quién tiene que solucionarlo y si finalmente se solucionó o no»* — el dato ya está, falta confirmar que la pantalla lo presenta así.
 
 > ⚠️ **La duración de la visita no se muestra.** Se registra técnicamente inicio y fin, pero el cliente ha decidido **no exponer el tiempo de permanencia** como métrica ni usarlo como mecanismo de control mientras no se complete la revisión legal. Esto es un cambio respecto a la v0.4, que la incluía explícitamente en el detalle de visita y en los informes.
 - **Bandeja de justificaciones:** listado de visitas `No realizada`, separando visualmente las **justificadas** (con su motivo) de las **no justificadas** (el comercial dejó pasar la ventana diaria). Permite marcar la justificación como aceptada o cuestionada.
@@ -697,10 +796,13 @@ El núcleo del reencuadre. La pieza central es **Acción**, que existe **por enc
 | **TopPicoPendiente** | **referencia_id** *(del catálogo, no texto libre)*, incorporada, fecha_incorporacion |
 | **GananciaFacings** | marca_segmento_id, conseguido, **facings_ganados** (entero) |
 | **OportunidadVisibilidad** | marca_segmento_id, ubicacion_actual, propuesta |
-| **OportunidadReorganizacion** | propuesta (texto libre) |
+| **NuevaImplantacion** *(antes `OportunidadReorganizacion`, v0.7)* | **marca_ids[]** *(del catálogo)*, **todo_lineal**: bool — sustituye a `propuesta` (texto libre) |
+| **BloqueMarca** *(nuevo, v0.7 — solo Waters/PBB)* | *(sin campos propios)* — la `Acción` sola basta: `tipo_situacion = 'bloque_marca'`, sin detalle que tipificar |
 | **Extraespacio** | tipo [`cabecera`/`isla`/`pila`/`nevera`/`otro`], motivo |
-| **Nevera** | situacion, **codigo_nevera**, extraespacio_id |
+| **Nevera** *(rediseñada en v0.7 — solo Dairy/Waters)* | **hay_nevera**: bool, **decision** [`mantener`/`recoger`] *(si hay_nevera)*, **codigo_nevera** *(obligatorio si `recoger`)*, **oportunidad_anadir**: bool *(si no hay_nevera)* — sustituye al campo `situacion` de 8 valores |
 | **RelacionResponsable** | visita_id, ha_hablado, **valoracion**, cuestion_pendiente, comentario |
+
+> **Top Picos — la selección múltiple no cambia el modelo.** El requisito de la sección 5.5.4 (añadir varias referencias sin salir de pantalla) es de interfaz: cada referencia sigue generando su propia `Acción` + `TopPicoPendiente`, porque cada una necesita seguimiento independiente (una puede incorporarse y otra seguir pendiente). Lo que cambia es que el formulario permite crearlas todas en una sola sesión, no una por una.
 
 **Decidido: tabla por flujo, no JSONB genérico.** Los flujos comparten ciclo de vida pero no campos, y las dos opciones eran una tabla por flujo o una `Acción` con `detalle` en JSONB.
 
@@ -721,6 +823,10 @@ El motivo decisivo es el dashboard: `facings_ganados` hay que **sumarlo**, y las
 - **`facings_ganados` es un entero acumulable.** Es la única cifra del sistema que se suma directamente para producir un resultado de negocio, y debe poder agregarse por GPV, tienda, categoría, marca y mes.
 - **`codigo_nevera` es texto libre** y debe conservarse tal cual se escribe: es la clave de correspondencia con la **aplicación de neveras del FSM**, y normalizarlo agresivamente podría destruir esa correspondencia.
 - **`estancada` se deriva de la antigüedad, no es un estado más.** Una acción estancada sigue abierta; solo sube en el panel. Convertirlo en estado permitiría que algo estuviera «estancado» y «resuelto» a la vez, o que dejara de estarlo sin que nadie hiciera nada.
+
+> ⚠️ **Pendiente de verificar (v0.7): el vocabulario de estados no coincide literalmente con el de la especificación v2.** La sección 11 del documento del cliente pide poder distinguir `pendiente` / `resuelta` / `no resuelta` / `corregida en visita`. El `estado_accion` real en base de datos es `abierta` / `en_curso` / `resuelta` / `descartada`, y el desenlace de una comprobación es `sigue_pendiente` / `resuelta` / `no_procede`. Ninguno de los dos tiene un valor equivalente a **"corregida en visita"** — hoy ese matiz vive solo en el campo `correccion` de `DeteccionHueco` (Waters/PBB), no en el estado de la `Acción` — ni a **"no resuelta"** como desenlace distinto de `descartada` (que es administrativo: alguien decide que no procede actuar, no que se intentó y no se consiguió). Antes de dar por cerrado el ciclo de seguimiento conviene decidir si esto se resuelve con **texto derivado** en el panel del FSM (leyendo el detalle del flujo, sin tocar el esquema) o si hace falta ampliar alguno de los dos enums. No es una decisión de negocio — es una de las mías pendiente de validar con el desarrollo antes de construir el panel de resultados.
+>
+> **Corrección tras implementar: el campo `tipo` (incidencia/oportunidad) ya estaba resuelto, no pendiente.** `grupoSituacion()` en `@sw/shared` clasifica en **tres** grupos deliberadamente, no dos: incidencia, oportunidad y **extraespacio como grupo propio** — con su propio comentario en el código explicando por qué no colapsarlo dentro de oportunidad (haría que "nos han retirado la nevera" contase como oportunidad detectada y ensuciaría el embudo del dashboard, SPECS §6.4). La nota de la ronda 6 que daba esto por abierto pasó por alto revisar `@sw/shared` antes de escribirlo. Queda como referencia rápida, no como decisión pendiente.
 
 **Notas de diseño:**
 - El `nº_referencia` de tienda **no debe ser la clave primaria**. Cuando llegue el ERP, la clave de correspondencia será `id_externo`, y el número de referencia puede cambiar o duplicarse durante la transición.

@@ -165,32 +165,31 @@
     "stock": "Falta de producte",
     "fechas": "Problema amb les dates",
     "hueco": "Buit al lineal",
-    "top_pico": "Top Pico sense incorporar",
+    "top_pico": "Top Picos",
     "facings": "Guanyar facings",
     "visibilidad": "Millorar visibilitat",
-    "reorganizacion": "Reorganitzar el lineal",
+    "reorganizacion": "Nova implantació",
+    "bloque_marca": "Bloc de marca",
     "extraespacio": "Extraespai",
     "nevera": "Nevera"
   },
   "flujo": {
     "stock": {
       "pregunta": "Hi ha prou producte per cobrir la jornada?",
-      "suficiencia": "Producte suficient",
-      "comunicado": "Ho has comunicat al responsable?"
+      "suficiencia": "Producte suficient"
     },
     "fechas": {
       "pregunta": "Has detectat cap problema amb les dates?",
       "problema": "Tipus de problema"
     },
     "hueco": {
-      "pregunta": "Hi ha un buit del nostre producte?",
-      "existe": "Hi ha buit",
-      "cubierto": "Està cobert amb una referència Danone adjacent?",
+      "pregunta": "Hi ha algun buit al lineal que hauria d'estar cobert per una referència Danone i no ho està?",
+      "existe": "Hi ha un buit sense cobrir",
       "corregido": "Has pogut corregir-ho?"
     },
     "topPico": {
-      "pregunta": "Quina referència Top Pico falta a l'assortiment?",
-      "referencia": "Referència"
+      "pregunta": "Hi ha alguna referència Top Picos que no estigui incorporada?",
+      "referencia": "Referències"
     },
     "facings": {
       "pregunta": "Hi ha oportunitat de guanyar facings?",
@@ -203,8 +202,12 @@
       "propuesta": "Què proposes"
     },
     "reorganizacion": {
-      "pregunta": "Què proposes canviar al lineal?",
-      "propuesta": "La teva proposta"
+      "pregunta": "Hi ha oportunitat de fer una nova implantació?",
+      "marcas": "Marca(es)",
+      "todoLineal": "Tot el lineal"
+    },
+    "bloque_marca": {
+      "pregunta": "Hi ha oportunitat de fer un bloc de marca de Danone?"
     },
     "extraespacio": {
       "pregunta": "On i per què hi cabria un punt de càrrega addicional?",
@@ -212,8 +215,10 @@
       "motivo": "Motiu"
     },
     "nevera": {
-      "pregunta": "Com està la nevera?",
-      "situacion": "Situació",
+      "pregunta": "Hi ha alguna nevera de Danone al PDV?",
+      "hayNevera": "Hi ha nevera de Danone",
+      "decision": "Què en fem?",
+      "oportunidadAnadir": "Registrem l'oportunitat d'afegir una nevera Danone?",
       "codigo": "Codi de la nevera",
       "codigoAyuda": "És dins de la nevera. Sense ell es pot retirar la unitat equivocada."
     },
@@ -221,14 +226,19 @@
     "detalle": "Detall",
     "sinMarcas": "No hi ha marques disponibles",
     "sinReferencias": "No hi ha referències disponibles",
+    "anadirReferencia": "Afegir referència",
+    "anadirMarca": "Afegir marca",
     "iraAlFsm": "Es generarà una acció per al teu responsable.",
     "actuasTu": "Ho pots resoldre tu a la botiga.",
     "hablasConEncargado": "Comenta-ho a l'encarregat de l'establiment.",
+    "seRegistraSolo": "Es registra automàticament.",
     "faltaDetalle": "Indica quin és el problema",
-    "faltaReferencia": "Tria una referència",
-    "faltaPropuesta": "Escriu la teva proposta",
+    "faltaReferencia": "Tria almenys una referència",
+    "faltaMarcaImplantacion": "Tria almenys una marca, o marca \"tot el lineal\"",
     "faltaFacings": "Indica quants facings has guanyat",
     "faltaCodigoNevera": "Cal el codi per no retirar una altra nevera",
+    "faltaDecisionNevera": "Indica si es manté o es recull la nevera",
+    "faltaOportunidadNevera": "Indica si es registra l'oportunitat d'afegir una nevera",
     "suficiencia": {
       "si": "Sí",
       "no": "No",
@@ -258,15 +268,9 @@
       "oportunidad_estacional": "Oportunitat estacional",
       "otro": "Altre"
     },
-    "situacionNevera": {
-      "uso_correcto": "S'usa correctament",
-      "uso_parcial": "S'usa parcialment",
-      "uso_incorrecto": "S'usa incorrectament",
-      "retirada": "Ens l'han retirada",
-      "vacia_desaprovechada": "Buida o desaprofitada",
-      "necesita_nueva": "Se'n necessita una de nova",
-      "necesita_recogida": "Necessita recollida",
-      "otro": "Altre"
+    "decisionNevera": {
+      "mantener": "Mantenir",
+      "recoger": "Recollir"
     },
     "ubicacion": {
       "palomar": "Palomar (a dalt)",
@@ -293,6 +297,8 @@
     },
     "registrada": "Registrat",
     "evidenciaOpcional": "Vols afegir una evidència? És opcional.",
+    "evidenciaObligatoria": "Adjunta una foto abans de continuar.",
+    "evidenciaObligatoriaAyuda": "Cal almenys una foto per poder desar.",
     "terminar": "Acabar"
   },
   "pendientes": {

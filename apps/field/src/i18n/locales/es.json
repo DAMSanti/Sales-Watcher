@@ -165,32 +165,31 @@
     "stock": "Falta de producto",
     "fechas": "Problema con las fechas",
     "hueco": "Hueco en el lineal",
-    "top_pico": "Top Pico sin incorporar",
+    "top_pico": "Top Picos",
     "facings": "Ganar facings",
     "visibilidad": "Mejorar visibilidad",
-    "reorganizacion": "Reorganizar el lineal",
+    "reorganizacion": "Nueva implantación",
+    "bloque_marca": "Bloque de marca",
     "extraespacio": "Extraespacio",
     "nevera": "Nevera"
   },
   "flujo": {
     "stock": {
       "pregunta": "¿Hay suficiente producto para cubrir la jornada?",
-      "suficiencia": "Producto suficiente",
-      "comunicado": "¿Se lo has comunicado al responsable?"
+      "suficiencia": "Producto suficiente"
     },
     "fechas": {
       "pregunta": "¿Has detectado algún problema con las fechas?",
       "problema": "Tipo de problema"
     },
     "hueco": {
-      "pregunta": "¿Existe un hueco de nuestro producto?",
-      "existe": "Hay hueco",
-      "cubierto": "¿Está cubierto con una referencia Danone adyacente?",
+      "pregunta": "¿Hay algún hueco en el lineal que debería estar cubierto por alguna referencia de Danone y no lo está?",
+      "existe": "Hay hueco sin cubrir",
       "corregido": "¿Has podido corregirlo?"
     },
     "topPico": {
-      "pregunta": "¿Qué referencia Top Pico falta en el surtido?",
-      "referencia": "Referencia"
+      "pregunta": "¿Hay alguna referencia Top Picos que no esté incorporada?",
+      "referencia": "Referencias"
     },
     "facings": {
       "pregunta": "¿Existe oportunidad de ganar facings?",
@@ -203,8 +202,12 @@
       "propuesta": "Qué propones"
     },
     "reorganizacion": {
-      "pregunta": "¿Qué propones cambiar en el lineal?",
-      "propuesta": "Tu propuesta"
+      "pregunta": "¿Existe alguna oportunidad de realizar una nueva implantación?",
+      "marcas": "Marca(s)",
+      "todoLineal": "Todo el lineal"
+    },
+    "bloque_marca": {
+      "pregunta": "¿Existe alguna oportunidad de hacer un bloque de marca de Danone?"
     },
     "extraespacio": {
       "pregunta": "¿Dónde y por qué cabría un punto de carga adicional?",
@@ -212,8 +215,10 @@
       "motivo": "Motivo"
     },
     "nevera": {
-      "pregunta": "¿Cómo está la nevera?",
-      "situacion": "Situación",
+      "pregunta": "¿Hay alguna nevera de Danone en el PDV?",
+      "hayNevera": "Hay nevera de Danone",
+      "decision": "¿Qué hacemos con ella?",
+      "oportunidadAnadir": "¿Registramos la oportunidad de añadir una nevera Danone?",
       "codigo": "Código de la nevera",
       "codigoAyuda": "Está dentro de la nevera. Sin él puede retirarse la unidad equivocada."
     },
@@ -221,14 +226,19 @@
     "detalle": "Detalle",
     "sinMarcas": "No hay marcas disponibles",
     "sinReferencias": "No hay referencias disponibles",
+    "anadirReferencia": "Añadir referencia",
+    "anadirMarca": "Añadir marca",
     "iraAlFsm": "Se generará una acción para tu responsable.",
     "actuasTu": "Puedes resolverlo tú en tienda.",
     "hablasConEncargado": "Coméntaselo al encargado del establecimiento.",
+    "seRegistraSolo": "Se registra automáticamente.",
     "faltaDetalle": "Indica cuál es el problema",
-    "faltaReferencia": "Elige una referencia",
-    "faltaPropuesta": "Escribe tu propuesta",
+    "faltaReferencia": "Elige al menos una referencia",
+    "faltaMarcaImplantacion": "Elige al menos una marca, o marca \"todo el lineal\"",
     "faltaFacings": "Indica cuántos facings has ganado",
     "faltaCodigoNevera": "Hace falta el código para no retirar otra nevera",
+    "faltaDecisionNevera": "Indica si se mantiene o se recoge la nevera",
+    "faltaOportunidadNevera": "Indica si se registra la oportunidad de añadir una nevera",
     "suficiencia": {
       "si": "Sí",
       "no": "No",
@@ -258,15 +268,9 @@
       "oportunidad_estacional": "Oportunidad estacional",
       "otro": "Otro"
     },
-    "situacionNevera": {
-      "uso_correcto": "Se usa correctamente",
-      "uso_parcial": "Se usa parcialmente",
-      "uso_incorrecto": "Se usa incorrectamente",
-      "retirada": "Nos la han retirado",
-      "vacia_desaprovechada": "Vacía o desaprovechada",
-      "necesita_nueva": "Se necesita una nueva",
-      "necesita_recogida": "Necesita recogida",
-      "otro": "Otro"
+    "decisionNevera": {
+      "mantener": "Mantener",
+      "recoger": "Recoger"
     },
     "ubicacion": {
       "palomar": "Palomar (arriba)",
@@ -293,6 +297,8 @@
     },
     "registrada": "Registrado",
     "evidenciaOpcional": "¿Quieres añadir una evidencia? Es opcional.",
+    "evidenciaObligatoria": "Adjunta una foto antes de continuar.",
+    "evidenciaObligatoriaAyuda": "Hace falta al menos una foto para poder guardar.",
     "terminar": "Terminar"
   },
   "pendientes": {

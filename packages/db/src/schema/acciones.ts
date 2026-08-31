@@ -12,6 +12,7 @@ import { marcas, referenciasProducto } from "./catalogos";
 import {
   categoriaProductoEnum,
   correccionHuecoEnum,
+  decisionNeveraEnum,
   desenlaceComprobacionEnum,
   estadoAccionEnum,
   idPk,
@@ -22,7 +23,6 @@ import {
   propuestaVisibilidadEnum,
   responsableActuarEnum,
   rolEnum,
-  situacionNeveraEnum,
   suficienciaStockEnum,
   tipoExtraespacioEnum,
   tipoSituacionEnum,
@@ -195,7 +195,13 @@ export const comprobacionesAccion = pgTable(
 // Todas referencian `accionId` de forma única: es una relación 1:1 que extiende
 // la acción con lo que solo tiene sentido para su tipo.
 
-/** ¿Hay suficiente producto para cubrir la jornada? (SPECS §5.5.1) */
+/**
+ * ¿Hay suficiente producto para cubrir la jornada? (SPECS §5.5.1)
+ *
+ * `comunicadoAlResponsable` se retiró en v0.7: era una pregunta secundaria que
+ * el cliente no pidió en la v2, y la incidencia para el encargado más la foto
+ * obligatoria (Waters/PBB) ya bastan para actuar.
+ */
 export const deteccionesStock = pgTable("detecciones_stock", {
   id: idPk(),
   accionId: uuid("accion_id")
@@ -204,11 +210,6 @@ export const deteccionesStock = pgTable("detecciones_stock", {
     .references(() => acciones.id),
   /** `reponedor_no_ha_pasado` solo debe llegar en Dairy. */
   suficiencia: suficienciaStockEnum("suficiencia").notNull(),
-  /**
-   * Solo aplica en Waters y PBB, donde el GPV negocia con el encargado.
-   * En Dairy escala al FSM y no hay nada que comunicar en tienda.
-   */
-  comunicadoAlResponsable: boolean("comunicado_al_responsable"),
   ...marcasTiempo,
 });
 
@@ -228,11 +229,12 @@ export const deteccionesFechas = pgTable("detecciones_fechas", {
 /**
  * Hueco en el lineal (SPECS §5.5.3).
  *
- * Los dos campos opcionales son excluyentes por categoría, y esa es la razón
- * de que la tabla parezca tener huecos: en Dairy se registra si el reponedor
- * cubrió el espacio con una referencia adyacente; en Waters y PBB se registra
- * si el propio GPV lo corrigió. Son dos preguntas distintas, no la misma con
- * distinto destinatario.
+ * `existeHueco` responde a **una sola pregunta combinada** desde v0.7: "¿hay
+ * algún hueco que debería estar cubierto por una referencia Danone y no lo
+ * está?". Antes eran dos preguntas en Dairy (existe el hueco / está cubierto
+ * con una referencia adyacente); la v2 las funde en una — el GPV resuelve el
+ * criterio de cobertura mentalmente en vez de que la aplicación se lo pregunte
+ * en dos tandas. La columna `cubierto_con_adyacente` se elimina.
  */
 export const deteccionesHueco = pgTable("detecciones_hueco", {
   id: idPk(),
@@ -241,8 +243,6 @@ export const deteccionesHueco = pgTable("detecciones_hueco", {
     .unique()
     .references(() => acciones.id),
   existeHueco: boolean("existe_hueco").notNull(),
-  /** Solo Dairy: ¿lo cubrió una referencia Danone adyacente? */
-  cubiertoConAdyacente: boolean("cubierto_con_adyacente"),
   /** Solo Waters/PBB: resultado de la actuación del propio GPV. */
   correccion: correccionHuecoEnum("correccion"),
   ...marcasTiempo,
@@ -320,11 +320,14 @@ export const oportunidadesVisibilidad = pgTable("oportunidades_visibilidad", {
 });
 
 /**
- * Propuesta de reorganización del lineal (SPECS §5.5.7).
+ * Nueva implantación (SPECS §5.5.7) — antes "Reorganizar lineal".
  *
- * El único flujo esencialmente abierto, y con razón: un cambio estructural del
- * lineal no se deja tipificar en un desplegable. El texto es del GPV y no se
- * traduce.
+ * Rediseñada en v0.7: dejó de ser texto libre (`propuesta`) y pasa a
+ * categorizarse por marca, igual que facings y visibilidad, más la opción
+ * "todo el lineal" para cuando la propuesta no distingue por marca. El nombre
+ * de tabla y del `tipo_situacion` ("reorganizacion") no cambian — es el mismo
+ * criterio que con `top_pico`: renombrar la etiqueta de interfaz no obliga a
+ * renombrar el identificador interno.
  */
 export const oportunidadesReorganizacion = pgTable("oportunidades_reorganizacion", {
   id: idPk(),
@@ -332,9 +335,43 @@ export const oportunidadesReorganizacion = pgTable("oportunidades_reorganizacion
     .notNull()
     .unique()
     .references(() => acciones.id),
-  propuesta: text("propuesta").notNull(),
+  /** Si es `true`, la propuesta afecta a todo el lineal y no a marcas concretas. */
+  todoLineal: boolean("todo_lineal").notNull().default(false),
   ...marcasTiempo,
 });
+
+/**
+ * Marcas seleccionadas en una nueva implantación (relación N:N).
+ *
+ * Tabla propia en lugar de un array de `uuid[]`: es el mismo patrón relacional
+ * que ya usa `top_picos_pendientes` para selección múltiple, y permite validar
+ * cada `marcaId` con una FK real en lugar de confiar en el contenido de un array.
+ */
+export const nuevaImplantacionMarcas = pgTable(
+  "nueva_implantacion_marcas",
+  {
+    id: idPk(),
+    accionId: uuid("accion_id")
+      .notNull()
+      .references(() => acciones.id),
+    marcaId: uuid("marca_id")
+      .notNull()
+      .references(() => marcas.id),
+    ...marcasTiempo,
+  },
+  (t) => ({
+    porAccion: index("nueva_implantacion_marcas_accion_idx").on(t.accionId),
+    unica: uniqueIndex("nueva_implantacion_marcas_unica").on(t.accionId, t.marcaId),
+  }),
+);
+
+/**
+ * Bloque de marca (SPECS §5.5.7-bis) — nuevo en v0.7, exclusivo Waters/PBB.
+ *
+ * Pregunta única, sin ningún campo que tipificar: la propia `Acción` con
+ * `tipo_situacion = 'bloque_marca'` ya contiene todo lo que hay que guardar.
+ * No existe tabla de detalle para este flujo — sería una tabla vacía.
+ */
 
 /** Punto de carga adicional fuera del lineal (SPECS §5.5.8). */
 export const extraespacios = pgTable("extraespacios", {
@@ -349,10 +386,14 @@ export const extraespacios = pgTable("extraespacios", {
 });
 
 /**
- * Neveras (SPECS §5.5.9).
+ * Neveras (SPECS §5.5.9) — rediseñada por completo en v0.7, exclusiva Dairy/Waters.
  *
- * Cuelga de `extraespacios` porque el boceto considera la nevera un tipo de
- * extraespacio, y aquí solo se añade lo que es específico suyo.
+ * Sustituye al árbol de ocho situaciones (`situacion_nevera`) por un árbol
+ * binario: ¿hay nevera? → mantener/recoger → código + foto si se recoge; si no
+ * hay, oportunidad de añadir. Deja de colgar de `extraespacios` — ya no
+ * comparte campos con el extraespacio genérico (no hay `motivo` que
+ * tipificar), así que cuelga directamente de la `Acción`, como el resto de
+ * flujos.
  *
  * ATENCIÓN con `codigoNevera`: **no es un dato interno, es un puente a otro
  * sistema**. El FSM lo usa para informar en su propia aplicación de neveras, y
@@ -371,13 +412,17 @@ export const neveras = pgTable(
   "neveras",
   {
     id: idPk(),
-    extraespacioId: uuid("extraespacio_id")
+    accionId: uuid("accion_id")
       .notNull()
       .unique()
-      .references(() => extraespacios.id),
-    situacion: situacionNeveraEnum("situacion").notNull(),
-    /** Obligatorio cuando la situación implica retirada o recogida. */
+      .references(() => acciones.id),
+    hayNevera: boolean("hay_nevera").notNull(),
+    /** Solo si `hayNevera` es `true`. */
+    decision: decisionNeveraEnum("decision"),
+    /** Obligatorio cuando `decision` es `recoger`. */
     codigoNevera: text("codigo_nevera"),
+    /** Solo si `hayNevera` es `false`: ¿se registra oportunidad de añadir una? */
+    oportunidadAnadir: boolean("oportunidad_anadir"),
     ...marcasTiempo,
   },
   (t) => ({

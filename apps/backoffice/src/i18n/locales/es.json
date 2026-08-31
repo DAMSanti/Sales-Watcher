@@ -286,10 +286,11 @@
     "stock": "Falta de producto",
     "fechas": "Problema con las fechas",
     "hueco": "Hueco en el lineal",
-    "top_pico": "Top Pico sin incorporar",
+    "top_pico": "Top Picos",
     "facings": "Ganar facings",
     "visibilidad": "Mejorar visibilidad",
-    "reorganizacion": "Reorganizar el lineal",
+    "reorganizacion": "Nueva implantación",
+    "bloque_marca": "Bloque de marca",
     "extraespacio": "Extraespacio",
     "nevera": "Nevera",
     "relacion_responsable": "Relación con el responsable"
@@ -379,23 +380,25 @@
   },
   "detalleFlujo": {
     "suficiencia": "Producto suficiente",
-    "comunicadoAlResponsable": "Comunicado al responsable",
     "problema": "Problema",
     "detalle": "Detalle",
-    "existeHueco": "Hay hueco",
-    "cubiertoConAdyacente": "Cubierto con adyacente",
+    "existeHueco": "Hay hueco sin cubrir",
     "correccion": "Corregido",
     "referencia": "Referencia",
     "incorporada": "Incorporada",
     "incorporadaEn": "Incorporada el",
     "marca": "Marca",
+    "marcas": "Marca(s)",
+    "todoLineal": "Todo el lineal",
     "conseguido": "Conseguido",
     "facingsGanados": "Facings ganados",
     "ubicacionActual": "Ubicación actual",
     "propuesta": "Propuesta",
     "tipo": "Tipo",
     "motivo": "Motivo",
-    "situacion": "Situación",
+    "hayNevera": "Hay nevera",
+    "decision": "Decisión",
+    "oportunidadAnadir": "Oportunidad de añadir",
     "codigoNevera": "Código de nevera"
   },
   "relacion": {
@@ -413,7 +416,7 @@
     "sinTraduccion": "Las marcas y referencias no se traducen: son nombres propios. Por eso esta pantalla no tiene editor de idiomas.",
     "marcas": "Marcas",
     "referencias": "Referencias de producto",
-    "notaReferencias": "De aquí elige el GPV el Top Pico que falta. No duplica la base de datos de Top Picos del cliente: solo da nombres estables para poder comparar entre visitas.",
+    "notaReferencias": "De aquí elige el GPV los Top Picos que faltan. No duplica la base de datos de Top Picos del cliente: solo da nombres estables para poder comparar entre visitas.",
     "nombre": "Nombre",
     "codigo": "Código",
     "marca": "Marca",
@@ -458,15 +461,9 @@
       "si": "Sí, corregido",
       "no_posible": "No ha sido posible"
     },
-    "situacionNevera": {
-      "uso_correcto": "Se usa correctamente",
-      "uso_parcial": "Se usa parcialmente",
-      "uso_incorrecto": "Se usa incorrectamente",
-      "retirada": "Nos la han retirado",
-      "vacia_desaprovechada": "Vacía o desaprovechada",
-      "necesita_nueva": "Se necesita una nueva",
-      "necesita_recogida": "Necesita recogida",
-      "otro": "Otro"
+    "decisionNevera": {
+      "mantener": "Mantener",
+      "recoger": "Recoger"
     },
     "tipoExtraespacio": {
       "cabecera": "Cabecera",

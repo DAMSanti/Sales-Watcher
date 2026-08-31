@@ -10,6 +10,7 @@ import {
   gananciasFacings,
   marcas,
   neveras,
+  nuevaImplantacionMarcas,
   oportunidadesReorganizacion,
   oportunidadesVisibilidad,
   referenciasProducto,
@@ -191,7 +192,7 @@ export class DetalleVisitaService {
       .leftJoin(oportunidadesVisibilidad, eq(oportunidadesVisibilidad.accionId, acciones.id))
       .leftJoin(oportunidadesReorganizacion, eq(oportunidadesReorganizacion.accionId, acciones.id))
       .leftJoin(extraespacios, eq(extraespacios.accionId, acciones.id))
-      .leftJoin(neveras, eq(neveras.extraespacioId, extraespacios.id))
+      .leftJoin(neveras, eq(neveras.accionId, acciones.id))
       .leftJoin(
         marcas,
         // La marca puede venir de facings o de visibilidad, nunca de las dos.
@@ -204,44 +205,70 @@ export class DetalleVisitaService {
 
     const porAccion = await this.evidenciasPorAccion(filas.map((f) => f.accion.id));
 
+    /**
+     * Las marcas de una nueva implantación son N:N (selección múltiple), así
+     * que no caben en el `leftJoin` de arriba sin duplicar filas. Se traen
+     * aparte, agrupadas por acción.
+     */
+    const idsReorganizacion = filas
+      .filter((f) => f.accion.tipoSituacion === "reorganizacion")
+      .map((f) => f.accion.id);
+    const marcasPorImplantacion = await this.marcasDeNuevaImplantacion(idsReorganizacion);
+
     return filas.map((f) => ({
       ...f.accion,
       grupo: grupoSituacion(f.accion.tipoSituacion),
-      detalle: this.detalleDe(f),
+      detalle: this.detalleDe(f, marcasPorImplantacion.get(f.accion.id) ?? []),
       evidencias: porAccion.get(f.accion.id) ?? [],
     }));
   }
 
+  /** Nombres de marca de cada nueva implantación, agrupados por `accionId`. */
+  private async marcasDeNuevaImplantacion(accionIds: string[]) {
+    const mapa = new Map<string, string[]>();
+    if (accionIds.length === 0) return mapa;
+
+    const filas = await this.db
+      .select({ accionId: nuevaImplantacionMarcas.accionId, nombre: marcas.nombre })
+      .from(nuevaImplantacionMarcas)
+      .innerJoin(marcas, eq(marcas.id, nuevaImplantacionMarcas.marcaId))
+      .where(inArray(nuevaImplantacionMarcas.accionId, accionIds));
+
+    for (const fila of filas) {
+      const lista = mapa.get(fila.accionId) ?? [];
+      lista.push(fila.nombre);
+      mapa.set(fila.accionId, lista);
+    }
+    return mapa;
+  }
+
   /** Solo el detalle que corresponde al tipo; el resto de joins vienen nulos. */
-  private detalleDe(f: {
-    accion: { tipoSituacion: string };
-    stock: typeof deteccionesStock.$inferSelect | null;
-    fechas: typeof deteccionesFechas.$inferSelect | null;
-    hueco: typeof deteccionesHueco.$inferSelect | null;
-    topPico: typeof topPicosPendientes.$inferSelect | null;
-    referencia: { nombre: string | null } | null;
-    facings: typeof gananciasFacings.$inferSelect | null;
-    visibilidad: typeof oportunidadesVisibilidad.$inferSelect | null;
-    reorganizacion: typeof oportunidadesReorganizacion.$inferSelect | null;
-    extraespacio: typeof extraespacios.$inferSelect | null;
-    nevera: typeof neveras.$inferSelect | null;
-    marca: { nombre: string | null } | null;
-  }): Record<string, unknown> | null {
+  private detalleDe(
+    f: {
+      accion: { tipoSituacion: string };
+      stock: typeof deteccionesStock.$inferSelect | null;
+      fechas: typeof deteccionesFechas.$inferSelect | null;
+      hueco: typeof deteccionesHueco.$inferSelect | null;
+      topPico: typeof topPicosPendientes.$inferSelect | null;
+      referencia: { nombre: string | null } | null;
+      facings: typeof gananciasFacings.$inferSelect | null;
+      visibilidad: typeof oportunidadesVisibilidad.$inferSelect | null;
+      reorganizacion: typeof oportunidadesReorganizacion.$inferSelect | null;
+      extraespacio: typeof extraespacios.$inferSelect | null;
+      nevera: typeof neveras.$inferSelect | null;
+      marca: { nombre: string | null } | null;
+    },
+    marcasImplantacion: string[],
+  ): Record<string, unknown> | null {
     switch (f.accion.tipoSituacion) {
       case "stock":
-        return f.stock
-          ? {
-              suficiencia: f.stock.suficiencia,
-              comunicadoAlResponsable: f.stock.comunicadoAlResponsable,
-            }
-          : null;
+        return f.stock ? { suficiencia: f.stock.suficiencia } : null;
       case "fechas":
         return f.fechas ? { problema: f.fechas.problema, detalle: f.fechas.detalle } : null;
       case "hueco":
         return f.hueco
           ? {
               existeHueco: f.hueco.existeHueco,
-              cubiertoConAdyacente: f.hueco.cubiertoConAdyacente,
               correccion: f.hueco.correccion,
             }
           : null;
@@ -269,19 +296,27 @@ export class DetalleVisitaService {
             }
           : null;
       case "reorganizacion":
-        return f.reorganizacion ? { propuesta: f.reorganizacion.propuesta } : null;
+        // "Nueva implantación" (SPECS §5.5.7, v0.7): marcas de catálogo, no texto libre.
+        return f.reorganizacion
+          ? { marcas: marcasImplantacion, todoLineal: f.reorganizacion.todoLineal }
+          : null;
+      case "bloque_marca":
+        // Sin detalle propio: la propia acción ya es todo lo que hay que guardar.
+        return {};
       case "extraespacio":
         return f.extraespacio
           ? { tipo: f.extraespacio.tipo, motivo: f.extraespacio.motivo }
           : null;
       case "nevera":
+        // Árbol binario (SPECS §5.5.9, v0.7): ya no cuelga de `extraespacios`.
         return f.nevera
           ? {
-              situacion: f.nevera.situacion,
+              hayNevera: f.nevera.hayNevera,
+              decision: f.nevera.decision,
               // El código va explícito: es lo que el FSM traslada a su propia
               // aplicación de neveras.
               codigoNevera: f.nevera.codigoNevera,
-              motivo: f.extraespacio?.motivo ?? null,
+              oportunidadAnadir: f.nevera.oportunidadAnadir,
             }
           : null;
       default:

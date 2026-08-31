@@ -65,6 +65,13 @@ describe("resolverResponsable — la tabla del boceto", () => {
     }
   });
 
+  /** Nuevo en v0.7: la matriz de la v2 no le asigna responsable ("—"). */
+  it("el bloque de marca no escala: se registra como del GPV", () => {
+    for (const categoria of ["waters", "pbb"] as const) {
+      expect(resolverResponsable("bloque_marca", categoria).responsable).toBe("gpv");
+    }
+  });
+
   /**
    * El principio de fondo: Dairy tiene reponedor y Waters/PBB no. Si esto se
    * invierte, todo el reparto queda del revés.
@@ -171,11 +178,28 @@ describe("disponibilidad por categoría", () => {
     expect(opcionesSuficienciaStock("waters")).toEqual(["si", "no"]);
   });
 
-  /** En Dairy se comprueba si está cubierto; en el resto, si lo corrigió él. */
-  it("el hueco pregunta cosas distintas según la categoría", () => {
-    expect(preguntaHueco("dairy")).toBe("cubierto");
+  /**
+   * Desde v0.7 Dairy no tiene segunda pregunta: la v2 combina "existe hueco" y
+   * "está cubierto con adyacente" en una sola pregunta (`existeHueco`).
+   */
+  it("Dairy no tiene segunda pregunta de hueco; Waters/PBB sí", () => {
+    expect(preguntaHueco("dairy")).toBeNull();
     expect(preguntaHueco("waters")).toBe("corregido");
     expect(preguntaHueco("pbb")).toBe("corregido");
+  });
+
+  /** Nueva en v0.7: no existe en PBB (SPECS §5.5.9). */
+  it("la nevera solo existe en Dairy y Waters", () => {
+    expect(situacionDisponible("nevera", "dairy")).toBe(true);
+    expect(situacionDisponible("nevera", "waters")).toBe(true);
+    expect(situacionDisponible("nevera", "pbb")).toBe(false);
+  });
+
+  /** Nueva en v0.7: no existe en Dairy (SPECS §5.5.7-bis). */
+  it("el bloque de marca solo existe en Waters y PBB", () => {
+    expect(situacionDisponible("bloque_marca", "dairy")).toBe(false);
+    expect(situacionDisponible("bloque_marca", "waters")).toBe(true);
+    expect(situacionDisponible("bloque_marca", "pbb")).toBe(true);
   });
 });
 

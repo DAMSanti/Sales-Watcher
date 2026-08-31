@@ -6,7 +6,6 @@ import type {
   Accion,
   CategoriaProducto,
   Checklist,
-  Desviacion,
   RelacionResponsable,
   ResumenVisita,
   TarjetaVisita,
@@ -66,7 +65,6 @@ export function DetalleVisita() {
   const [cargando, setCargando] = useState(true);
   const [accionEnCurso, setAccionEnCurso] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [desviacion, setDesviacion] = useState<Desviacion | null>(null);
   const [justificando, setJustificando] = useState(false);
   const [notas, setNotas] = useState("");
   /** Se muestra cuando la acción quedó guardada en el dispositivo. */
@@ -160,7 +158,13 @@ export function DetalleVisita() {
       const ubicacion = await obtenerUbicacion();
       const capturadaEn = new Date().toISOString();
 
-      const resultado = await ejecutar<{ desviacion: Desviacion }>({
+      /**
+       * La desviación se sigue calculando en el servidor (señal para el
+       * FSM/backoffice), pero desde v0.7 deja de mostrarse al GPV: el cliente
+       * no quiere ninguna interacción visible de ubicación en el flujo de
+       * visita (SPECS §3.2).
+       */
+      const resultado = await ejecutar({
         ruta: `/visitas/${id}/comenzar`,
         tipo: "visita.comenzar",
         cuerpo: { ubicacion, capturadaEn },
@@ -170,7 +174,6 @@ export function DetalleVisita() {
       });
 
       if (resultado.via === "directo") {
-        setDesviacion(resultado.datos.desviacion);
         await cargar();
       } else {
         /**
@@ -279,17 +282,6 @@ export function DetalleVisita() {
         {error && (
           <div className="aviso aviso--error" role="alert">
             {error}
-          </div>
-        )}
-
-        {/*
-          La desviación se enseña al comercial en el momento, no solo se deja
-          en el rastro del supervisor: si se ha equivocado de tienda, es ahora
-          cuando puede corregirlo.
-        */}
-        {desviacion?.desviada && desviacion.metros !== null && (
-          <div className="aviso aviso--sinconexion" role="status">
-            {t("visita.desviacionAviso", { metros: desviacion.metros })}
           </div>
         )}
 

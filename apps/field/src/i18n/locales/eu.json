@@ -165,32 +165,31 @@
     "stock": "Produktu falta",
     "fechas": "Datekin arazoa",
     "hueco": "Hutsunea apalategian",
-    "top_pico": "Top Pico sartu gabe",
+    "top_pico": "Top Picos",
     "facings": "Facing-ak irabazi",
     "visibilidad": "Ikusgaitasuna hobetu",
-    "reorganizacion": "Apalategia berrantolatu",
+    "reorganizacion": "Inplantazio berria",
+    "bloque_marca": "Marka blokea",
     "extraespacio": "Espazio gehigarria",
     "nevera": "Hozkailua"
   },
   "flujo": {
     "stock": {
       "pregunta": "Nahikoa produktu dago eguna estaltzeko?",
-      "suficiencia": "Produktu nahikoa",
-      "comunicado": "Arduradunari jakinarazi diozu?"
+      "suficiencia": "Produktu nahikoa"
     },
     "fechas": {
       "pregunta": "Datekin arazorik antzeman duzu?",
       "problema": "Arazo mota"
     },
     "hueco": {
-      "pregunta": "Gure produktuaren hutsunerik dago?",
-      "existe": "Hutsunea dago",
-      "cubierto": "Ondoko Danone erreferentzia batekin estalita dago?",
+      "pregunta": "Danone erreferentzia batek estali beharko lukeen eta estalita ez dagoen hutsunerik dago apalategian?",
+      "existe": "Estali gabeko hutsunea dago",
       "corregido": "Konpondu ahal izan duzu?"
     },
     "topPico": {
-      "pregunta": "Zein Top Pico erreferentzia falta da?",
-      "referencia": "Erreferentzia"
+      "pregunta": "Bildumatik falta den Top Picos erreferentziarik dago?",
+      "referencia": "Erreferentziak"
     },
     "facings": {
       "pregunta": "Facing-ak irabazteko aukerarik dago?",
@@ -203,8 +202,12 @@
       "propuesta": "Zer proposatzen duzu"
     },
     "reorganizacion": {
-      "pregunta": "Zer aldatzea proposatzen duzu apalategian?",
-      "propuesta": "Zure proposamena"
+      "pregunta": "Inplantazio berri bat egiteko aukerarik dago?",
+      "marcas": "Marka(k)",
+      "todoLineal": "Apalategi osoa"
+    },
+    "bloque_marca": {
+      "pregunta": "Danone marka blokea egiteko aukerarik dago?"
     },
     "extraespacio": {
       "pregunta": "Non eta zergatik sartuko litzateke karga puntu gehigarri bat?",
@@ -212,8 +215,10 @@
       "motivo": "Arrazoia"
     },
     "nevera": {
-      "pregunta": "Nola dago hozkailua?",
-      "situacion": "Egoera",
+      "pregunta": "Danone hozkailurik dago saltokian?",
+      "hayNevera": "Danone hozkailua dago",
+      "decision": "Zer egingo dugu berarekin?",
+      "oportunidadAnadir": "Danone hozkailu bat gehitzeko aukera erregistratu?",
       "codigo": "Hozkailuaren kodea",
       "codigoAyuda": "Hozkailuaren barruan dago. Gabe, okerreko unitatea ken daiteke."
     },
@@ -221,14 +226,19 @@
     "detalle": "Xehetasuna",
     "sinMarcas": "Ez dago markarik eskuragarri",
     "sinReferencias": "Ez dago erreferentziarik eskuragarri",
+    "anadirReferencia": "Erreferentzia gehitu",
+    "anadirMarca": "Marka gehitu",
     "iraAlFsm": "Ekintza bat sortuko da zure arduradunarentzat.",
     "actuasTu": "Zuk konpon dezakezu dendan.",
     "hablasConEncargado": "Aipa iezaiozu establezimenduko arduradunari.",
+    "seRegistraSolo": "Automatikoki erregistratzen da.",
     "faltaDetalle": "Adierazi zein den arazoa",
-    "faltaReferencia": "Aukeratu erreferentzia bat",
-    "faltaPropuesta": "Idatzi zure proposamena",
+    "faltaReferencia": "Aukeratu erreferentzia bat gutxienez",
+    "faltaMarcaImplantacion": "Aukeratu marka bat gutxienez, edo markatu \"apalategi osoa\"",
     "faltaFacings": "Adierazi zenbat facing irabazi dituzun",
     "faltaCodigoNevera": "Kodea behar da beste hozkailu bat ez kentzeko",
+    "faltaDecisionNevera": "Adierazi hozkailua mantendu edo jaso egingo den",
+    "faltaOportunidadNevera": "Adierazi hozkailu bat gehitzeko aukera erregistratuko den",
     "suficiencia": {
       "si": "Bai",
       "no": "Ez",
@@ -258,15 +268,9 @@
       "oportunidad_estacional": "Sasoiko aukera",
       "otro": "Bestelakoa"
     },
-    "situacionNevera": {
-      "uso_correcto": "Ondo erabiltzen da",
-      "uso_parcial": "Partzialki erabiltzen da",
-      "uso_incorrecto": "Gaizki erabiltzen da",
-      "retirada": "Kendu digute",
-      "vacia_desaprovechada": "Hutsik edo aprobetxatu gabe",
-      "necesita_nueva": "Berri bat behar da",
-      "necesita_recogida": "Jasotzea behar du",
-      "otro": "Bestelakoa"
+    "decisionNevera": {
+      "mantener": "Mantendu",
+      "recoger": "Jaso"
     },
     "ubicacion": {
       "palomar": "Goiko apala",
@@ -293,6 +297,8 @@
     },
     "registrada": "Erregistratuta",
     "evidenciaOpcional": "Frogarik gehitu nahi duzu? Aukerakoa da.",
+    "evidenciaObligatoria": "Erantsi argazki bat jarraitu aurretik.",
+    "evidenciaObligatoriaAyuda": "Gutxienez argazki bat behar da gordetzeko.",
     "terminar": "Amaitu"
   },
   "pendientes": {

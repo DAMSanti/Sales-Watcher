@@ -36,8 +36,6 @@ const stock = z.object({
   ...comunes,
   tipoSituacion: z.literal("stock"),
   suficiencia: z.enum(["si", "no", "reponedor_no_ha_pasado"]),
-  /** Solo Waters y PBB: en Dairy escala al FSM y no hay nada que comunicar. */
-  comunicadoAlResponsable: z.boolean().optional(),
 });
 
 const fechas = z.object({
@@ -50,9 +48,12 @@ const fechas = z.object({
 const hueco = z.object({
   ...comunes,
   tipoSituacion: z.literal("hueco"),
+  /**
+   * Pregunta única desde v0.7: "¿hay algún hueco que debería estar cubierto
+   * por una referencia Danone y no lo está?". En Dairy, `true` ya implica
+   * incidencia — no hay una segunda pregunta de cobertura.
+   */
   existeHueco: z.boolean(),
-  /** Solo Dairy: ¿lo cubrió el reponedor con una referencia adyacente? */
-  cubiertoConAdyacente: z.boolean().optional(),
   /** Solo Waters/PBB: resultado de la actuación del propio GPV. */
   correccion: z.enum(["si", "no_posible"]).optional(),
 });
@@ -88,10 +89,22 @@ const visibilidad = z.object({
   ]),
 });
 
+/**
+ * Nueva implantación (antes "Reorganizar lineal"). Deja de ser texto libre en
+ * v0.7: se categoriza por marca, con "todo el lineal" como alternativa cuando
+ * la propuesta no distingue por marca.
+ */
 const reorganizacion = z.object({
   ...comunes,
   tipoSituacion: z.literal("reorganizacion"),
-  propuesta: z.string().min(1).max(4000),
+  marcaIds: z.array(z.string().uuid()).max(20).default([]),
+  todoLineal: z.boolean().default(false),
+});
+
+/** Bloque de marca (SPECS §5.5.7-bis, v0.7). Pregunta única, sin detalle. */
+const bloqueMarca = z.object({
+  ...comunes,
+  tipoSituacion: z.literal("bloque_marca"),
 });
 
 const extraespacio = z.object({
@@ -108,37 +121,27 @@ const extraespacio = z.object({
   ]),
 });
 
+/**
+ * Nevera (SPECS §5.5.9, v0.7) — árbol binario, exclusiva Dairy/Waters.
+ *
+ * `hayNevera` decide qué rama de campos aplica: `decision`/`codigoNevera` solo
+ * si hay nevera, `oportunidadAnadir` solo si no la hay. Se valida en
+ * `superRefine` para no aceptar una combinación contradictoria (por ejemplo,
+ * un código de nevera cuando no hay nevera que retirar).
+ */
 const nevera = z.object({
   ...comunes,
   tipoSituacion: z.literal("nevera"),
-  motivo: z.enum([
-    "alta_rotacion",
-    "promocion",
-    "potencial_venta",
-    "falta_espacio_lineal",
-    "oportunidad_estacional",
-    "otro",
-  ]),
-  situacion: z.enum([
-    "uso_correcto",
-    "uso_parcial",
-    "uso_incorrecto",
-    "retirada",
-    "vacia_desaprovechada",
-    "necesita_nueva",
-    "necesita_recogida",
-    "otro",
-  ]),
+  hayNevera: z.boolean(),
+  decision: z.enum(["mantener", "recoger"]).optional(),
   /**
-   * Obligatorio cuando hay que mover una unidad concreta. Es la clave con la
-   * que el FSM informa en su aplicación de neveras, y existe para que no se
-   * retire la equivocada.
+   * Obligatorio cuando `decision` es `recoger`. Es la clave con la que el FSM
+   * informa en su aplicación de neveras, y existe para que no se retire la
+   * unidad equivocada.
    */
   codigoNevera: z.string().max(64).optional(),
+  oportunidadAnadir: z.boolean().optional(),
 });
-
-/** Situaciones de nevera en las que hace falta identificar la unidad física. */
-const NEVERA_EXIGE_CODIGO = ["retirada", "necesita_recogida"] as const;
 
 export const registrarAccionSchema = z
   .discriminatedUnion("tipoSituacion", [
@@ -149,6 +152,7 @@ export const registrarAccionSchema = z
     facings,
     visibilidad,
     reorganizacion,
+    bloqueMarca,
     extraespacio,
     nevera,
   ])
@@ -176,13 +180,6 @@ export const registrarAccionSchema = z
           message: `"${dto.suficiencia}" no es una respuesta válida en "${categoria}"`,
         });
       }
-      if (categoria === "dairy" && dto.comunicadoAlResponsable !== undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["comunicadoAlResponsable"],
-          message: "En Dairy la incidencia escala al FSM: no se comunica en tienda",
-        });
-      }
     }
 
     if (dto.tipoSituacion === "fechas" && dto.problema === "otro" && !dto.detalle?.trim()) {
@@ -194,20 +191,14 @@ export const registrarAccionSchema = z
     }
 
     if (dto.tipoSituacion === "hueco") {
-      // En Dairy se pregunta si el reponedor lo cubrió; en Waters/PBB, si lo
-      // corrigió el propio GPV. Son dos preguntas distintas, no la misma.
+      // Desde v0.7 Dairy no tiene segunda pregunta: `existeHueco` ya incorpora
+      // el criterio de cobertura. Solo Waters/PBB registran el resultado de la
+      // actuación del propio GPV.
       if (categoria === "dairy" && dto.correccion !== undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["correccion"],
-          message: "En Dairy el GPV no corrige el hueco: lo cubre el reponedor",
-        });
-      }
-      if (categoria !== "dairy" && dto.cubiertoConAdyacente !== undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["cubiertoConAdyacente"],
-          message: "Fuera de Dairy no hay reponedor que cubra el hueco",
+          message: "En Dairy el hueco escala al FSM: el GPV no lo corrige él mismo",
         });
       }
     }
@@ -220,16 +211,53 @@ export const registrarAccionSchema = z
       });
     }
 
-    if (
-      dto.tipoSituacion === "nevera" &&
-      NEVERA_EXIGE_CODIGO.includes(dto.situacion as (typeof NEVERA_EXIGE_CODIGO)[number]) &&
-      !dto.codigoNevera?.trim()
-    ) {
+    if (dto.tipoSituacion === "reorganizacion" && !dto.todoLineal && dto.marcaIds.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["codigoNevera"],
-        message: "Hace falta el código de la nevera para que no se retire otra",
+        path: ["marcaIds"],
+        message: 'Elige al menos una marca, o marca "todo el lineal"',
       });
+    }
+
+    if (dto.tipoSituacion === "nevera") {
+      if (dto.hayNevera) {
+        if (!dto.decision) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["decision"],
+            message: "Indica si se mantiene o se recoge la nevera",
+          });
+        }
+        if (dto.decision === "recoger" && !dto.codigoNevera?.trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["codigoNevera"],
+            message: "Hace falta el código de la nevera para que no se retire otra",
+          });
+        }
+        if (dto.oportunidadAnadir !== undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["oportunidadAnadir"],
+            message: "Solo aplica cuando no hay nevera en el PDV",
+          });
+        }
+      } else {
+        if (dto.decision !== undefined || dto.codigoNevera !== undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["decision"],
+            message: "Sin nevera en el PDV no hay nada que mantener, recoger o identificar",
+          });
+        }
+        if (dto.oportunidadAnadir === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["oportunidadAnadir"],
+            message: "Indica si se registra la oportunidad de añadir una nevera",
+          });
+        }
+      }
     }
   });
 

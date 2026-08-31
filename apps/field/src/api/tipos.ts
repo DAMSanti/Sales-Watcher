@@ -131,6 +131,7 @@ export type TipoSituacion =
   | "facings"
   | "visibilidad"
   | "reorganizacion"
+  | "bloque_marca"
   | "extraespacio"
   | "nevera";
 
