@@ -187,7 +187,7 @@
       "existe": "There is an uncovered gap",
       "corregido": "Were you able to fix it?"
     },
-    "topPico": {
+    "top_pico": {
       "pregunta": "Is there a Top Picks reference not in the assortment?",
       "referencia": "References"
     },

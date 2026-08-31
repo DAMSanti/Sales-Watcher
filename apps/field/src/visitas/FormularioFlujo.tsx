@@ -339,7 +339,7 @@ export function FormularioFlujo({
 
         {tipo === "top_pico" && (
           <SeleccionMultiple
-            etiqueta={t("flujo.topPico.referencia")}
+            etiqueta={t("flujo.top_pico.referencia")}
             opciones={referencias.map((r) => ({ valor: r.id, texto: r.nombre }))}
             elegidos={referenciasElegidas(campos)}
             alAnadir={(v) => poner("referenciaIds", [...referenciasElegidas(campos), v])}
