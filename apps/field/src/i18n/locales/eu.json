@@ -314,6 +314,11 @@
     "verTodas": "Ikusi {{n}} gehiago",
     "plegar": "Gutxiago ikusi"
   },
+  "registradoVisita": {
+    "titulo": "Bisita honetan erregistratuta",
+    "eliminar": "Ezabatu",
+    "confirmar": "Ezabatu?"
+  },
   "responsable": {
     "titulo": "Dendako arduraduna",
     "haHablado": "Arduradunarekin hitz egin duzu?",

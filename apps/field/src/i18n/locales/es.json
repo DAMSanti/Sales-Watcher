@@ -314,6 +314,11 @@
     "verTodas": "Ver {{n}} más",
     "plegar": "Ver menos"
   },
+  "registradoVisita": {
+    "titulo": "Registrado en esta visita",
+    "eliminar": "Eliminar",
+    "confirmar": "¿Eliminarlo?"
+  },
   "responsable": {
     "titulo": "Responsable de tienda",
     "haHablado": "¿Has hablado con el responsable?",

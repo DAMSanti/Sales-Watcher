@@ -314,6 +314,11 @@
     "verTodas": "Voir {{n}} de plus",
     "plegar": "Voir moins"
   },
+  "registradoVisita": {
+    "titulo": "Enregistré dans cette visite",
+    "eliminar": "Supprimer",
+    "confirmar": "Supprimer ?"
+  },
   "responsable": {
     "titulo": "Responsable du magasin",
     "haHablado": "Avez-vous parlé au responsable ?",

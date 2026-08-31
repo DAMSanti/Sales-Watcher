@@ -235,6 +235,13 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [x] Rehecho el flujo de **Nevera** (Dairy/Waters): árbol binario existe → mantener/recoger → código + foto obligatoria si se recoge; si no existe, oportunidad de añadir. Desacoplada de `extraespacios`, cuelga directo de `acciones`
 - [x] Disponibilidad de flujos por categoría en `situacionDisponible` de `@sw/shared`: bloque de marca (Waters/PBB, no Dairy), nevera (Dairy/Waters, no PBB) — con tests
 - [ ] Importación CSV del **listado de referencias de Danone por categoría** — pendiente de que el cliente lo envíe (P32 sigue abierta, sin bloquear el resto)
+
+**Feedback del primer despliegue (2026-08-31)** — ver ANEXO.md:
+
+- [x] Foto obligatoria capturada y subida **antes** de guardar, no en una segunda pantalla tras guardar — corrige que "volver atrás" en esa segunda pantalla dejaba la incidencia registrada sin foto
+- [x] `DELETE /acciones/:id`: el GPV puede borrar un misclick, solo mientras la visita que lo originó sigue `en_curso` — borrado real, no un estado "descartada"
+- [x] `GET /visitas/:id/acciones` + sección "Registrado en esta visita" en la app de campo, con confirmación antes de borrar
+- [ ] Hueco conocido, sin resolver: la foto obligatoria capturada no se sube si el registro de la acción se encola sin cobertura (mismo límite que el vídeo)
 - [ ] **Migración 0007 sin aplicar contra una base real** — este entorno no tenía Docker/Postgres disponible para ejecutar `pnpm db:migrate` ni los scripts `db:pruebas` / `db:acciones` / `api:acciones`. Todo el código pasa `typecheck` y los 62 tests de `@sw/shared`, pero la migración y los scripts de integración solo se han revisado estáticamente — hace falta correrlos una vez contra Postgres real antes de dar esta ronda por cerrada
 
 **Añadidas tras la segunda pasada sobre la v2** (ver ANEXO.md, ronda 6):

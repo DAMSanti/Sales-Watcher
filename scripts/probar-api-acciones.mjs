@@ -239,6 +239,38 @@ try {
     `derivada: ${extra.datos?.reglaDerivada}`,
   );
 
+  // ── Borrar un misclick, solo mientras la visita sigue abierta ────────
+  console.log("\nEliminar un registro por error");
+
+  const misclick = await pedir(gpv, `/visitas/${visitaId}/acciones`, {
+    method: "POST",
+    cuerpo: { tipoSituacion: "bloque_marca", categoriaProducto: "waters" },
+  });
+  ok("misclick registrado", misclick.estado === 201, `HTTP ${misclick.estado}`);
+
+  const listaAntes = await pedir(gpv, `/visitas/${visitaId}/acciones`);
+  ok(
+    "aparece en lo registrado de la visita",
+    listaAntes.datos.some((a) => a.id === misclick.datos.id),
+    `${listaAntes.datos?.length} registradas`,
+  );
+
+  const noEsSuyo = await pedir(fsm, `/acciones/${misclick.datos.id}`, { method: "DELETE" });
+  ok("el FSM no puede borrar (solo el GPV)", noEsSuyo.estado === 403, `HTTP ${noEsSuyo.estado}`);
+
+  const borrado = await pedir(gpv, `/acciones/${misclick.datos.id}`, { method: "DELETE" });
+  ok("el propio GPV lo borra", borrado.estado === 204, `HTTP ${borrado.estado}`);
+
+  const listaDespues = await pedir(gpv, `/visitas/${visitaId}/acciones`);
+  ok(
+    "desaparece del todo, no queda como descartada",
+    !listaDespues.datos.some((a) => a.id === misclick.datos.id),
+    `${listaDespues.datos?.length} registradas`,
+  );
+
+  const yaNoExiste = await pedir(gpv, `/acciones/${misclick.datos.id}/comprobaciones`);
+  ok("y ya no se puede consultar su historial", yaNoExiste.estado === 404, `HTTP ${yaNoExiste.estado}`);
+
   // ── Lo que DEBE rechazarse ───────────────────────────────────────────
   console.log("\nValidaciones que deben rechazar");
 

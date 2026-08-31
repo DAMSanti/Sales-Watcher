@@ -329,6 +329,40 @@
   flex-shrink: 0;
 }
 
+/* ── Registrado en esta visita (borrar un misclick) ──────────────────── */
+
+.registrado-visita__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e2);
+}
+
+.registrado-visita__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e2);
+  padding: var(--e3);
+  background: var(--superficie-alt);
+  border-radius: var(--radio-sm);
+}
+
+.registrado-visita__situacion {
+  font-size: 0.95rem;
+  color: var(--texto);
+}
+
+.registrado-visita__confirmar {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
 /* ── Responsable de tienda ─────────────────────────────────────────── */
 
 .responsable__resumen {

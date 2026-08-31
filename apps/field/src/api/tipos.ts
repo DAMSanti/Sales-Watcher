@@ -151,6 +151,19 @@ export type Accion = {
   referencia?: { id: string; nombre: string } | null;
 };
 
+/**
+ * Lo registrado en la visita actual, para poder revisarlo y borrar un
+ * misclick mientras el GPV sigue en la tienda (SPECS: solo con la visita
+ * abierta).
+ */
+export type AccionDeVisita = {
+  id: string;
+  categoriaProducto: CategoriaProducto | "transversal";
+  tipoSituacion: TipoSituacion;
+  estado: "abierta" | "en_curso" | "resuelta" | "descartada";
+  detectadaEn: string;
+};
+
 export type TopPicoPendiente = {
   accionId: string;
   detectadaEn: string;

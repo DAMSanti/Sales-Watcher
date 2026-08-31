@@ -314,6 +314,11 @@
     "verTodas": "Veure'n {{n}} més",
     "plegar": "Veure'n menys"
   },
+  "registradoVisita": {
+    "titulo": "Registrat en aquesta visita",
+    "eliminar": "Eliminar",
+    "confirmar": "Eliminar-ho?"
+  },
   "responsable": {
     "titulo": "Responsable de botiga",
     "haHablado": "Has parlat amb el responsable?",

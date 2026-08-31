@@ -52,7 +52,7 @@ export function guardarToken(token: string | null) {
 }
 
 type Opciones = {
-  metodo?: "GET" | "POST" | "PUT" | "PATCH";
+  metodo?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   cuerpo?: unknown;
   idioma?: Idioma;
   /** Señal para cancelar la petición si la pantalla se desmonta. */

@@ -314,6 +314,11 @@
     "verTodas": "See {{n}} more",
     "plegar": "See less"
   },
+  "registradoVisita": {
+    "titulo": "Recorded in this visit",
+    "eliminar": "Delete",
+    "confirmar": "Delete it?"
+  },
   "responsable": {
     "titulo": "Store manager",
     "haHablado": "Did you speak to the manager?",

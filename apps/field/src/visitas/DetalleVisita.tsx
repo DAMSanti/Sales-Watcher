@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ErrorApi, pedir } from "../api/cliente";
 import type {
   Accion,
+  AccionDeVisita,
   CategoriaProducto,
   Checklist,
   RelacionResponsable,
@@ -20,6 +21,7 @@ import { SeccionChecklist } from "./SeccionChecklist";
 import { DialogoResumen } from "./DialogoResumen";
 import { PanelCategoria } from "./PanelCategoria";
 import { SeccionPendientes } from "./SeccionPendientes";
+import { SeccionRegistradoEnVisita } from "./SeccionRegistradoEnVisita";
 import { SeccionResponsable } from "./SeccionResponsable";
 import { ICONO_CATEGORIA } from "./flujos";
 import "./detalle.css";
@@ -57,6 +59,7 @@ export function DetalleVisita() {
   const [registradas, setRegistradas] = useState<Record<string, number>>({});
   /** Lo que sigue abierto en la tienda de visitas ANTERIORES. */
   const [pendientes, setPendientes] = useState<Accion[]>([]);
+  const [registradasVisita, setRegistradasVisita] = useState<AccionDeVisita[]>([]);
   const [relacion, setRelacion] = useState<RelacionResponsable | null>(null);
   /** Categoría abierta. `null` = pantalla principal con las tres. */
   const [categoriaAbierta, setCategoriaAbierta] = useState<CategoriaProducto | null>(null);
@@ -118,6 +121,15 @@ export function DetalleVisita() {
         );
         setPendientes(abiertas.filter((a) => a.visitaOrigenId !== id));
         void guardarCache(`acciones/${encontrada.tienda.id}`, abiertas);
+      }
+
+      /**
+       * Solo hace falta con la visita en curso: es cuando se puede borrar un
+       * misclick. Pedirlo siempre gastaría una consulta que nadie va a usar en
+       * una visita ya cerrada.
+       */
+      if (encontrada?.estado === "en_curso") {
+        setRegistradasVisita(await pedir<AccionDeVisita[]>(`/visitas/${id}/acciones`, { idioma }));
       }
 
       setDatosDisponibles(true);
@@ -343,6 +355,13 @@ export function DetalleVisita() {
               visitaId={id!}
               editable={editable}
               alComprobar={cargar}
+            />
+
+            <SeccionRegistradoEnVisita
+              acciones={registradasVisita}
+              visitaId={id!}
+              editable={editable}
+              alEliminar={cargar}
             />
 
             {/* Transversal: fuera de las categorías porque en cada punto de

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -105,6 +106,37 @@ export class AccionesController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.acciones.abiertasDeTienda(tiendaId, usuario);
+  }
+
+  /**
+   * Lo registrado en esta visita, para que el GPV pueda revisarlo y borrar un
+   * misclick mientras sigue en la tienda.
+   */
+  @Roles("comercial")
+  @Get("visitas/:id/acciones")
+  async registradasEnVisita(
+    @Param("id", ParseUUIDPipe) visitaId: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.acciones.registradasEnVisita(visitaId, usuario);
+  }
+
+  /**
+   * Elimina una acción registrada por error.
+   *
+   * Solo mientras la visita que la originó sigue abierta — pasada esa
+   * ventana, lo que hace falta es descartarla desde el panel del FSM
+   * (`PATCH acciones/:id`), no borrarla: puede que ya haya cruzado a la
+   * tienda como pendiente de seguimiento.
+   */
+  @Roles("comercial")
+  @Delete("acciones/:id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async eliminar(
+    @Param("id", ParseUUIDPipe) accionId: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    await this.acciones.eliminar(accionId, usuario);
   }
 
   /** Top Picos que siguen sin incorporarse en esta tienda. */

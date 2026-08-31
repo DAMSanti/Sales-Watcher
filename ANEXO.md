@@ -548,7 +548,21 @@ Dicho de otro modo: se conserva casi todo lo que costó tiempo construir bien (o
 
 ---
 
-## 2. Preguntas abiertas
+### 2026-08-31 — Feedback tras el primer despliegue: foto antes de guardar, y borrar un misclick
+
+Dos correcciones que surgen de usar la v0.7 ya desplegada, no de una ronda de negocio:
+
+**1. La foto obligatoria se pedía DESPUÉS de guardar, no antes.** El GPV llenaba el formulario, pulsaba Guardar —lo que ya creaba la `Acción` en el servidor— y solo entonces aparecía una segunda pantalla pidiendo la foto. Si en ese punto el GPV volvía atrás (con el botón de la app o el gesto del sistema), la incidencia quedaba registrada sin foto, porque el POST ya se había hecho. Es justo lo que la sección 9 del boceto pide evitar: *"la aplicación debe exigir foto... antes de guardar"*.
+
+**Corrección:** la foto se captura y comprime en el propio formulario, antes de pulsar Guardar, y solo se sube al servidor una vez creada la acción (necesita su id). El botón "Guardar" rechaza seguir si falta la foto, igual que rechaza cualquier otro campo obligatorio. Queda un hueco conocido: si el registro de la acción se encola por falta de cobertura, la foto ya capturada no se puede asociar todavía (el endpoint de subida directa no resuelve `accionIdCliente`, solo lo hace el lote de sincronización) — mismo límite ya aceptado para el vídeo sin cobertura.
+
+**2. No había forma de deshacer un misclick.** Si el GPV registraba una incidencia por error, no tenía forma de quitarla mientras seguía en la tienda — la única "corrección" disponible era `comprobar` (marcarla resuelta), que no la borra, solo añade un evento a su historial.
+
+**Decisión: borrado real, no un estado más, y con una ventana estrecha.** Se añade `DELETE /acciones/:id`, pero solo funciona con la misma condición que ya exige `registrar`: la visita que originó la acción sigue abierta (`en_curso`) y es del propio GPV. Pasada esa ventana, no se puede borrar — se descarta desde el panel del FSM (`PATCH acciones/:id`), que sí deja rastro. La distinción importa: un misclick corregido en el momento no es una decisión de negocio que merezca quedar en el histórico de la tienda; algo que ya cruzó a una visita posterior como pendiente, sí.
+
+**Por qué no "descartada" en vez de borrado:** la tabla `estado_accion` ya tiene `descartada` para cuando el FSM decide que algo no procede. Reutilizarla para un misclick mezclaría dos cosas distintas — una decisión de gestión y un error de tecleo — bajo el mismo estado, y el panel del FSM empezaría a mostrar "descartadas" que en realidad nunca existieron como problema real.
+
+
 
 Dudas que necesitan respuesta antes de avanzar. Al resolverse, mover la respuesta a la sección 1 como decisión.
 

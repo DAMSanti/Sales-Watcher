@@ -14,6 +14,7 @@ import {
   deteccionesFechas,
   deteccionesHueco,
   deteccionesStock,
+  evidencias,
   extraespacios,
   gananciasFacings,
   marcas,
@@ -196,6 +197,87 @@ export class AccionesService {
     });
 
     return { ...creada, motivoResponsable: regla.motivo, reglaDerivada: regla.origen === "derivado" };
+  }
+
+  /**
+   * Lo registrado en esta visita, para que el GPV pueda revisarlo y corregir
+   * un misclick mientras sigue en la tienda.
+   *
+   * Deliberadamente no es `abiertasDeTienda`: esa trae lo pendiente de TODAS
+   * las visitas de la tienda, y aquí solo interesa lo de esta, para poder
+   * borrarlo si hace falta.
+   */
+  async registradasEnVisita(visitaId: string, usuario: PayloadToken) {
+    await this.visitaVisible(visitaId, usuario);
+
+    return this.db
+      .select({
+        id: acciones.id,
+        categoriaProducto: acciones.categoriaProducto,
+        tipoSituacion: acciones.tipoSituacion,
+        estado: acciones.estado,
+        detectadaEn: acciones.detectadaEn,
+      })
+      .from(acciones)
+      .where(eq(acciones.visitaOrigenId, visitaId))
+      .orderBy(desc(acciones.detectadaEn));
+  }
+
+  /**
+   * Elimina por completo una acción recién registrada por error.
+   *
+   * SOLO mientras la visita que la originó sigue abierta (`visitaEditable`
+   * exige lo mismo que exige registrar: es del propio GPV y no está cerrada).
+   * Pasada esa ventana no se borra — se descarta con `cambiarEstado`, que dejan
+   * rastro— porque lo detectado puede ya haber cruzado a la tienda como
+   * pendiente de seguimiento, y borrarlo en silencio destruiría ese rastro.
+   *
+   * Es un borrado real, no un estado "descartada": un misclick no es una
+   * decisión de negocio que merezca quedar en el histórico.
+   */
+  async eliminar(accionId: string, usuario: PayloadToken) {
+    const [existente] = await this.db
+      .select()
+      .from(acciones)
+      .where(eq(acciones.id, accionId))
+      .limit(1);
+    if (!existente) throw new NotFoundException("Acción no encontrada");
+
+    // Mismo criterio que registrar: del propio GPV y con la visita todavía
+    // abierta. Si ya se cerró, `visitaEditable` lanza el 409 que corresponde.
+    await this.visitaEditable(existente.visitaOrigenId, usuario);
+
+    await this.db.transaction(async (tx) => {
+      await tx.delete(evidencias).where(eq(evidencias.accionId, accionId));
+      await tx.delete(comprobacionesAccion).where(eq(comprobacionesAccion.accionId, accionId));
+      await tx.delete(deteccionesStock).where(eq(deteccionesStock.accionId, accionId));
+      await tx.delete(deteccionesFechas).where(eq(deteccionesFechas.accionId, accionId));
+      await tx.delete(deteccionesHueco).where(eq(deteccionesHueco.accionId, accionId));
+      await tx.delete(topPicosPendientes).where(eq(topPicosPendientes.accionId, accionId));
+      await tx.delete(gananciasFacings).where(eq(gananciasFacings.accionId, accionId));
+      await tx.delete(oportunidadesVisibilidad).where(eq(oportunidadesVisibilidad.accionId, accionId));
+      await tx.delete(nuevaImplantacionMarcas).where(eq(nuevaImplantacionMarcas.accionId, accionId));
+      await tx.delete(oportunidadesReorganizacion).where(eq(oportunidadesReorganizacion.accionId, accionId));
+      await tx.delete(neveras).where(eq(neveras.accionId, accionId));
+      await tx.delete(extraespacios).where(eq(extraespacios.accionId, accionId));
+      await tx.delete(acciones).where(eq(acciones.id, accionId));
+    });
+
+    await this.auditoria.registrar({
+      usuarioId: usuario.sub,
+      numeroTrabajador: usuario.numeroTrabajador,
+      accion: "accion.eliminada",
+      entidad: "accion",
+      entidadId: accionId,
+      cambios: {
+        situacion: {
+          antes: `${existente.tipoSituacion}/${existente.categoriaProducto}`,
+          despues: null,
+        },
+      },
+    });
+
+    return { eliminada: true };
   }
 
   /** Escribe la fila de detalle que corresponde al tipo de situación. */
