@@ -427,11 +427,8 @@
 }
 
 /* ── Resumen de cierre ─────────────────────────────────────────────── */
-
-.dialogo--resumen {
-  max-height: 85vh;
-  overflow-y: auto;
-}
+/* El contenedor es `.modal__panel` (detalle.css), compartido con el resto de
+   diálogos de la app — ya trae el scroll y el límite de altura. */
 
 .resumen {
   display: grid;

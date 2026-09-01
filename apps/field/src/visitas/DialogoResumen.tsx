@@ -44,9 +44,10 @@ export function DialogoResumen({
     resumen !== null && categorias.length === 0 && resumen.extraespacios.total === 0;
 
   return (
-    <div className="dialogo__fondo" role="dialog" aria-modal="true" aria-label={t("resumen.titulo")}>
-      <div className="dialogo dialogo--resumen">
-        <h2 className="dialogo__titulo">{t("resumen.titulo")}</h2>
+    <div className="modal" role="dialog" aria-modal="true" aria-label={t("resumen.titulo")}>
+      <div className="modal__fondo" onClick={alCancelar} />
+      <div className="modal__panel">
+        <h2 className="modal__titulo">{t("resumen.titulo")}</h2>
 
         {!resumen && <p className="cargando">{t("comun.cargando")}</p>}
 
