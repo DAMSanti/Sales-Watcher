@@ -13,6 +13,85 @@
     />
     <meta name="theme-color" content="#0057b8" />
     <title>Sales Watcher</title>
+    <!--
+      Red de seguridad para /gestion (el backoffice).
+
+      Si este documento —la app de campo— acaba servido en una URL del
+      backoffice, es que un service worker se quedó la navegación antes de
+      que saliera a la red, y nginx no llegó a redirigirla. Pasa antes de
+      cargar React a propósito: cuanto menos se pinte de la app equivocada,
+      mejor.
+
+      Dos intentos, y el contador evita el bucle:
+        1) Ir a /gestion/ con barra final, que sí atraviesa la denylist del
+           service worker.
+        2) Si aun así vuelve a caer aquí, el service worker instalado es
+           demasiado viejo: se desregistra y se vacía la caché. No es
+           destructivo para el GPV — la app de campo lo vuelve a registrar
+           sola la próxima vez que se abre en la raíz.
+    -->
+    <script>
+      (function () {
+        var ruta = location.pathname;
+        if (ruta !== "/gestion" && ruta.indexOf("/gestion/") !== 0) return;
+
+        var CLAVE = "sw.rescate-gestion";
+        var intentos = 0;
+        try {
+          intentos = parseInt(sessionStorage.getItem(CLAVE), 10) || 0;
+        } catch (e) {
+          /* almacenamiento bloqueado */
+        }
+
+        function recordar(valor) {
+          try {
+            sessionStorage.setItem(CLAVE, valor);
+          } catch (e) {
+            /* almacenamiento bloqueado */
+          }
+        }
+
+        if (intentos === 0) {
+          recordar("1");
+          location.replace("/gestion/");
+          return;
+        }
+
+        if (intentos === 1) {
+          recordar("2");
+          var limpieza = [];
+          if (navigator.serviceWorker) {
+            limpieza.push(
+              navigator.serviceWorker.getRegistrations().then(function (registros) {
+                return Promise.all(
+                  registros.map(function (registro) {
+                    return registro.unregister();
+                  }),
+                );
+              }),
+            );
+          }
+          if (window.caches) {
+            limpieza.push(
+              caches.keys().then(function (nombres) {
+                return Promise.all(
+                  nombres.map(function (nombre) {
+                    return caches.delete(nombre);
+                  }),
+                );
+              }),
+            );
+          }
+          Promise.all(limpieza)
+            .catch(function () {
+              /* si algo falla, se recarga igualmente */
+            })
+            .then(function () {
+              location.replace("/gestion/");
+            });
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="raiz"></div>

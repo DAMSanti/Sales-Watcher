@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0057b8" />
     <title>Sales Watcher · Gestión</title>
+    <!--
+      Si se está leyendo esto, el backoffice ha cargado: la navegación llegó
+      a su sitio. Se borra el contador del rescate de `apps/field/index.html`
+      para que un problema futuro vuelva a disponer de sus dos intentos.
+    -->
+    <script>
+      try {
+        sessionStorage.removeItem("sw.rescate-gestion");
+      } catch (e) {
+        /* almacenamiento bloqueado */
+      }
+    </script>
   </head>
   <body>
     <div id="raiz"></div>

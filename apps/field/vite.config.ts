@@ -86,8 +86,36 @@ export default defineConfig(({ mode }) => {
          *  - /api/        → backend REST
          *  - /gestion/    → backoffice (SPA aparte, otro contenedor)
          *  - /evidencias/ → MinIO (URLs firmadas de subida de fotos)
+         *
+         * `(\/|$)` y no `\/` a secas: workbox compara estos patrones contra
+         * `url.pathname`, así que exigir la barra final dejaba fuera
+         * `/gestion` — que es justo como se teclea una URL a mano. Sin
+         * coincidir con la denylist, la navegación caía en el
+         * `navigateFallback` de arriba y el FSM acababa viendo la app de
+         * campo en lugar del backoffice, con nginx sin llegar a enterarse:
+         * el service worker responde antes de que la petición salga a la red.
          */
-        navigateFallbackDenylist: [/^\/api\//, /^\/gestion\//, /^\/evidencias\//],
+        navigateFallbackDenylist: [/^\/api(\/|$)/, /^\/gestion(\/|$)/, /^\/evidencias(\/|$)/],
+
+        /**
+         * El service worker nuevo entra sin esperar y reclama las pestañas
+         * ya abiertas.
+         *
+         * Es lo que permite que una instalación vieja se repare sola: el
+         * navegador sí baja `sw.js` de la red en cada navegación, así que
+         * esta corrección llega aunque todo lo demás siga en caché, sin
+         * pedirle al usuario que borre nada. Sin esto, el service worker
+         * corregido se quedaría "esperando" indefinidamente detrás del roto.
+         *
+         * No reintroduce la recarga silenciosa que se descartó al elegir
+         * `registerType: "prompt"`: tomar el control NO recarga la página.
+         * El aviso para recargar se sigue mostrando —ahora enganchado a
+         * `controllerchange` en `main.tsx`— y sigue decidiendo el GPV cuándo.
+         * Es seguro porque la app no parte en chunks: el JavaScript que la
+         * pestaña abierta ya tiene en memoria es todo el que necesita.
+         */
+        skipWaiting: true,
+        clientsClaim: true,
 
         runtimeCaching: [
           {

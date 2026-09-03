@@ -25,12 +25,44 @@ import "./estilos/componentes.css";
  * cola offline existe para no perder. El GPV decide cuándo, normalmente
  * entre una tienda y otra.
  */
+let actualizacionPedidaPorElUsuario = false;
+
+/**
+ * Había un controlador ANTES de registrar nada.
+ *
+ * Distingue "el service worker acaba de instalarse por primera vez" (no hay
+ * nada que avisar) de "uno nuevo ha relevado al que servía esta pestaña"
+ * (sí: el JavaScript en memoria es el viejo).
+ */
+const habiaControlador = Boolean(navigator.serviceWorker?.controller);
+
 const actualizarSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    mostrarAvisoDeActualizacion(() => actualizarSW(true));
+    mostrarAvisoDeActualizacion(() => {
+      actualizacionPedidaPorElUsuario = true;
+      actualizarSW(true);
+    });
   },
 });
+
+/*
+ * El aviso, ahora también por `controllerchange`.
+ *
+ * Desde que el service worker entra sin esperar (`skipWaiting` en
+ * `vite.config.ts`, necesario para que una instalación rota se repare sola)
+ * ya no queda ninguno "esperando", así que `onNeedRefresh` no se dispara.
+ * Sin esto el banner desaparecería y volvería el problema que lo justificó:
+ * una pestaña abierta durante días ejecutando código viejo.
+ *
+ * Sigue sin recargar sola: solo avisa, y el GPV elige el momento.
+ */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (actualizacionPedidaPorElUsuario || !habiaControlador) return;
+    mostrarAvisoDeActualizacion(() => window.location.reload());
+  });
+}
 
 /**
  * Banner mínimo, sin React: se puede disparar antes de que la app monte, y
