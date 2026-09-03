@@ -96,6 +96,32 @@ type Facings = {
   filas: Array<{ etiqueta: string | null; facings: number; operaciones: number }>;
 };
 
+type FilaDesglose = { etiqueta: string | null; valor: number };
+
+type FilaGestion = { etiqueta: string | null; total: number; solucionadas: number; tasa: number | null };
+
+/** Gestión (documento FSM §10.6): conversión de oportunidades y resolución de incidencias. */
+type Gestion = {
+  oportunidades: { total: number; solucionadas: number; tasa: number | null; filas: FilaGestion[] };
+  incidencias: { total: number; solucionadas: number; tasa: number | null; filas: FilaGestion[] };
+};
+
+/** "Resultados conseguidos" (documento FSM §10.3): las cinco métricas, desglosadas Global → GPV → PDV. */
+type Conseguidos = {
+  skuIncorporadas: { total: number; filas: FilaDesglose[] };
+  bloquesMarca: {
+    total: number;
+    filas: FilaDesglose[];
+    porCategoria: { waters: number; pbb: number };
+  };
+  nuevasImplantaciones: {
+    total: number;
+    filas: FilaDesglose[];
+    quesImplantado: Array<{ nombre: string; veces: number }>;
+  };
+  huecosSolucionados: { total: number; filas: FilaDesglose[] };
+};
+
 type MetricasPeriodo = {
   facingsGanados: number;
   skuIncorporadas: number;
@@ -111,11 +137,26 @@ type Comparacion = {
   periodoB: { desde: string; hasta: string; metricas: MetricasPeriodo };
 };
 
+type Comercial = { id: string; numeroTrabajador: string; nombre: string };
+
+/** Análisis — PDV con más (documento FSM §10.7). */
+type Ranking = {
+  tipo: "oportunidades" | "incidencias";
+  filas: Array<{ tienda: string; numeroReferencia: string; valor: number }>;
+};
+
 const DIMENSIONES = ["gpv", "tienda", "categoria", "marca", "mes"] as const;
 
 /** Por defecto, los últimos 90 días: un trimestre es el periodo en que el FSM piensa. */
 function hace(dias: number) {
   return new Date(Date.now() - dias * 86_400_000).toISOString().slice(0, 10);
+}
+function hoyIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+function inicioDeMes() {
+  const d = new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10);
 }
 
 export function Resultados() {
@@ -124,13 +165,30 @@ export function Resultados() {
 
   const [desde, setDesde] = useState(hace(90));
   const [hasta, setHasta] = useState(new Date().toISOString().slice(0, 10));
+  const [gpvFiltro, setGpvFiltro] = useState("");
+  const [comerciales, setComerciales] = useState<Comercial[]>([]);
   const [dimension, setDimension] = useState<string>("gpv");
 
   const [panel, setPanel] = useState<Panel | null>(null);
   const [facings, setFacings] = useState<Facings | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [tipoRanking, setTipoRanking] = useState<"oportunidades" | "incidencias">("oportunidades");
+  const [ranking, setRanking] = useState<Ranking | null>(null);
   const [verTabla, setVerTabla] = useState(false);
+
+  useEffect(() => {
+    void pedir<{ usuarios: Comercial[] }>("/usuarios?rol=comercial&limite=200", { idioma })
+      .then((r) => setComerciales(r.usuarios))
+      .catch(() => setComerciales([]));
+  }, [idioma]);
+
+  const [dimensionConseguidos, setDimensionConseguidos] = useState<"gpv" | "tienda">("gpv");
+  const [conseguidos, setConseguidos] = useState<Conseguidos | null>(null);
+
+  const [dimensionGestion, setDimensionGestion] = useState<"gpv" | "tienda">("gpv");
+  const [gestion, setGestion] = useState<Gestion | null>(null);
 
   // ── Comparar periodos (documento FSM §10.8) — independiente de los
   // filtros de arriba: aquí los dos periodos se eligen libremente. Por
@@ -147,13 +205,23 @@ export function Resultados() {
     setCargando(true);
     setError(null);
     try {
-      const p = `desde=${desde}&hasta=${hasta}`;
-      const [datos, desglose] = await Promise.all([
+      // Documento FSM §10.2: los filtros generales (GPV + periodo) afectan a
+      // todos los bloques de Resultados, ranking incluido.
+      const p = `desde=${desde}&hasta=${hasta}${gpvFiltro ? `&usuarioId=${gpvFiltro}` : ""}`;
+      const [datos, desglose, logrados, gestionados, rankeados] = await Promise.all([
         pedir<Panel>(`/resultados?${p}`, { idioma }),
         pedir<Facings>(`/resultados/facings?${p}&dimension=${dimension}`, { idioma }),
+        pedir<Conseguidos>(`/resultados/conseguidos?${p}&dimension=${dimensionConseguidos}`, {
+          idioma,
+        }),
+        pedir<Gestion>(`/resultados/gestion?${p}&dimension=${dimensionGestion}`, { idioma }),
+        pedir<Ranking>(`/resultados/ranking?${p}&tipo=${tipoRanking}`, { idioma }),
       ]);
       setPanel(datos);
       setFacings(desglose);
+      setConseguidos(logrados);
+      setGestion(gestionados);
+      setRanking(rankeados);
     } catch (e) {
       setError(
         e instanceof ErrorApi && e.esFalloDeRed
@@ -165,7 +233,17 @@ export function Resultados() {
     } finally {
       setCargando(false);
     }
-  }, [desde, hasta, dimension, idioma, t]);
+  }, [
+    desde,
+    hasta,
+    gpvFiltro,
+    dimension,
+    dimensionConseguidos,
+    dimensionGestion,
+    tipoRanking,
+    idioma,
+    t,
+  ]);
 
   useEffect(() => {
     void cargar();
@@ -203,8 +281,42 @@ export function Resultados() {
         </div>
       </header>
 
-      {/* Los filtros van en una sola fila por encima de todo lo demás. */}
+      {/*
+        Los filtros van en una sola fila por encima de todo lo demás. Cuatro
+        opciones exactas de periodo (documento FSM §13): Hoy / Esta semana /
+        Este mes / Personalizado — los presets ajustan las fechas libres, que
+        siguen editables a mano para el caso "Personalizado".
+      */}
       <div className="filtros">
+        <div style={{ display: "flex", gap: "var(--e2)" }}>
+          <button
+            className="boton boton--menudo boton--secundario"
+            onClick={() => {
+              setHasta(hoyIso());
+              setDesde(hoyIso());
+            }}
+          >
+            {t("actividad.hoy")}
+          </button>
+          <button
+            className="boton boton--menudo boton--secundario"
+            onClick={() => {
+              setHasta(hoyIso());
+              setDesde(hace(7));
+            }}
+          >
+            {t("actividad.semana")}
+          </button>
+          <button
+            className="boton boton--menudo boton--secundario"
+            onClick={() => {
+              setHasta(hoyIso());
+              setDesde(inicioDeMes());
+            }}
+          >
+            {t("actividad.mes")}
+          </button>
+        </div>
         <label className="campo">
           <span className="campo__etiqueta">{t("comun.desde")}</span>
           <input
@@ -222,6 +334,21 @@ export function Resultados() {
             value={hasta}
             onChange={(ev) => setHasta(ev.target.value)}
           />
+        </label>
+        <label className="campo">
+          <span className="campo__etiqueta">{t("actividad.gpv")}</span>
+          <select
+            className="campo__control"
+            value={gpvFiltro}
+            onChange={(ev) => setGpvFiltro(ev.target.value)}
+          >
+            <option value="">{t("comun.todos")}</option>
+            {comerciales.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 
@@ -362,6 +489,186 @@ export function Resultados() {
               }))}
             />
           </section>
+
+          {/*
+            ── Resultados conseguidos: documento FSM §10.3 ──────────────
+            Las otras cuatro métricas que el cliente pide con desglose
+            Global → GPV → PDV (facings ya tiene la suya arriba, con más
+            dimensiones). El total de cada tarjeta ES el "Global"; el
+            selector de abajo cambia las cuatro a la vez porque es la misma
+            pregunta —¿por GPV o por tienda?— para las cuatro.
+          */}
+          {conseguidos && (
+            <section className="tarjeta">
+              <div className="tarjeta__cabecera">
+                <h2 className="tarjeta__titulo">{t("resultados.conseguidos")}</h2>
+                <label className="campo campo--enlinea">
+                  <select
+                    className="campo__control"
+                    value={dimensionConseguidos}
+                    onChange={(ev) => setDimensionConseguidos(ev.target.value as "gpv" | "tienda")}
+                  >
+                    <option value="gpv">{t("resultados.dimension.gpv")}</option>
+                    <option value="tienda">{t("resultados.dimension.tienda")}</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="metricas">
+                <Metrica
+                  valor={conseguidos.skuIncorporadas.total}
+                  etiqueta={t("resultados.skuIncorporadas")}
+                />
+                <Metrica
+                  valor={conseguidos.bloquesMarca.total}
+                  etiqueta={t("resultados.bloquesMarca")}
+                  pie={t("resultados.bloquesMarcaDetalle", {
+                    waters: conseguidos.bloquesMarca.porCategoria.waters,
+                    pbb: conseguidos.bloquesMarca.porCategoria.pbb,
+                  })}
+                />
+                <Metrica
+                  valor={conseguidos.nuevasImplantaciones.total}
+                  etiqueta={t("resultados.nuevasImplantaciones")}
+                  pie={
+                    conseguidos.nuevasImplantaciones.quesImplantado.length > 0
+                      ? conseguidos.nuevasImplantaciones.quesImplantado
+                          .map((m) => m.nombre)
+                          .join(", ")
+                      : undefined
+                  }
+                />
+                <Metrica
+                  valor={conseguidos.huecosSolucionados.total}
+                  etiqueta={t("resultados.huecosSolucionados")}
+                />
+              </div>
+
+              <h3 className="tarjeta__subtitulo">
+                {t("resultados.bloquesMarca")} —{" "}
+                {t(`resultados.dimension.${dimensionConseguidos}`)}
+              </h3>
+              <BarrasHorizontales
+                vacio={t("comun.vacio")}
+                filas={conseguidos.bloquesMarca.filas.map((f) => ({
+                  etiqueta: f.etiqueta ?? t("comun.sinDato"),
+                  valor: f.valor,
+                }))}
+              />
+
+              <h3 className="tarjeta__subtitulo" style={{ marginTop: "var(--e4)" }}>
+                {t("resultados.nuevasImplantaciones")} —{" "}
+                {t(`resultados.dimension.${dimensionConseguidos}`)}
+              </h3>
+              <BarrasHorizontales
+                vacio={t("comun.vacio")}
+                filas={conseguidos.nuevasImplantaciones.filas.map((f) => ({
+                  etiqueta: f.etiqueta ?? t("comun.sinDato"),
+                  valor: f.valor,
+                }))}
+              />
+            </section>
+          )}
+
+          {/*
+            ── Gestión: documento FSM §10.6 ─────────────────────────────
+            Conversión de oportunidades y resolución de incidencias, cada
+            una con la numérica absoluta Y el porcentaje al lado — nunca
+            solo el porcentaje, porque un % alto con poco volumen no dice lo
+            mismo que uno algo menor con mucho volumen.
+          */}
+          {gestion && (
+            <section className="tarjeta">
+              <div className="tarjeta__cabecera">
+                <h2 className="tarjeta__titulo">{t("resultados.gestion")}</h2>
+                <label className="campo campo--enlinea">
+                  <select
+                    className="campo__control"
+                    value={dimensionGestion}
+                    onChange={(ev) => setDimensionGestion(ev.target.value as "gpv" | "tienda")}
+                  >
+                    <option value="gpv">{t("resultados.dimension.gpv")}</option>
+                    <option value="tienda">{t("resultados.dimension.tienda")}</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="metricas">
+                <Metrica
+                  valor={gestion.oportunidades.solucionadas}
+                  etiqueta={t("resultados.conversionOportunidades")}
+                  sufijo={
+                    gestion.oportunidades.tasa === null ? undefined : ` (${gestion.oportunidades.tasa}%)`
+                  }
+                  pie={t("resultados.sobreTotal", { n: gestion.oportunidades.total })}
+                />
+                <Metrica
+                  valor={gestion.incidencias.solucionadas}
+                  etiqueta={t("resultados.resolucionIncidencias")}
+                  sufijo={
+                    gestion.incidencias.tasa === null ? undefined : ` (${gestion.incidencias.tasa}%)`
+                  }
+                  pie={t("resultados.sobreTotal", { n: gestion.incidencias.total })}
+                />
+              </div>
+
+              {/* El FSM debe poder ver qué PDV (o GPV) componen la numérica. */}
+              <h3 className="tarjeta__subtitulo">{t("resultados.conversionOportunidades")}</h3>
+              <BarrasHorizontales
+                vacio={t("comun.vacio")}
+                filas={gestion.oportunidades.filas.map((f) => ({
+                  etiqueta: f.etiqueta ?? t("comun.sinDato"),
+                  valor: f.solucionadas,
+                  detalle: `${f.solucionadas} / ${f.total}${f.tasa === null ? "" : ` (${f.tasa}%)`}`,
+                }))}
+              />
+
+              <h3 className="tarjeta__subtitulo" style={{ marginTop: "var(--e4)" }}>
+                {t("resultados.resolucionIncidencias")}
+              </h3>
+              <BarrasHorizontales
+                vacio={t("comun.vacio")}
+                filas={gestion.incidencias.filas.map((f) => ({
+                  etiqueta: f.etiqueta ?? t("comun.sinDato"),
+                  valor: f.solucionadas,
+                  detalle: `${f.solucionadas} / ${f.total}${f.tasa === null ? "" : ` (${f.tasa}%)`}`,
+                }))}
+              />
+            </section>
+          )}
+
+          {/*
+            ── Análisis — PDV con más: documento FSM §10.7 ──────────────
+            Deliberadamente SIN enlace a la tienda: el cliente pide
+            explícito que este ranking no sea clicable — para investigar un
+            PDV se pasa por Tiendas.
+          */}
+          {ranking && (
+            <section className="tarjeta">
+              <div className="tarjeta__cabecera">
+                <h2 className="tarjeta__titulo">{t("resultados.analisis")}</h2>
+                <label className="campo campo--enlinea">
+                  <select
+                    className="campo__control"
+                    value={tipoRanking}
+                    onChange={(ev) =>
+                      setTipoRanking(ev.target.value as "oportunidades" | "incidencias")
+                    }
+                  >
+                    <option value="oportunidades">{t("resultados.oportunidades")}</option>
+                    <option value="incidencias">{t("resultados.incidencias")}</option>
+                  </select>
+                </label>
+              </div>
+              <BarrasHorizontales
+                vacio={t("comun.vacio")}
+                filas={ranking.filas.map((f) => ({
+                  etiqueta: `${f.tienda} (${f.numeroReferencia})`,
+                  valor: f.valor,
+                }))}
+              />
+            </section>
+          )}
 
           {/* ── Equipo: preguntas 9 y 10, juntas a propósito ────────── */}
           <section className="tarjeta">

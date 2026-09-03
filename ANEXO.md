@@ -665,6 +665,25 @@ Todo lo especificado arriba está construido: `GET /actividad`, `GET /tiendas/:i
 
 **Una simplificación consciente:** el listado de `ConsultaTiendas.tsx` solo muestra nombre y código, no el GPV responsable — calcularlo por fila (última visita) para un listado de cientos de tiendas sería una consulta N+1 innecesaria. El GPV responsable sí aparece, prominente, en la cabecera de la ficha (`FichaTienda.tsx`), que es donde el documento lo pide con más énfasis (§8.3). Si el listado necesita esa columna más adelante, hace falta una consulta agregada, no una por fila.
 
+### 2026-09-03 — Auditoría exhaustiva contra el documento del cliente: ocho huecos reales
+
+El cliente pidió comprobar tres veces que no faltara nada. Una relectura línea por línea del documento (no de memoria de lo ya construido) contra el código real encontró ocho huecos genuinos, todos corregidos en la misma sesión:
+
+1. **Ficha de tienda sin detalle tipificado.** El histórico y las acciones abiertas solo mostraban la referencia de Top Pico; nueva implantación, hueco, nevera y evidencia (§8.5, explícitos) no aparecían. Corregido reutilizando la máquina de `DetalleVisitaService` (`detalleDe`, `evidenciasPorAccion`) en vez de duplicarla — se generalizó `accionesConDetalle` a `accionesConDetallePorCondicion` para poder consultarla también por tienda.
+2. **"Resultados conseguidos" (§10.3) sin desglose.** Solo Facings tenía Global→GPV→PDV; SKU incorporadas, Bloques de marca, Nuevas implantaciones y Huecos solucionados no tenían desglose ni pantalla propia. Nuevo endpoint `GET /resultados/conseguidos`.
+3. **Filtro de periodo de Resultados sin los presets del §13.** Actividad ya tenía Hoy/Semana/Mes; Resultados solo tenía fechas libres. Añadidos los mismos tres botones.
+4. **Acciones sin filtro GPV.** El checklist §16 lo pide explícito ("filtro GPV") y no existía ningún filtro por comercial en el panel. Añadido `usuarioId` a `bandejaAccionesSchema` y un selector en el panel.
+5. **Acciones sin selector de orden.** §7.2 pide "Más antiguas / Más recientes" como las únicas dos opciones; el orden estaba fijo en código sin control alguno. Añadido `orden` al DTO y un `<select>`.
+6. **Actividad sin "consultar el detalle del registro" (§6.5).** Los eventos se listaban pero no se podía abrir ninguno. Nuevo `GET /acciones/:id/detalle` + modal en `Actividad.tsx`.
+7. **Sin bloque "Gestión" (§10.6).** Conversión de oportunidades ya existía (dentro del embudo); Resolución de incidencias no existía en ningún sitio del panel principal. Nuevo endpoint `GET /resultados/gestion`, con numérica + % y desglose Global→GPV→PDV para las dos.
+8. **Sin "Análisis — PDV con más" (§10.7) ni filtro GPV general en Resultados.** No existía el ranking con selector Oportunidades/Incidencias que pide el documento, y los filtros generales de Resultados (§10.2) no incluían GPV pese a que la API ya lo soportaba. Nuevo `GET /resultados/ranking` (deliberadamente sin enlace a la tienda — el cliente prohíbe que sea clicable) y selector de GPV añadido a los filtros generales.
+
+**Un noveno hallazgo, de estilo y no de funcionalidad:** `Actividad.tsx` y `FichaTienda.tsx` usaban clases CSS (`registrado-visita__*`, `pendientes__lista`) que solo existen en la hoja de estilos de la app de campo — en el backoffice se habrían renderizado sin ningún estilo. Corregido reutilizando `.acciones-visita`/`.accion-registrada`, que sí existen ahí (las usa `DetalleVisita.tsx`). De paso se extrajo `DetalleFlujo`/`Evidencia` de `DetalleVisita.tsx` a un componente compartido (`componentes/DetalleFlujo.tsx`), porque ahora lo usan tres pantallas.
+
+Verificado explícitamente que estos puntos del documento **ya se cumplían sin cambios**: Acciones solo tenía dos botones de cierre (nunca hubo "mantener abierta"), y ningún ranking de Resultados era clicable.
+
+Monorepo completo (`pnpm typecheck` + build de `api` y `backoffice`) verde tras cada corrección.
+
 ### Preguntas cerradas
 
 P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no realizada), P5 (multi-idioma), P6 (categorías → reconvertida en P10), P8 (contraseñas), P9 (set de idiomas), P12 (ventana de justificación), P13 (solo idioma de interfaz), P14 (`en-GB`), P15 (traducción inicial → deja abierta P16).

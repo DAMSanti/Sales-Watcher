@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ErrorApi, pedir } from "../api/cliente";
 import { useSesion } from "../auth/sesion";
+import { Dialogo } from "../componentes/Dialogo";
+import { DetalleFlujo, Evidencia, type Evidencia as TipoEvidencia } from "../componentes/DetalleFlujo";
 import { Metrica } from "../componentes/Metrica";
 
 /**
@@ -32,6 +34,23 @@ type GrupoTienda = {
   numeroReferencia: string;
   eventos: EventoActividad[];
   resumen: { oportunidades: number; incidencias: number; solucionadas: number };
+};
+
+/**
+ * Detalle de un registro (documento FSM §6.5): tipo, tienda, GPV, fecha,
+ * estado, datos específicos y evidencia si existe.
+ */
+type DetalleAccion = {
+  id: string;
+  tipoSituacion: string;
+  categoriaProducto: string;
+  estado: string;
+  detectadaEn: string;
+  resueltaEn: string | null;
+  detalle: Record<string, unknown> | null;
+  evidencias: TipoEvidencia[];
+  tienda: { id: string; nombre: string; numeroReferencia: string };
+  gpv: { nombre: string; numeroTrabajador: string };
 };
 
 function hace(dias: number) {
@@ -64,6 +83,10 @@ export function Actividad() {
   const [grupos, setGrupos] = useState<GrupoTienda[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [accionAbierta, setAccionAbierta] = useState<string | null>(null);
+  const [detalleAccion, setDetalleAccion] = useState<DetalleAccion | null>(null);
+  const [errorDetalle, setErrorDetalle] = useState<string | null>(null);
 
   useEffect(() => {
     void pedir<{ usuarios: Comercial[] }>("/usuarios?rol=comercial&limite=200", { idioma })
@@ -98,6 +121,23 @@ export function Actividad() {
   function preajuste(dias: number | "mes") {
     setHasta(hoy());
     setDesde(dias === "mes" ? inicioDeMes() : hace(dias));
+  }
+
+  async function abrirDetalle(accionId: string) {
+    setAccionAbierta(accionId);
+    setDetalleAccion(null);
+    setErrorDetalle(null);
+    try {
+      setDetalleAccion(await pedir<DetalleAccion>(`/acciones/${accionId}/detalle`, { idioma }));
+    } catch (e) {
+      setErrorDetalle(
+        e instanceof ErrorApi && e.esFalloDeRed
+          ? t("comun.sinConexion")
+          : e instanceof Error
+            ? e.message
+            : String(e),
+      );
+    }
   }
 
   return (
@@ -205,24 +245,99 @@ export function Actividad() {
               )}
             </div>
 
-            <ul className="registrado-visita__lista">
-              {g.eventos.slice(0, 8).map((ev, i) => (
-                <li key={`${ev.accionId}-${ev.tipoEvento}-${i}`} className="registrado-visita__fila">
-                  <span>
-                    <span aria-hidden="true">{ICONO_EVENTO[ev.tipoEvento]}</span>{" "}
-                    {t(`situacion.${ev.tipoSituacion}`)}
-                    {ev.categoriaProducto !== "transversal" &&
-                      ` · ${t(`categoria.${ev.categoriaProducto}`)}`}
-                  </span>
-                  <span className="tabla__ref">
-                    {ev.gpv} ·{" "}
-                    {ev.fecha ? new Date(ev.fecha).toLocaleDateString() : "—"}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div className="tabla-marco">
+              <table className="tabla">
+                <tbody>
+                  {g.eventos.slice(0, 8).map((ev, i) => (
+                    <tr key={`${ev.accionId}-${ev.tipoEvento}-${i}`}>
+                      <td>
+                        <span aria-hidden="true">{ICONO_EVENTO[ev.tipoEvento]}</span>{" "}
+                        {t(`situacion.${ev.tipoSituacion}`)}
+                        {ev.categoriaProducto !== "transversal" &&
+                          ` · ${t(`categoria.${ev.categoriaProducto}`)}`}
+                      </td>
+                      <td className="tabla__ref">{ev.gpv}</td>
+                      <td className="tabla__ref">
+                        {ev.fecha ? new Date(ev.fecha).toLocaleDateString() : "—"}
+                      </td>
+                      <td>
+                        {/* Documento FSM §6.5: desde una actividad se puede
+                            consultar el detalle del registro. */}
+                        <button
+                          className="boton boton--menudo boton--secundario"
+                          onClick={() => void abrirDetalle(ev.accionId)}
+                        >
+                          {t("actividad.verDetalle")}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         ))}
+
+      {accionAbierta && (
+        <Dialogo titulo={t("actividad.detalleTitulo")} onCerrar={() => setAccionAbierta(null)}>
+          {errorDetalle && (
+            <div className="aviso aviso--error" role="alert">
+              {errorDetalle}
+            </div>
+          )}
+          {!detalleAccion && !errorDetalle && (
+            <p className="cargando">{t("comun.cargando")}</p>
+          )}
+          {detalleAccion && (
+            <dl className="detalle-flujo">
+              <div className="detalle-flujo__par">
+                <dt>{t("acciones.situacion")}</dt>
+                <dd>
+                  {t(`situacion.${detalleAccion.tipoSituacion}`)}
+                  {detalleAccion.categoriaProducto !== "transversal" &&
+                    ` · ${t(`categoria.${detalleAccion.categoriaProducto}`)}`}
+                </dd>
+              </div>
+              <div className="detalle-flujo__par">
+                <dt>{t("resultados.tienda")}</dt>
+                <dd>
+                  {detalleAccion.tienda.nombre} ({detalleAccion.tienda.numeroReferencia})
+                </dd>
+              </div>
+              <div className="detalle-flujo__par">
+                <dt>{t("actividad.gpv")}</dt>
+                <dd>{detalleAccion.gpv.nombre}</dd>
+              </div>
+              <div className="detalle-flujo__par">
+                <dt>{t("acciones.estado")}</dt>
+                <dd>
+                  <span className={`distintivo distintivo--${detalleAccion.estado}`}>
+                    {t(`estadoAccion.${detalleAccion.estado}`)}
+                  </span>
+                </dd>
+              </div>
+              <div className="detalle-flujo__par">
+                <dt>{t("acciones.antiguedad")}</dt>
+                <dd>{new Date(detalleAccion.detectadaEn).toLocaleDateString()}</dd>
+              </div>
+              {detalleAccion.resueltaEn && (
+                <div className="detalle-flujo__par">
+                  <dt>{t("fichaTienda.fecha")}</dt>
+                  <dd>{new Date(detalleAccion.resueltaEn).toLocaleDateString()}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {detalleAccion && <DetalleFlujo detalle={detalleAccion.detalle} />}
+          {detalleAccion && detalleAccion.evidencias.length > 0 && (
+            <div className="evidencias">
+              {detalleAccion.evidencias.map((e) => (
+                <Evidencia key={e.id} evidencia={e} />
+              ))}
+            </div>
+          )}
+        </Dialogo>
+      )}
     </>
   );
 }

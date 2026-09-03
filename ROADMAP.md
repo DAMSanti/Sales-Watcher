@@ -325,6 +325,20 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Quitar el filtro planificada/no-planificada y la tasa de no-realización como métrica central de Informes (SPECS §6.6) — **revisado: ese filtro no existe literalmente en `Informes.tsx` hoy** (solo canal + fechas); lo pendiente es solo la decisión de nav de abajo
 - [ ] Confirmar con el cliente si Rutas/Justificaciones deben desaparecer del todo o quedar accesibles como herramienta secundaria de administración (no bloquea: ya están fuera de la navegación principal)
 
+### 🆕 Auditoría exhaustiva contra el documento (2026-09-03, ronda 7 segunda pasada)
+
+> Ver ANEXO.md, entrada del 2026-09-03 "Auditoría exhaustiva". Ocho huecos reales encontrados releyendo el documento línea por línea contra el código — no contra la memoria de lo ya construido — y corregidos todos en la misma sesión.
+
+- [x] Ficha de tienda: detalle tipificado completo (nueva implantación, hueco, nevera, evidencia) en abiertas e histórico, reutilizando `DetalleVisitaService`
+- [x] "Resultados conseguidos" (§10.3): desglose Global→GPV→PDV para las cinco métricas — `GET /resultados/conseguidos`
+- [x] Presets Hoy/Semana/Mes en el filtro de periodo de Resultados, igual que Actividad (§13)
+- [x] Filtro GPV en el panel de Acciones (§16, checklist explícito)
+- [x] Selector de orden (más antiguas/recientes) en Acciones (§7.2)
+- [x] Consultar el detalle de un registro desde Actividad (§6.5) — `GET /acciones/:id/detalle` + modal
+- [x] Bloque "Gestión" con Conversión de oportunidades y Resolución de incidencias (§10.6) — `GET /resultados/gestion`
+- [x] "Análisis — PDV con más" con selector Oportunidades/Incidencias, sin clic (§10.7) — `GET /resultados/ranking` — y filtro GPV general en Resultados (§10.2)
+- [x] Corregidas clases CSS inexistentes en el backoffice (`registrado-visita__*`, `pendientes__lista`, tomadas por error de la app de campo); extraído `componentes/DetalleFlujo.tsx` compartido entre tres pantallas
+
 ## Fase 5 — Endurecimiento y piloto
 
 - [ ] Pruebas de integración de la API

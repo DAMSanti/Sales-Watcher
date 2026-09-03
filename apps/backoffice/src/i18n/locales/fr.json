@@ -237,6 +237,9 @@
     "estancadasPie": "Toujours ouvertes : jamais fermées d'office",
     "estancada": "Enlisée",
     "soloEstancadas": "Enlisées seulement",
+    "orden": "Ordre",
+    "masAntiguas": "Plus anciennes d'abord",
+    "masRecientes": "Plus récentes d'abord",
     "abiertasYEnCurso": "Ouvertes et en cours",
     "estado": "État",
     "categoria": "Catégorie",
@@ -364,8 +367,13 @@
     "cambio": "Évolution",
     "skuIncorporadas": "Références ajoutées",
     "bloquesMarca": "Blocs de marque",
+    "bloquesMarcaDetalle": "{{waters}} Waters · {{pbb}} PBB",
     "nuevasImplantaciones": "Nouvelles implantations",
     "huecosSolucionados": "Espaces vides résolus",
+    "conseguidos": "Résultats obtenus",
+    "gestion": "Gestion",
+    "sobreTotal": "sur {{n}} détectées",
+    "analisis": "Analyse — Magasins en tête",
     "conversionOportunidades": "Conversion des opportunités",
     "resolucionIncidencias": "Résolution des incidents"
   },
@@ -377,7 +385,9 @@
     "mes": "Ce mois-ci",
     "gpv": "GPV",
     "vacio": "Aucune activité avec ces filtres",
-    "verFicha": "Voir la fiche"
+    "verFicha": "Voir la fiche",
+    "verDetalle": "Voir le détail",
+    "detalleTitulo": "Détail de l'enregistrement"
   },
   "consultaTiendas": {
     "titulo": "Magasins",

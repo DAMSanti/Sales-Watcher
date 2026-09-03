@@ -41,6 +41,8 @@ type Accion = {
   detectadaPor: { nombre: string; numeroTrabajador: string };
 };
 
+type Comercial = { id: string; numeroTrabajador: string; nombre: string };
+
 type Comprobacion = {
   id: string;
   desenlace: string;
@@ -60,8 +62,18 @@ export function Acciones() {
   const [estado, setEstado] = useState("");
   const [categoria, setCategoria] = useState("");
   const [responsable, setResponsable] = useState("");
+  const [gpv, setGpv] = useState("");
+  const [comerciales, setComerciales] = useState<Comercial[]>([]);
   const [soloEstancadas, setSoloEstancadas] = useState(false);
   const [cerradasPorGpv, setCerradasPorGpv] = useState(false);
+  /** Documento FSM §7.2: solo estas dos opciones de orden. */
+  const [orden, setOrden] = useState<"antiguas" | "recientes">("antiguas");
+
+  useEffect(() => {
+    void pedir<{ usuarios: Comercial[] }>("/usuarios?rol=comercial&limite=200", { idioma })
+      .then((r) => setComerciales(r.usuarios))
+      .catch(() => setComerciales([]));
+  }, [idioma]);
   /** Cuántas acciones del FSM ha cerrado un GPV esta semana. */
   const [avisoCierres, setAvisoCierres] = useState(0);
   const [cargando, setCargando] = useState(true);
@@ -76,10 +88,11 @@ export function Acciones() {
     setCargando(true);
     setError(null);
     try {
-      const p = new URLSearchParams({ limite: "200" });
+      const p = new URLSearchParams({ limite: "200", orden });
       if (estado) p.set("estado", estado);
       if (categoria) p.set("categoriaProducto", categoria);
       if (responsable) p.set("responsableActuar", responsable);
+      if (gpv) p.set("usuarioId", gpv);
       if (soloEstancadas) p.set("soloEstancadas", "true");
       if (cerradasPorGpv) p.set("cerradasPorGpv", "true");
       setFilas(await pedir<Accion[]>(`/acciones?${p}`, { idioma }));
@@ -94,7 +107,7 @@ export function Acciones() {
     } finally {
       setCargando(false);
     }
-  }, [estado, categoria, responsable, soloEstancadas, cerradasPorGpv, idioma, t]);
+  }, [estado, categoria, responsable, gpv, soloEstancadas, cerradasPorGpv, orden, idioma, t]);
 
   /**
    * El aviso se pide aparte de la bandeja.
@@ -204,6 +217,30 @@ export function Acciones() {
             <option value="">{t("comun.todos")}</option>
             <option value="fsm">{t("acciones.paraMi")}</option>
             <option value="gpv">{t("acciones.paraElGpv")}</option>
+          </select>
+        </label>
+
+        <label className="campo">
+          <span className="campo__etiqueta">{t("actividad.gpv")}</span>
+          <select className="campo__control" value={gpv} onChange={(e) => setGpv(e.target.value)}>
+            <option value="">{t("comun.todos")}</option>
+            {comerciales.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="campo">
+          <span className="campo__etiqueta">{t("acciones.orden")}</span>
+          <select
+            className="campo__control"
+            value={orden}
+            onChange={(e) => setOrden(e.target.value as "antiguas" | "recientes")}
+          >
+            <option value="antiguas">{t("acciones.masAntiguas")}</option>
+            <option value="recientes">{t("acciones.masRecientes")}</option>
           </select>
         </label>
 

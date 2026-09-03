@@ -237,6 +237,9 @@
     "estancadasPie": "Still open: they never close by themselves",
     "estancada": "Stalled",
     "soloEstancadas": "Stalled only",
+    "orden": "Order",
+    "masAntiguas": "Oldest first",
+    "masRecientes": "Newest first",
     "abiertasYEnCurso": "Open and in progress",
     "estado": "Status",
     "categoria": "Category",
@@ -364,8 +367,13 @@
     "cambio": "Change",
     "skuIncorporadas": "SKUs added",
     "bloquesMarca": "Brand blocks",
+    "bloquesMarcaDetalle": "{{waters}} Waters · {{pbb}} PBB",
     "nuevasImplantaciones": "New placements",
     "huecosSolucionados": "Gaps fixed",
+    "conseguidos": "Results achieved",
+    "gestion": "Management",
+    "sobreTotal": "of {{n}} detected",
+    "analisis": "Analysis — Top stores",
     "conversionOportunidades": "Opportunity conversion",
     "resolucionIncidencias": "Incident resolution"
   },
@@ -377,7 +385,9 @@
     "mes": "This month",
     "gpv": "GPV",
     "vacio": "No activity with these filters",
-    "verFicha": "View record"
+    "verFicha": "View record",
+    "verDetalle": "View detail",
+    "detalleTitulo": "Record detail"
   },
   "consultaTiendas": {
     "titulo": "Stores",

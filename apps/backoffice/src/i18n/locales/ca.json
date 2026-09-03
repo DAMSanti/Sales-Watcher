@@ -237,6 +237,9 @@
     "estancadasPie": "Segueixen obertes: no es tanquen soles",
     "estancada": "Encallada",
     "soloEstancadas": "Només encallades",
+    "orden": "Ordre",
+    "masAntiguas": "Més antigues primer",
+    "masRecientes": "Més recents primer",
     "abiertasYEnCurso": "Obertes i en curs",
     "estado": "Estat",
     "categoria": "Categoria",
@@ -364,8 +367,13 @@
     "cambio": "Canvi",
     "skuIncorporadas": "SKU incorporades",
     "bloquesMarca": "Blocs de marca",
+    "bloquesMarcaDetalle": "{{waters}} Waters · {{pbb}} PBB",
     "nuevasImplantaciones": "Noves implantacions",
     "huecosSolucionados": "Buits solucionats",
+    "conseguidos": "Resultats aconseguits",
+    "gestion": "Gestió",
+    "sobreTotal": "sobre {{n}} detectades",
+    "analisis": "Anàlisi — Botigues amb més",
     "conversionOportunidades": "Conversió d'oportunitats",
     "resolucionIncidencias": "Resolució d'incidències"
   },
@@ -377,7 +385,9 @@
     "mes": "Aquest mes",
     "gpv": "GPV",
     "vacio": "Sense activitat amb aquests filtres",
-    "verFicha": "Veure fitxa"
+    "verFicha": "Veure fitxa",
+    "verDetalle": "Veure detall",
+    "detalleTitulo": "Detall del registre"
   },
   "consultaTiendas": {
     "titulo": "Botigues",

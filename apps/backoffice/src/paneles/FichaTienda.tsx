@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorApi, pedir } from "../api/cliente";
 import { useSesion } from "../auth/sesion";
+import { DetalleFlujo, Evidencia, type Evidencia as TipoEvidencia } from "../componentes/DetalleFlujo";
 
 /**
  * Ficha de tienda (SPECS §6.4, documento FSM §8.3-8.5).
@@ -31,7 +32,7 @@ type AccionAbierta = {
   diasAbierta: number;
   estancada: boolean;
   comprobaciones: number;
-  referencia: { id: string; nombre: string } | null;
+  detalle: Record<string, unknown> | null;
 };
 
 type AccionHistorico = {
@@ -43,7 +44,8 @@ type AccionHistorico = {
   detectadaEn: string;
   resueltaEn: string | null;
   notaResultado: string | null;
-  referencia: { id: string; nombre: string } | null;
+  detalle: Record<string, unknown> | null;
+  evidencias: TipoEvidencia[];
 };
 
 export function FichaTienda() {
@@ -130,30 +132,24 @@ export function FichaTienda() {
             {abiertas.length === 0 ? (
               <p className="tabla__vacia">{t("fichaTienda.sinAbiertas")}</p>
             ) : (
-              <ul className="pendientes__lista">
+              <div className="acciones-visita">
                 {abiertas.map((a) => (
-                  <li key={a.id} className="pendiente">
-                    <div className="pendiente__datos">
-                      <span className="pendiente__situacion">
+                  <article key={a.id} className="accion-registrada">
+                    <div className="accion-registrada__cabecera">
+                      <h3 className="accion-registrada__titulo">
                         {t(`situacion.${a.tipoSituacion}`)}
-                        {a.categoriaProducto !== "transversal" && (
-                          <span className="pendiente__categoria">
-                            {" "}
-                            · {t(`categoria.${a.categoriaProducto}`)}
-                          </span>
-                        )}
-                      </span>
-                      {a.referencia && (
-                        <span className="pendiente__referencia">{a.referencia.nombre}</span>
-                      )}
-                      <span className="pendiente__antiguedad">
+                        {a.categoriaProducto !== "transversal" &&
+                          ` · ${t(`categoria.${a.categoriaProducto}`)}`}
+                      </h3>
+                      <span className={`distintivo ${a.estancada ? "distintivo--sin-justificar" : "distintivo--neutro"}`}>
                         {t("acciones.dias", { n: a.diasAbierta })}
                         {a.estancada && ` · ${t("acciones.estancada")}`}
                       </span>
                     </div>
-                  </li>
+                    <DetalleFlujo detalle={a.detalle} />
+                  </article>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
 
@@ -193,38 +189,32 @@ export function FichaTienda() {
             {historico.length === 0 ? (
               <p className="tabla__vacia">{t("fichaTienda.sinHistorico")}</p>
             ) : (
-              <div className="tabla-marco">
-                <table className="tabla">
-                  <thead>
-                    <tr>
-                      <th>{t("acciones.situacion")}</th>
-                      <th>{t("acciones.estado")}</th>
-                      <th>{t("fichaTienda.fecha")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historico.map((h) => (
-                      <tr key={h.id}>
-                        <td>
-                          <div>{t(`situacion.${h.tipoSituacion}`)}</div>
-                          <div className="tabla__ref">
-                            {h.categoriaProducto !== "transversal" &&
-                              t(`categoria.${h.categoriaProducto}`)}
-                            {h.referencia && ` · ${h.referencia.nombre}`}
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`distintivo distintivo--${h.estado}`}>
-                            {t(`estadoAccion.${h.estado}`)}
-                          </span>
-                        </td>
-                        <td className="tabla__ref">
-                          {h.resueltaEn ? new Date(h.resueltaEn).toLocaleDateString() : "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="acciones-visita">
+                {historico.map((h) => (
+                  <article key={h.id} className="accion-registrada">
+                    <div className="accion-registrada__cabecera">
+                      <h3 className="accion-registrada__titulo">
+                        {t(`situacion.${h.tipoSituacion}`)}
+                        {h.categoriaProducto !== "transversal" &&
+                          ` · ${t(`categoria.${h.categoriaProducto}`)}`}
+                      </h3>
+                      <span className={`distintivo distintivo--${h.estado}`}>
+                        {t(`estadoAccion.${h.estado}`)}
+                      </span>
+                    </div>
+                    <DetalleFlujo detalle={h.detalle} />
+                    {h.evidencias.length > 0 && (
+                      <div className="evidencias">
+                        {h.evidencias.map((e) => (
+                          <Evidencia key={e.id} evidencia={e} />
+                        ))}
+                      </div>
+                    )}
+                    <p className="tarjeta__nota" style={{ margin: "var(--e2) 0 0" }}>
+                      {h.resueltaEn ? new Date(h.resueltaEn).toLocaleDateString() : "—"}
+                    </p>
+                  </article>
+                ))}
               </div>
             )}
           </section>

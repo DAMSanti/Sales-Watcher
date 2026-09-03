@@ -39,6 +39,7 @@ import {
   type TipoSituacion,
 } from "@sw/shared";
 import { AuditoriaService } from "../auditoria/auditoria.service";
+import { DetalleVisitaService } from "./detalle-visita.service";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { PayloadToken } from "../auth/auth.service";
 import type { Configuracion } from "../config/configuracion";
@@ -83,6 +84,7 @@ export class AccionesService {
     @Inject(SERVICIO_DB) private readonly db: ClienteDb,
     private readonly auditoria: AuditoriaService,
     private readonly config: ConfigService<Configuracion, true>,
+    private readonly detalleVisita: DetalleVisitaService,
   ) {}
 
   private get umbralEstancada(): number {
@@ -431,69 +433,70 @@ export class AccionesService {
     await this.tiendaVisible(tiendaId, usuario);
     const ahora = new Date();
 
-    const filas = await this.db
-      .select({
-        accion: acciones,
-        referencia: { id: referenciasProducto.id, nombre: referenciasProducto.nombre },
-        comprobaciones: sql<number>`(
-          select count(*)::int from ${comprobacionesAccion}
-          where ${comprobacionesAccion.accionId} = ${acciones.id}
-        )`,
-      })
-      .from(acciones)
-      .leftJoin(topPicosPendientes, eq(topPicosPendientes.accionId, acciones.id))
-      .leftJoin(referenciasProducto, eq(referenciasProducto.id, topPicosPendientes.referenciaId))
-      .where(
-        and(
-          eq(acciones.tiendaId, tiendaId),
-          inArray(acciones.estado, ["abierta", "en_curso"]),
-        ),
-      )
-      .orderBy(asc(acciones.detectadaEn));
+    const filas = await this.detalleVisita.accionesConDetallePorTienda(tiendaId, [
+      "abierta",
+      "en_curso",
+    ]);
 
-    return filas.map((f) => this.decorar(f.accion, ahora, {
-      referencia: f.referencia?.id ? f.referencia : null,
-      comprobaciones: f.comprobaciones,
-    }));
+    const idsAccion = filas.map((f) => f.id);
+    const comprobaciones = idsAccion.length
+      ? await this.db
+          .select({
+            accionId: comprobacionesAccion.accionId,
+            n: sql<number>`count(*)::int`,
+          })
+          .from(comprobacionesAccion)
+          .where(inArray(comprobacionesAccion.accionId, idsAccion))
+          .groupBy(comprobacionesAccion.accionId)
+      : [];
+    const comprobacionesPorAccion = new Map(comprobaciones.map((c) => [c.accionId, c.n]));
+
+    return filas.map((f) => {
+      const { grupo, detalle, evidencias, ...accion } = f;
+      return this.decorar(accion, ahora, {
+        grupo,
+        detalle,
+        // La evidencia solo se pide explícitamente en el histórico (documento
+        // FSM §8.5); mientras la acción sigue abierta no se expone aquí para
+        // no duplicar lo que ya enseña el detalle de visita.
+        comprobaciones: comprobacionesPorAccion.get(f.id) ?? 0,
+      });
+    });
   }
 
   /**
-   * Histórico de una tienda — acciones ya cerradas (SPECS §6.4).
+   * Histórico de una tienda — acciones ya cerradas (SPECS §6.4, documento
+   * FSM §8.5).
    *
    * Es el complemento de `abiertasDeTienda`: esa trae lo pendiente, esta trae
-   * lo que ya tuvo desenlace, para que la ficha de tienda pueda mostrar las dos
-   * zonas que pide el cliente.
+   * lo que ya tuvo desenlace. Comparte con el detalle de visita la misma
+   * máquina de detalle tipificado y evidencias (`DetalleVisitaService`): el
+   * documento pide "qué se implantó", la información del hueco, de la
+   * nevera y la evidencia cuando exista — repetirlo aquí habría dado una
+   * segunda versión del mismo mapeo.
    */
   async historicoDeTienda(tiendaId: string, usuario: PayloadToken, filtros: HistoricoTiendaDto) {
     await this.tiendaVisible(tiendaId, usuario);
     const ahora = new Date();
 
-    const condiciones = [
-      eq(acciones.tiendaId, tiendaId),
-      inArray(acciones.estado, ["resuelta", "descartada"]),
-    ];
-    if (filtros.resultado) condiciones.push(eq(acciones.estado, filtros.resultado));
-
-    const filas = await this.db
-      .select({
-        accion: acciones,
-        referencia: { id: referenciasProducto.id, nombre: referenciasProducto.nombre },
-      })
-      .from(acciones)
-      .leftJoin(topPicosPendientes, eq(topPicosPendientes.accionId, acciones.id))
-      .leftJoin(referenciasProducto, eq(referenciasProducto.id, topPicosPendientes.referenciaId))
-      .where(and(...condiciones))
-      .orderBy(desc(acciones.resueltaEn))
-      .limit(filtros.limite);
+    const estados: Array<"resuelta" | "descartada"> = filtros.resultado
+      ? [filtros.resultado]
+      : ["resuelta", "descartada"];
+    const filas = await this.detalleVisita.accionesConDetallePorTienda(tiendaId, estados);
 
     // `tipo` se filtra en memoria: es un grupo derivado de `tipoSituacion` con
     // la misma función que usa el resumen de visita, no una columna propia.
     return filas
-      .filter((f) => !filtros.tipo || grupoSituacion(f.accion.tipoSituacion) === filtros.tipo)
-      .map((f) => this.decorar(f.accion, ahora, {
-        grupo: grupoSituacion(f.accion.tipoSituacion),
-        referencia: f.referencia?.id ? f.referencia : null,
-      }));
+      .filter((f) => !filtros.tipo || f.grupo === filtros.tipo)
+      // Más reciente primero, por fecha de SOLUCIÓN (documento FSM §8.4) —
+      // no de detección, que es lo que ordenaría `accionesConDetallePorTienda`
+      // por defecto.
+      .sort((a, b) => (b.resueltaEn?.getTime() ?? 0) - (a.resueltaEn?.getTime() ?? 0))
+      .slice(0, filtros.limite)
+      .map((f) => {
+        const { grupo, detalle, evidencias, ...accion } = f;
+        return { ...this.decorar(accion, ahora, {}), grupo, detalle, evidencias };
+      });
   }
 
   /**
@@ -802,6 +805,9 @@ export class AccionesService {
       condiciones.push(eq(acciones.responsableActuar, filtros.responsableActuar));
     }
     if (filtros.tiendaId) condiciones.push(eq(acciones.tiendaId, filtros.tiendaId));
+    // Documento FSM §7.2: "GPV: Todos / GPV concreto" — el único filtro de
+    // persona que pide la bandeja de Acciones.
+    if (filtros.usuarioId) condiciones.push(eq(visitas.usuarioId, filtros.usuarioId));
     if (filtros.tipoSituacion) {
       condiciones.push(sql`${acciones.tipoSituacion}::text = ${filtros.tipoSituacion}`);
     }
@@ -852,8 +858,9 @@ export class AccionesService {
       .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
       .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
       .where(and(...condiciones))
-      // Lo más antiguo primero: es lo que lleva más tiempo sin resolverse.
-      .orderBy(asc(acciones.detectadaEn))
+      // Documento FSM §7.2: el FSM elige el orden — más antiguo primero (lo
+      // que lleva más tiempo sin resolverse) o más reciente primero.
+      .orderBy(filtros.orden === "recientes" ? desc(acciones.detectadaEn) : asc(acciones.detectadaEn))
       .limit(filtros.limite);
 
     return filas.map((f) => ({

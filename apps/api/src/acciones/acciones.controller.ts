@@ -185,6 +185,20 @@ export class AccionesController {
     return this.acciones.comprobar(accionId, usuario, dto);
   }
 
+  /**
+   * Detalle completo de un registro, para la pantalla Actividad (documento
+   * FSM §6.5): tipo, tienda, GPV, fecha, estado, datos específicos y
+   * evidencia si existe.
+   */
+  @Roles("supervisor", "administrador")
+  @Get("acciones/:id/detalle")
+  async detalleAccion(
+    @Param("id", ParseUUIDPipe) accionId: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.detalleVisitaService.detalleDeAccion(accionId, usuario);
+  }
+
   /** Historial completo de una acción: cuándo se comprobó y quién. */
   @Get("acciones/:id/comprobaciones")
   async historial(

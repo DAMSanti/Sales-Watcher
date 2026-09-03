@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, type SQL } from "drizzle-orm";
 import {
   acciones,
   deteccionesFechas,
@@ -167,6 +167,59 @@ export class DetalleVisitaService {
    * cada visita abierta en el backoffice se notarían.
    */
   private async accionesConDetalle(visitaId: string) {
+    return this.accionesConDetallePorCondicion(eq(acciones.visitaOrigenId, visitaId));
+  }
+
+  /**
+   * El detalle de UN registro, para la pantalla Actividad (documento FSM
+   * §6.5): "desde una actividad se puede consultar el detalle del registro
+   * [...] tipo, tienda, GPV, fecha, estado, datos específicos y evidencia".
+   */
+  async detalleDeAccion(accionId: string, usuario: PayloadToken) {
+    const [contexto] = await this.db
+      .select({
+        tienda: { id: tiendas.id, nombre: tiendas.nombre, numeroReferencia: tiendas.numeroReferencia },
+        gpv: { nombre: usuarios.nombre, numeroTrabajador: usuarios.numeroTrabajador },
+        zonaId: tiendas.zonaId,
+      })
+      .from(acciones)
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .where(eq(acciones.id, accionId))
+      .limit(1);
+
+    if (!contexto) throw new NotFoundException("Acción no encontrada");
+    if (usuario.rol === "supervisor" && contexto.zonaId !== usuario.zonaId) {
+      throw new ForbiddenException("Esta acción no es de tu zona");
+    }
+
+    const [detalle] = await this.accionesConDetallePorCondicion(eq(acciones.id, accionId));
+    if (!detalle) throw new NotFoundException("Acción no encontrada");
+
+    return { ...detalle, tienda: contexto.tienda, gpv: contexto.gpv };
+  }
+
+  /**
+   * Igual que `accionesConDetalle`, pero para todas las acciones de una
+   * tienda en unos estados dados (SPECS §6.4 — ficha de tienda).
+   *
+   * Es la misma máquina de detalle tipificado que usa el detalle de visita:
+   * el documento del cliente pide "qué se implantó" para nueva implantación,
+   * la información del hueco y de la nevera, y la evidencia cuando exista
+   * (§8.5) — repetir esa lógica en `AccionesService` habría dado dos
+   * versiones del mismo mapeo que divergirían con el tiempo.
+   */
+  async accionesConDetallePorTienda(
+    tiendaId: string,
+    estados: Array<"abierta" | "en_curso" | "resuelta" | "descartada">,
+  ) {
+    return this.accionesConDetallePorCondicion(
+      and(eq(acciones.tiendaId, tiendaId), inArray(acciones.estado, estados))!,
+    );
+  }
+
+  private async accionesConDetallePorCondicion(condicion: SQL) {
     const filas = await this.db
       .select({
         accion: acciones,
@@ -198,7 +251,7 @@ export class DetalleVisitaService {
         // La marca puede venir de facings o de visibilidad, nunca de las dos.
         eq(marcas.id, gananciasFacings.marcaId),
       )
-      .where(eq(acciones.visitaOrigenId, visitaId))
+      .where(condicion)
       .orderBy(asc(acciones.detectadaEn));
 
     if (filas.length === 0) return [];

@@ -26,6 +26,16 @@ const dimensionSchema = z.object({
   dimension: z.enum(["gpv", "tienda", "categoria", "marca", "mes"]).default("gpv"),
 });
 
+/** Los "resultados conseguidos" (§10.3) solo desglosan por GPV o por tienda. */
+const dimensionConseguidosSchema = z.object({
+  dimension: z.enum(["gpv", "tienda"]).default("gpv"),
+});
+
+/** Análisis — PDV con más (§10.7): selector exacto entre estas dos. */
+const tipoRankingSchema = z.object({
+  tipo: z.enum(["oportunidades", "incidencias"]).default("oportunidades"),
+});
+
 /**
  * Dashboard de resultados (SPECS §6.4).
  *
@@ -80,6 +90,57 @@ export class ResultadosController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.resultados.topPicosIncorporados(usuario, filtros);
+  }
+
+  /**
+   * "Resultados conseguidos" (documento FSM §10.3): las cinco métricas con
+   * desglose Global → GPV → PDV. Facings ya tenía su propio endpoint
+   * (`/resultados/facings`, con más dimensiones); aquí van las otras cuatro
+   * juntas para no obligar al backoffice a hacer cuatro peticiones.
+   */
+  @Get("conseguidos")
+  async conseguidos(
+    @Query(new ZodValidationPipe(filtrosSchema)) filtros: FiltrosDto,
+    @Query(new ZodValidationPipe(dimensionConseguidosSchema)) dim: { dimension: "gpv" | "tienda" },
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    const [skuIncorporadas, bloquesMarca, nuevasImplantaciones, huecosSolucionados] =
+      await Promise.all([
+        this.resultados.skuIncorporadasDesglose(usuario, filtros, dim.dimension),
+        this.resultados.bloquesMarcaDesglose(usuario, filtros, dim.dimension),
+        this.resultados.nuevasImplantacionesDesglose(usuario, filtros, dim.dimension),
+        this.resultados.huecosSolucionadosDesglose(usuario, filtros, dim.dimension),
+      ]);
+    return { skuIncorporadas, bloquesMarca, nuevasImplantaciones, huecosSolucionados };
+  }
+
+  /**
+   * Gestión (documento FSM §10.6): conversión de oportunidades y resolución
+   * de incidencias, con numérica absoluta + porcentaje y desglose Global →
+   * GPV → PDV.
+   */
+  @Get("gestion")
+  async gestion(
+    @Query(new ZodValidationPipe(filtrosSchema)) filtros: FiltrosDto,
+    @Query(new ZodValidationPipe(dimensionConseguidosSchema)) dim: { dimension: "gpv" | "tienda" },
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.resultados.gestion(usuario, filtros, dim.dimension);
+  }
+
+  /**
+   * Análisis — PDV con más (documento FSM §10.7): ranking de tiendas por
+   * oportunidades o incidencias, respetando GPV y periodo. No es clicable
+   * desde aquí — el cliente lo pide explícito; para investigar un PDV se usa
+   * Tiendas.
+   */
+  @Get("ranking")
+  async ranking(
+    @Query(new ZodValidationPipe(filtrosSchema)) filtros: FiltrosDto,
+    @Query(new ZodValidationPipe(tipoRankingSchema)) t: { tipo: "oportunidades" | "incidencias" },
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.resultados.rankingPdv(usuario, filtros, t.tipo);
   }
 
   /** Preguntas 6 y 7: faltas de stock que se repiten y tiendas problemáticas. */

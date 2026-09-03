@@ -237,6 +237,9 @@
     "estancadasPie": "Siguen abiertas: no se cierran solas",
     "estancada": "Estancada",
     "soloEstancadas": "Solo estancadas",
+    "orden": "Orden",
+    "masAntiguas": "Más antiguas primero",
+    "masRecientes": "Más recientes primero",
     "abiertasYEnCurso": "Abiertas y en curso",
     "estado": "Estado",
     "categoria": "Categoría",
@@ -365,8 +368,13 @@
     "cambio": "Cambio",
     "skuIncorporadas": "SKU incorporadas",
     "bloquesMarca": "Bloques de marca",
+    "bloquesMarcaDetalle": "{{waters}} Waters · {{pbb}} PBB",
     "nuevasImplantaciones": "Nuevas implantaciones",
     "huecosSolucionados": "Huecos solucionados",
+    "conseguidos": "Resultados conseguidos",
+    "gestion": "Gestión",
+    "sobreTotal": "sobre {{n}} detectadas",
+    "analisis": "Análisis — PDV con más",
     "conversionOportunidades": "Conversión de oportunidades",
     "resolucionIncidencias": "Resolución de incidencias"
   },
@@ -378,7 +386,9 @@
     "mes": "Este mes",
     "gpv": "GPV",
     "vacio": "No hay actividad con estos filtros",
-    "verFicha": "Ver ficha"
+    "verFicha": "Ver ficha",
+    "verDetalle": "Ver detalle",
+    "detalleTitulo": "Detalle del registro"
   },
   "consultaTiendas": {
     "titulo": "Tiendas",

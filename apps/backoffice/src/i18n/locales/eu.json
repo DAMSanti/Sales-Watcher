@@ -237,6 +237,9 @@
     "estancadasPie": "Irekita jarraitzen dute: ez dira bakarrik ixten",
     "estancada": "Geldituta",
     "soloEstancadas": "Geldituak soilik",
+    "orden": "Ordena",
+    "masAntiguas": "Zaharrenak lehenengo",
+    "masRecientes": "Berrienak lehenengo",
     "abiertasYEnCurso": "Irekiak eta abian",
     "estado": "Egoera",
     "categoria": "Kategoria",
@@ -364,8 +367,13 @@
     "cambio": "Aldaketa",
     "skuIncorporadas": "Gehitutako SKUak",
     "bloquesMarca": "Marka blokeak",
+    "bloquesMarcaDetalle": "{{waters}} Waters · {{pbb}} PBB",
     "nuevasImplantaciones": "Ezarpen berriak",
     "huecosSolucionados": "Konpondutako hutsuneak",
+    "conseguidos": "Lortutako emaitzak",
+    "gestion": "Kudeaketa",
+    "sobreTotal": "hauteman diren {{n}} horietatik",
+    "analisis": "Analisia — Denda nagusiak",
     "conversionOportunidades": "Aukeren bihurketa",
     "resolucionIncidencias": "Gorabeheren ebazpena"
   },
@@ -377,7 +385,9 @@
     "mes": "Hil honetan",
     "gpv": "GPV",
     "vacio": "Ez dago jarduerarik iragazki hauekin",
-    "verFicha": "Fitxa ikusi"
+    "verFicha": "Fitxa ikusi",
+    "verDetalle": "Xehetasunak ikusi",
+    "detalleTitulo": "Erregistroaren xehetasuna"
   },
   "consultaTiendas": {
     "titulo": "Dendak",

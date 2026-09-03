@@ -288,10 +288,14 @@ export const bandejaAccionesSchema = z.object({
   tipoSituacion: z.string().optional(),
   responsableActuar: z.enum(["gpv", "fsm"]).optional(),
   tiendaId: z.string().uuid().optional(),
+  /** Documento FSM §7.2 y checklist §16: "GPV: Todos / GPV concreto". */
+  usuarioId: z.string().uuid().optional(),
   /** Solo las que superan el umbral de antigüedad. */
   soloEstancadas: z.coerce.boolean().optional(),
   /** Solo las que el FSM tenía asignadas y cerró un GPV. */
   cerradasPorGpv: z.coerce.boolean().optional(),
+  /** Documento FSM §7.2: exactamente estas dos opciones, sin filtro de periodo. */
+  orden: z.enum(["antiguas", "recientes"]).default("antiguas"),
   limite: z.coerce.number().int().positive().max(200).default(50),
 });
 export type BandejaAccionesDto = z.infer<typeof bandejaAccionesSchema>;

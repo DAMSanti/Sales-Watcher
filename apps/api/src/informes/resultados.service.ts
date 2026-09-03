@@ -7,6 +7,7 @@ import {
   deteccionesStock,
   gananciasFacings,
   marcas,
+  nuevaImplantacionMarcas,
   tiendas,
   topPicosPendientes,
   usuarios,
@@ -239,6 +240,256 @@ export class ResultadosService {
       incorporados: total?.incorporados ?? 0,
       pendientes: abiertos?.pendientes ?? 0,
     };
+  }
+
+  /**
+   * Columnas de agrupación para el desglose Global → GPV → PDV que pide el
+   * documento FSM §10.3 en las cinco "resultados conseguidos". Global es
+   * simplemente la suma de `filas`, así que no hace falta una tercera
+   * consulta — el propio total ya la representa.
+   */
+  private columnasDimension(dimension: "gpv" | "tienda") {
+    return dimension === "tienda"
+      ? { etiqueta: tiendas.nombre, clave: tiendas.id }
+      : { etiqueta: usuarios.nombre, clave: usuarios.id };
+  }
+
+  /**
+   * SKU incorporadas, con desglose (documento FSM §10.3).
+   *
+   * Misma base que `topPicosIncorporados` — fecha de incorporación, no de
+   * detección — pero agrupada por GPV o por tienda en vez de solo el total.
+   */
+  async skuIncorporadasDesglose(usuario: PayloadToken, filtros: Filtros, dimension: "gpv" | "tienda") {
+    const columnas = this.columnasDimension(dimension);
+    const condiciones: SQL[] = [
+      eq(topPicosPendientes.incorporada, true),
+      sql`${topPicosPendientes.incorporadaEn}::date >= ${filtros.desde}`,
+      sql`${topPicosPendientes.incorporadaEn}::date <= ${filtros.hasta}`,
+    ];
+    if (usuario.rol === "supervisor" && usuario.zonaId) {
+      condiciones.push(eq(usuarios.zonaId, usuario.zonaId));
+    }
+    if (filtros.tiendaId) condiciones.push(eq(acciones.tiendaId, filtros.tiendaId));
+    if (filtros.usuarioId) condiciones.push(eq(usuarios.id, filtros.usuarioId));
+
+    const filas = await this.db
+      .select({ etiqueta: columnas.etiqueta, valor: sql<number>`count(*)::int` })
+      .from(topPicosPendientes)
+      .innerJoin(acciones, eq(acciones.id, topPicosPendientes.accionId))
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(and(...condiciones))
+      .groupBy(columnas.clave, columnas.etiqueta)
+      .orderBy(sql`2 desc`);
+
+    return { dimension, total: filas.reduce((s, f) => s + f.valor, 0), filas };
+  }
+
+  /**
+   * Bloques de marca conseguidos, con desglose y detalle Waters/PBB
+   * (documento FSM §10.3, §10.4). Cohorte por fecha de detección, como el
+   * embudo — es "de lo detectado en el periodo, cuánto se consiguió".
+   */
+  async bloquesMarcaDesglose(usuario: PayloadToken, filtros: Filtros, dimension: "gpv" | "tienda") {
+    const columnas = this.columnasDimension(dimension);
+    const base = and(
+      ...this.ambito(usuario, filtros),
+      eq(acciones.tipoSituacion, "bloque_marca"),
+      eq(acciones.estado, "resuelta"),
+    );
+
+    const [filas, porCategoria] = await Promise.all([
+      this.db
+        .select({ etiqueta: columnas.etiqueta, valor: sql<number>`count(*)::int` })
+        .from(acciones)
+        .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+        .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+        .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+        .where(base)
+        .groupBy(columnas.clave, columnas.etiqueta)
+        .orderBy(sql`2 desc`),
+      this.db
+        .select({
+          categoria: acciones.categoriaProducto,
+          valor: sql<number>`count(*)::int`,
+        })
+        .from(acciones)
+        .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+        .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+        .where(base)
+        .groupBy(acciones.categoriaProducto),
+    ]);
+
+    return {
+      dimension,
+      total: filas.reduce((s, f) => s + f.valor, 0),
+      filas,
+      porCategoria: {
+        waters: porCategoria.find((p) => p.categoria === "waters")?.valor ?? 0,
+        pbb: porCategoria.find((p) => p.categoria === "pbb")?.valor ?? 0,
+      },
+    };
+  }
+
+  /**
+   * Nuevas implantaciones conseguidas, con desglose y "qué se implantó"
+   * (documento FSM §10.3). El detalle de qué se implantó son las marcas más
+   * frecuentes entre las implantaciones conseguidas del periodo, no un dato
+   * por fila — encaja con cómo se pregunta en la sección 8.5 del histórico.
+   */
+  async nuevasImplantacionesDesglose(
+    usuario: PayloadToken,
+    filtros: Filtros,
+    dimension: "gpv" | "tienda",
+  ) {
+    const columnas = this.columnasDimension(dimension);
+    const base = and(
+      ...this.ambito(usuario, filtros),
+      eq(acciones.tipoSituacion, "reorganizacion"),
+      eq(acciones.estado, "resuelta"),
+    );
+
+    const [filas, marcasImplantadas] = await Promise.all([
+      this.db
+        .select({ etiqueta: columnas.etiqueta, valor: sql<number>`count(*)::int` })
+        .from(acciones)
+        .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+        .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+        .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+        .where(base)
+        .groupBy(columnas.clave, columnas.etiqueta)
+        .orderBy(sql`2 desc`),
+      this.db
+        .select({ nombre: marcas.nombre, veces: sql<number>`count(*)::int` })
+        .from(nuevaImplantacionMarcas)
+        .innerJoin(marcas, eq(marcas.id, nuevaImplantacionMarcas.marcaId))
+        .innerJoin(acciones, eq(acciones.id, nuevaImplantacionMarcas.accionId))
+        .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+        .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+        .where(base)
+        .groupBy(marcas.nombre)
+        .orderBy(sql`2 desc`)
+        .limit(10),
+    ]);
+
+    return {
+      dimension,
+      total: filas.reduce((s, f) => s + f.valor, 0),
+      filas,
+      quesImplantado: marcasImplantadas,
+    };
+  }
+
+  /**
+   * Huecos solucionados, con desglose (documento FSM §10.3). Se miden, pero
+   * no se monetizan directamente — de ahí que no aparezcan junto a facings.
+   */
+  async huecosSolucionadosDesglose(
+    usuario: PayloadToken,
+    filtros: Filtros,
+    dimension: "gpv" | "tienda",
+  ) {
+    const columnas = this.columnasDimension(dimension);
+    const base = and(
+      ...this.ambito(usuario, filtros),
+      eq(acciones.tipoSituacion, "hueco"),
+      eq(acciones.estado, "resuelta"),
+    );
+
+    const filas = await this.db
+      .select({ etiqueta: columnas.etiqueta, valor: sql<number>`count(*)::int` })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(base)
+      .groupBy(columnas.clave, columnas.etiqueta)
+      .orderBy(sql`2 desc`);
+
+    return { dimension, total: filas.reduce((s, f) => s + f.valor, 0), filas };
+  }
+
+  /**
+   * Gestión: conversión de oportunidades y resolución de incidencias
+   * (documento FSM §10.6), con desglose Global → GPV → PDV.
+   *
+   * Siempre numérica absoluta y porcentaje juntos — el cliente es explícito
+   * en que un % alto con poco volumen no es lo mismo que uno algo menor con
+   * mucho volumen, así que nunca se enseña un porcentaje solo.
+   */
+  private async gestionPorTipos(
+    usuario: PayloadToken,
+    filtros: Filtros,
+    tipos: TipoSituacion[],
+    dimension: "gpv" | "tienda",
+  ) {
+    const columnas = this.columnasDimension(dimension);
+
+    const filas = await this.db
+      .select({
+        etiqueta: columnas.etiqueta,
+        total: sql<number>`count(*)::int`,
+        solucionadas: sql<number>`count(*) filter (where ${acciones.estado} = 'resuelta')::int`,
+      })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(and(...this.ambito(usuario, filtros), inArray(acciones.tipoSituacion, tipos)))
+      .groupBy(columnas.clave, columnas.etiqueta)
+      .orderBy(sql`2 desc`);
+
+    const total = filas.reduce((s, f) => s + f.total, 0);
+    const solucionadas = filas.reduce((s, f) => s + f.solucionadas, 0);
+
+    return {
+      total,
+      solucionadas,
+      tasa: total === 0 ? null : Math.round((solucionadas / total) * 100),
+      filas: filas.map((f) => ({
+        ...f,
+        tasa: f.total === 0 ? null : Math.round((f.solucionadas / f.total) * 100),
+      })),
+    };
+  }
+
+  /**
+   * Análisis — PDV con más (documento FSM §10.7): ranking de tiendas por
+   * volumen de oportunidades o incidencias, respetando GPV y periodo.
+   *
+   * Deliberadamente sin `tiendaId` en el resultado más allá del necesario
+   * para la clave de agrupación — el ranking no es clicable (el cliente lo
+   * pide explícito): para investigar un PDV se pasa por Tiendas.
+   */
+  async rankingPdv(usuario: PayloadToken, filtros: Filtros, tipo: "oportunidades" | "incidencias") {
+    const tipos = tipo === "oportunidades" ? [...OPORTUNIDADES] : [...INCIDENCIAS];
+
+    const filas = await this.db
+      .select({
+        tienda: tiendas.nombre,
+        numeroReferencia: tiendas.numeroReferencia,
+        valor: sql<number>`count(*)::int`,
+      })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(and(...this.ambito(usuario, filtros), inArray(acciones.tipoSituacion, tipos)))
+      .groupBy(tiendas.id, tiendas.nombre, tiendas.numeroReferencia)
+      .orderBy(sql`3 desc`)
+      .limit(20);
+
+    return { tipo, filas };
+  }
+
+  async gestion(usuario: PayloadToken, filtros: Filtros, dimension: "gpv" | "tienda") {
+    const [oportunidades, incidencias] = await Promise.all([
+      this.gestionPorTipos(usuario, filtros, [...OPORTUNIDADES], dimension),
+      this.gestionPorTipos(usuario, filtros, [...INCIDENCIAS], dimension),
+    ]);
+    return { dimension, oportunidades, incidencias };
   }
 
   /**
