@@ -19,16 +19,20 @@ import { ZodValidationPipe } from "../comun/zod-validation.pipe";
 import { AccionesService } from "./acciones.service";
 import { DetalleVisitaService } from "./detalle-visita.service";
 import {
+  actividadSchema,
   bandejaAccionesSchema,
   cambiarEstadoAccionSchema,
   comprobarSchema,
   catalogoSchema,
+  historicoTiendaSchema,
   registrarAccionSchema,
   relacionResponsableSchema,
+  type ActividadDto,
   type BandejaAccionesDto,
   type CatalogoDto,
   type CambiarEstadoAccionDto,
   type ComprobarDto,
+  type HistoricoTiendaDto,
   type RegistrarAccionDto,
   type RelacionResponsableDto,
 } from "./dto/acciones.dto";
@@ -139,6 +143,22 @@ export class AccionesController {
     await this.acciones.eliminar(accionId, usuario);
   }
 
+  /**
+   * Histórico de una tienda: acciones ya cerradas (SPECS §6.4).
+   *
+   * Complementa a `abiertasDeTienda` — juntas forman las dos zonas que pide la
+   * ficha de tienda del backoffice.
+   */
+  @Roles("supervisor", "administrador")
+  @Get("tiendas/:id/historico")
+  async historicoDeTienda(
+    @Param("id", ParseUUIDPipe) tiendaId: string,
+    @Query(new ZodValidationPipe(historicoTiendaSchema)) query: HistoricoTiendaDto,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.acciones.historicoDeTienda(tiendaId, usuario, query);
+  }
+
   /** Top Picos que siguen sin incorporarse en esta tienda. */
   @Get("tiendas/:id/top-picos-pendientes")
   async topPicosPendientes(
@@ -210,6 +230,19 @@ export class AccionesController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.acciones.resumenVisita(visitaId, usuario);
+  }
+
+  /**
+   * Pantalla Actividad (SPECS §6.2): qué ha ocurrido en un periodo, agrupado
+   * por tienda. No sustituye al histórico de la tienda — es contexto reciente.
+   */
+  @Roles("supervisor", "administrador")
+  @Get("actividad")
+  async actividad(
+    @Query(new ZodValidationPipe(actividadSchema)) query: ActividadDto,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.acciones.actividad(usuario, query);
   }
 
   // ── El FSM, en el panel ──────────────────────────────────────────────

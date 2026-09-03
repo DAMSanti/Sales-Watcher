@@ -61,6 +61,16 @@ export class TiendasController {
     });
   }
 
+  /** Ficha de tienda para el FSM (SPECS §6.4): nombre, código, GPV responsable. */
+  @Roles("supervisor", "administrador")
+  @Get(":id")
+  async ficha(
+    @Param("id", ParseUUIDPipe) id: string,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.tiendas.ficha(id, usuario);
+  }
+
   @Roles("administrador")
   @Post()
   async crear(

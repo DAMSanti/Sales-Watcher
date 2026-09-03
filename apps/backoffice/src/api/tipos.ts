@@ -11,29 +11,6 @@ export type Perfil = {
   requiereCambioPassword: boolean;
 };
 
-export type Dashboard = {
-  fecha: string;
-  visitas: {
-    total: number;
-    finalizadas: number;
-    enCurso: number;
-    pendientes: number;
-    noRealizadas: number;
-    sinJustificar: number;
-    incompletas: number;
-    noPlanificadas: number;
-  };
-  comerciales: { conActividad: number; conRuta: number };
-  /**
-   * Acciones abiertas: pendiente TOTAL, no de hoy.
-   *
-   * `paraElFsm` son las que el GPV no puede resolver por su cuenta y
-   * `estancadas` las que superan el umbral de antigüedad. Antes esto contaba
-   * incidencias genéricas, que el reencuadre retiró.
-   */
-  accionesAbiertas: { total: number; paraElFsm: number; estancadas: number };
-};
-
 export type IncidenciaBandeja = {
   id: string;
   categoria: { codigo: string; tipo: string; nombre: string };

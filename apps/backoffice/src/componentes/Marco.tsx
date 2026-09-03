@@ -10,7 +10,7 @@ import "../estilos/layout.css";
  * distintos: lo primero se mira varias veces al día y exige acción, lo segundo
  * se consulta al cerrar la semana.
  */
-export function Marco({ pendientes }: { pendientes: number }) {
+export function Marco() {
   const { t } = useTranslation();
   const { perfil, salir } = useSesion();
 
@@ -43,17 +43,21 @@ export function Marco({ pendientes }: { pendientes: number }) {
         </div>
 
         <nav className="lateral__nav">
+          {/*
+            Cuatro secciones (documento FSM v2.0, 2026-09-03 — ANEXO ronda 7):
+            Actividad · Acciones · Tiendas · Resultados. Rutas y
+            Justificaciones dejan de estar aquí: ya no son pantallas
+            centrales del producto FSM, aunque sus rutas se conservan.
+          */}
           <div className="lateral__grupo">{t("nav.supervision")}</div>
           <NavLink to="/" end className={clase}>
-            {t("nav.dashboard")}
+            {t("nav.actividad")}
           </NavLink>
           <NavLink to="/acciones" className={clase}>
             {t("nav.acciones")}
           </NavLink>
-          <NavLink to="/justificaciones" className={clase}>
-            <span>{t("nav.justificaciones")}</span>
-            {/* Contador solo si hay algo: un cero permanente deja de leerse. */}
-            {pendientes > 0 && <span className="lateral__cuenta">{pendientes}</span>}
+          <NavLink to="/consulta-tiendas" className={clase}>
+            {t("nav.consultaTiendas")}
           </NavLink>
 
           <div className="lateral__grupo">{t("nav.informes")}</div>
@@ -70,16 +74,9 @@ export function Marco({ pendientes }: { pendientes: number }) {
             {t("nav.ejecucion")}
           </NavLink>
 
-          <div className="lateral__grupo">{t("nav.gestion")}</div>
-          {/*
-            Las rutas las planifica también el supervisor: es quien conoce el
-            terreno de su zona. El resto del maestro es solo de administrador.
-          */}
-          <NavLink to="/rutas" className={clase}>
-            {t("nav.rutas")}
-          </NavLink>
           {esAdministrador && (
             <>
+              <div className="lateral__grupo">{t("nav.gestion")}</div>
               <NavLink to="/tiendas" className={clase}>
                 {t("nav.tiendas")}
               </NavLink>

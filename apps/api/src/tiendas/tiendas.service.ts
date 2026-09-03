@@ -1,11 +1,12 @@
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
-import { tiendas, tiposTienda, zonas } from "@sw/db";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { tiendas, tiposTienda, usuarios, visitas, zonas } from "@sw/db";
 import { AuditoriaService } from "../auditoria/auditoria.service";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { PayloadToken } from "../auth/auth.service";
@@ -88,6 +89,56 @@ export class TiendasService {
     ]);
 
     return { total: conteo[0]?.total ?? 0, tiendas: filas };
+  }
+
+  /**
+   * Ficha de tienda para el FSM (SPECS §6.4).
+   *
+   * Deliberadamente mínima: nombre, código y GPV responsable. Sin ubicación ni
+   * características generales — eso es la gestión maestra (6.1), una pantalla
+   * distinta con una audiencia distinta.
+   *
+   * **GPV responsable** no es una asignación en el modelo (no existe esa
+   * tabla, ver ANEXO/ROADMAP): se deriva de quién hizo la visita más reciente a
+   * esta tienda. Con una sola zona operativa hoy es una aproximación
+   * razonable; si la operación crece a varias zonas con varios GPV, esto
+   * debería sustituirse por una asignación real.
+   */
+  async ficha(id: string, usuario: PayloadToken) {
+    const [tienda] = await this.db
+      .select({
+        id: tiendas.id,
+        nombre: tiendas.nombre,
+        numeroReferencia: tiendas.numeroReferencia,
+        zonaId: tiendas.zonaId,
+      })
+      .from(tiendas)
+      .where(eq(tiendas.id, id))
+      .limit(1);
+
+    if (!tienda) throw new NotFoundException("Tienda no encontrada");
+    if (usuario.rol === "supervisor" && tienda.zonaId !== usuario.zonaId) {
+      throw new ForbiddenException("Esta tienda no es de tu zona");
+    }
+
+    const [ultimaVisita] = await this.db
+      .select({
+        gpvId: usuarios.id,
+        gpv: usuarios.nombre,
+        numeroTrabajador: usuarios.numeroTrabajador,
+      })
+      .from(visitas)
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .where(eq(visitas.tiendaId, id))
+      .orderBy(desc(visitas.fecha))
+      .limit(1);
+
+    return {
+      id: tienda.id,
+      nombre: tienda.nombre,
+      numeroReferencia: tienda.numeroReferencia,
+      gpvResponsable: ultimaVisita ?? null,
+    };
   }
 
   async crear(dto: TiendaDto, usuario: PayloadToken) {

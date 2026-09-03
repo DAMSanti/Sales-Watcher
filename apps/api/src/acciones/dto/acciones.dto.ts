@@ -335,3 +335,42 @@ export const catalogoSchema = z.object({
   categoria: categoriaProducto.optional(),
 });
 export type CatalogoDto = z.infer<typeof catalogoSchema>;
+
+/**
+ * Histórico de una tienda (SPECS §6.4) — solo acciones ya cerradas.
+ *
+ * `tipo` usa `grupoSituacion` de `@sw/shared`, no el enum de `tipoSituacion`
+ * directamente: el cliente distingue oportunidad/incidencia, no los nueve
+ * flujos concretos.
+ */
+export const historicoTiendaSchema = z.object({
+  tipo: z.enum(["oportunidad", "incidencia"]).optional(),
+  resultado: z.enum(["resuelta", "descartada"]).optional(),
+  limite: z.coerce.number().int().positive().max(200).default(50),
+});
+export type HistoricoTiendaDto = z.infer<typeof historicoTiendaSchema>;
+
+const fechaCorta = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha debe tener formato YYYY-MM-DD");
+
+function hace(dias: number) {
+  return new Date(Date.now() - dias * 86_400_000).toISOString().slice(0, 10);
+}
+function hoy() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Pantalla Actividad (SPECS §6.2): qué ha ocurrido en un periodo, agrupado por tienda. */
+export const actividadSchema = z
+  .object({
+    desde: fechaCorta.optional(),
+    hasta: fechaCorta.optional(),
+    usuarioId: z.string().uuid().optional(),
+  })
+  .transform((f) => ({ ...f, desde: f.desde ?? hace(7), hasta: f.hasta ?? hoy() }))
+  .refine((f) => f.desde <= f.hasta, {
+    message: "La fecha inicial no puede ser posterior a la final",
+    path: ["desde"],
+  });
+export type ActividadDto = z.infer<typeof actividadSchema>;

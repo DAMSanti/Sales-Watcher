@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import {
   acciones,
   comprobacionesAccion,
@@ -43,9 +43,11 @@ import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { PayloadToken } from "../auth/auth.service";
 import type { Configuracion } from "../config/configuracion";
 import type {
+  ActividadDto,
   BandejaAccionesDto,
   CambiarEstadoAccionDto,
   ComprobarDto,
+  HistoricoTiendaDto,
   RegistrarAccionDto,
   RelacionResponsableDto,
 } from "./dto/acciones.dto";
@@ -453,6 +455,183 @@ export class AccionesService {
       referencia: f.referencia?.id ? f.referencia : null,
       comprobaciones: f.comprobaciones,
     }));
+  }
+
+  /**
+   * Histórico de una tienda — acciones ya cerradas (SPECS §6.4).
+   *
+   * Es el complemento de `abiertasDeTienda`: esa trae lo pendiente, esta trae
+   * lo que ya tuvo desenlace, para que la ficha de tienda pueda mostrar las dos
+   * zonas que pide el cliente.
+   */
+  async historicoDeTienda(tiendaId: string, usuario: PayloadToken, filtros: HistoricoTiendaDto) {
+    await this.tiendaVisible(tiendaId, usuario);
+    const ahora = new Date();
+
+    const condiciones = [
+      eq(acciones.tiendaId, tiendaId),
+      inArray(acciones.estado, ["resuelta", "descartada"]),
+    ];
+    if (filtros.resultado) condiciones.push(eq(acciones.estado, filtros.resultado));
+
+    const filas = await this.db
+      .select({
+        accion: acciones,
+        referencia: { id: referenciasProducto.id, nombre: referenciasProducto.nombre },
+      })
+      .from(acciones)
+      .leftJoin(topPicosPendientes, eq(topPicosPendientes.accionId, acciones.id))
+      .leftJoin(referenciasProducto, eq(referenciasProducto.id, topPicosPendientes.referenciaId))
+      .where(and(...condiciones))
+      .orderBy(desc(acciones.resueltaEn))
+      .limit(filtros.limite);
+
+    // `tipo` se filtra en memoria: es un grupo derivado de `tipoSituacion` con
+    // la misma función que usa el resumen de visita, no una columna propia.
+    return filas
+      .filter((f) => !filtros.tipo || grupoSituacion(f.accion.tipoSituacion) === filtros.tipo)
+      .map((f) => this.decorar(f.accion, ahora, {
+        grupo: grupoSituacion(f.accion.tipoSituacion),
+        referencia: f.referencia?.id ? f.referencia : null,
+      }));
+  }
+
+  /**
+   * Pantalla Actividad (SPECS §6.2): qué ha ocurrido en un periodo, agrupado
+   * por tienda. No es el histórico — solo lo detectado y lo solucionado
+   * DENTRO del periodo, aunque una acción cerrada ese día se detectara meses
+   * antes.
+   */
+  async actividad(usuario: PayloadToken, filtros: ActividadDto) {
+    const condicionesZona = [];
+    if (usuario.rol === "supervisor") {
+      if (!usuario.zonaId) return [];
+      condicionesZona.push(eq(tiendas.zonaId, usuario.zonaId));
+    }
+
+    const detectadas = await this.db
+      .select({
+        accionId: acciones.id,
+        tiendaId: tiendas.id,
+        tienda: tiendas.nombre,
+        numeroReferencia: tiendas.numeroReferencia,
+        categoriaProducto: acciones.categoriaProducto,
+        tipoSituacion: acciones.tipoSituacion,
+        estado: acciones.estado,
+        fecha: acciones.detectadaEn,
+        gpvId: usuarios.id,
+        gpv: usuarios.nombre,
+      })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(
+        and(
+          gte(sql`${acciones.detectadaEn}::date`, filtros.desde),
+          lte(sql`${acciones.detectadaEn}::date`, filtros.hasta),
+          ...condicionesZona,
+          ...(filtros.usuarioId ? [eq(usuarios.id, filtros.usuarioId)] : []),
+        ),
+      );
+
+    const solucionadas = await this.db
+      .select({
+        accionId: acciones.id,
+        tiendaId: tiendas.id,
+        tienda: tiendas.nombre,
+        numeroReferencia: tiendas.numeroReferencia,
+        categoriaProducto: acciones.categoriaProducto,
+        tipoSituacion: acciones.tipoSituacion,
+        estado: acciones.estado,
+        fecha: acciones.resueltaEn,
+        gpvId: usuarios.id,
+        gpv: usuarios.nombre,
+      })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .innerJoin(tiendas, eq(tiendas.id, acciones.tiendaId))
+      .where(
+        and(
+          eq(acciones.estado, "resuelta"),
+          gte(sql`${acciones.resueltaEn}::date`, filtros.desde),
+          lte(sql`${acciones.resueltaEn}::date`, filtros.hasta),
+          ...condicionesZona,
+          ...(filtros.usuarioId ? [eq(usuarios.id, filtros.usuarioId)] : []),
+        ),
+      );
+
+    type Evento = {
+      accionId: string;
+      tipoEvento: "oportunidad" | "incidencia" | "extraespacio" | "solucionada";
+      categoriaProducto: string;
+      tipoSituacion: string;
+      fecha: Date | null;
+      gpvId: string;
+      gpv: string;
+    };
+
+    type FilaEvento = {
+      accionId: string;
+      tiendaId: string;
+      tienda: string;
+      numeroReferencia: string;
+      categoriaProducto: string;
+      tipoSituacion: string;
+      estado: string;
+      fecha: Date | null;
+      gpvId: string;
+      gpv: string;
+    };
+
+    const porTienda = new Map<
+      string,
+      { tiendaId: string; tienda: string; numeroReferencia: string; eventos: Evento[] }
+    >();
+
+    const anadir = (fila: FilaEvento, tipoEvento: Evento["tipoEvento"]) => {
+      let grupo = porTienda.get(fila.tiendaId);
+      if (!grupo) {
+        grupo = {
+          tiendaId: fila.tiendaId,
+          tienda: fila.tienda,
+          numeroReferencia: fila.numeroReferencia,
+          eventos: [],
+        };
+        porTienda.set(fila.tiendaId, grupo);
+      }
+      grupo.eventos.push({
+        accionId: fila.accionId,
+        tipoEvento,
+        categoriaProducto: fila.categoriaProducto,
+        tipoSituacion: fila.tipoSituacion,
+        fecha: fila.fecha,
+        gpvId: fila.gpvId,
+        gpv: fila.gpv,
+      });
+    };
+
+    for (const fila of detectadas) {
+      const grupo = grupoSituacion(fila.tipoSituacion);
+      anadir(fila, grupo === "oportunidad" ? "oportunidad" : grupo === "extraespacio" ? "extraespacio" : "incidencia");
+    }
+    for (const fila of solucionadas) anadir(fila, "solucionada");
+
+    return [...porTienda.values()]
+      .map((g) => ({
+        ...g,
+        eventos: g.eventos.sort((a, b) => (b.fecha?.getTime() ?? 0) - (a.fecha?.getTime() ?? 0)),
+        resumen: {
+          oportunidades: g.eventos.filter((e) => e.tipoEvento === "oportunidad").length,
+          incidencias: g.eventos.filter((e) => e.tipoEvento === "incidencia").length,
+          solucionadas: g.eventos.filter((e) => e.tipoEvento === "solucionada").length,
+        },
+      }))
+      .sort(
+        (a, b) =>
+          (b.eventos[0]?.fecha?.getTime() ?? 0) - (a.eventos[0]?.fecha?.getTime() ?? 0),
+      );
   }
 
   /** Top Picos que siguen sin incorporarse en una tienda. */

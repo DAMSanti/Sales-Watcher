@@ -4,7 +4,12 @@ import { Roles } from "../auth/decoradores/roles.decorator";
 import { UsuarioActual } from "../auth/decoradores/usuario-actual.decorator";
 import { ZodValidationPipe } from "../comun/zod-validation.pipe";
 import type { PayloadToken } from "../auth/auth.service";
-import { filtrosSchema, type FiltrosDto } from "./dto/informes.dto";
+import {
+  compararPeriodosSchema,
+  filtrosSchema,
+  type CompararPeriodosDto,
+  type FiltrosDto,
+} from "./dto/informes.dto";
 import { ResultadosService } from "./resultados.service";
 
 /**
@@ -103,6 +108,15 @@ export class ResultadosController {
     @UsuarioActual() usuario: PayloadToken,
   ) {
     return this.resultados.equipo(usuario, filtros);
+  }
+
+  /** Comparar periodos (documento FSM §10.8): dos periodos elegidos libremente. */
+  @Get("comparar")
+  async comparar(
+    @Query(new ZodValidationPipe(compararPeriodosSchema)) dto: CompararPeriodosDto,
+    @UsuarioActual() usuario: PayloadToken,
+  ) {
+    return this.resultados.compararPeriodos(usuario, dto);
   }
 
   /** Pregunta 11: oportunidades detectadas que no acabaron en resultado. */

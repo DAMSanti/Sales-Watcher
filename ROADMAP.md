@@ -12,6 +12,8 @@ Detalle funcional en [SPECS.md](SPECS.md) · Notas y decisiones en [ANEXO.md](AN
 > **Reencuadre cerrado (ronda 5).** El cliente ha respondido a las doce preguntas y ha delegado dos decisiones. **Nada bloquea ya el arranque.** Quedan abiertas P31 (audio en vídeo) y P32 (origen del catálogo de referencias), ninguna de las cuales impide diseñar ni construir — pero P31 conviene resolverla antes de implementar el flujo de vídeo, porque después sale caro.
 >
 > **📄 Especificación v2 (2026-08-31).** El cliente entrega una segunda especificación funcional que **ajusta, no reencuadra**: nueve cambios de detalle sobre los flujos ya diseñados (nevera, nueva implantación, bloque de marca, Top Picos, evidencia obligatoria, GPS, preguntas redundantes). Ver el detalle en [ANEXO.md](ANEXO.md) ronda 6 y las tareas nuevas con **🆕** en la fase 3. P32 (catálogo de referencias) sigue abierta — el cliente lo enviará más adelante.
+>
+> **📄 Especificación funcional FSM v2.0 (2026-09-03).** El cliente entrega una tercera especificación, esta vez centrada por completo en **el backoffice**. Reencuadra la fase 4: el producto se organiza en cuatro secciones (Actividad · Acciones · Tiendas · Resultados), y la planificación de rutas y la bandeja de justificaciones dejan de ser pantallas centrales. No afecta a la app de campo (fase 3) ni al modelo de `Visita`. Detalle completo en [ANEXO.md](ANEXO.md) ronda 7, [SPECS.md](SPECS.md) v0.8 y las tareas nuevas con **🆕** en la fase 4.
 
 > **Actualizado tras tres rondas de respuestas de negocio (2026-08-24).** Multi-idioma en el MVP con cinco idiomas de interfaz, flujo de visita no realizada con ventana diaria de justificación, y catálogo de tiendas preparado para un ERP futuro. Fase 0 casi cerrada.
 
@@ -308,6 +310,20 @@ Ordenadas por lo que bloquean. Las cinco primeras conviene resolverlas antes de 
 - [ ] Configuración de flujos por categoría, tipo de tienda y canal *(reutiliza el editor de plantillas)*
 - [x] **Aviso en el editor al superar unos pocos ítems de checklist** — el guardarraíl contra el cuestionario
 - [x] Segmentación de informes **por canal** (Modern / Proximity)
+
+### 🆕 Reencuadre del backoffice — especificación FSM v2.0 (2026-09-03)
+
+> Ver [ANEXO.md](ANEXO.md) ronda 7 y [SPECS.md](SPECS.md) v0.8 §6 para el detalle funcional completo. Nada de esto toca `apps/field` ni el modelo de `Visita`/`JustificacionNoRealizada` en base de datos — es una reorganización de qué pantallas ve el FSM en el backoffice y en qué se apoyan.
+
+- [x] Construir la pantalla **Actividad** (`Actividad.tsx`, nueva ruta `/`): filtros GPV + periodo (hoy/semana/mes/personalizado), agrupada por tienda, con oportunidades + incidencias + acciones solucionadas del periodo — `GET /actividad`, nuevo en `AccionesService`
+- [x] Construir la **ficha de tienda con histórico** (`FichaTienda.tsx` + `ConsultaTiendas.tsx`, SPECS §6.4): buscador por nombre, cabecera nombre+código+GPV responsable, dos zonas (acciones abiertas / histórico con filtro tipo + resultado), sin ubicación ni características generales — `GET /tiendas/:id` (ficha) y `GET /tiendas/:id/historico`, nuevos. **GPV responsable es derivado** (última visita a la tienda), no una asignación real — no existe esa tabla (ver hallazgo de fase 2)
+- [x] **Retirado Rutas y Justificaciones de la navegación principal del backoffice** (`Marco.tsx`). Las rutas de React Router y los endpoints se conservan intactos, accesibles directamente, por si hace falta lógica interna de asignación
+- [x] Sustituido `Dashboard.tsx` (completadas vs. planificadas, no realizadas) por `Actividad.tsx` — el fichero viejo se ha borrado, ya no queda código muerto
+- [x] Verificado: el panel de **Acciones** ya tenía solo dos botones — SOLUCIONADA (`resolver`/`informado`) / NO SOLUCIONADA (`descartar`) — sin "mantener abierta". No hizo falta cambiar nada
+- [x] Verificado: el ranking "PDV con más" de Resultados (patrones, pérdidas) ya no tenía filas clicables — nada que cambiar
+- [x] Añadido **Comparar periodos** a Resultados: dos periodos libres, `GET /resultados/comparar` (nuevo en `ResultadosService`/`ResultadosController`), tabla con las nueve métricas mínimas de SPECS §6.5 y el cambio en puntos porcentuales para conversión/resolución
+- [ ] Quitar el filtro planificada/no-planificada y la tasa de no-realización como métrica central de Informes (SPECS §6.6) — **revisado: ese filtro no existe literalmente en `Informes.tsx` hoy** (solo canal + fechas); lo pendiente es solo la decisión de nav de abajo
+- [ ] Confirmar con el cliente si Rutas/Justificaciones deben desaparecer del todo o quedar accesibles como herramienta secundaria de administración (no bloquea: ya están fuera de la navegación principal)
 
 ## Fase 5 — Endurecimiento y piloto
 

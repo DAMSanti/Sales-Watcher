@@ -1,9 +1,9 @@
 # SPECS.md — Aplicación de gestión y rentabilidad de visitas GPV
 
-**Versión:** 0.7
-**Fecha:** 2026-08-31
+**Versión:** 0.8
+**Fecha:** 2026-09-03
 **Cliente:** DANONE
-**Estado:** Segunda especificación funcional del cliente (*Especificación funcional MVP GPV v2*) incorporada. Es un ajuste sobre el reencuadre de la v0.6, no un reencuadre nuevo: confirma la mayor parte de lo ya diseñado y corrige el detalle de varios flujos. **Listo para construir**, salvo el catálogo de referencias (P32, sigue sin llegar).
+**Estado:** Tercera especificación funcional del cliente (*Especificaciones Funcionales App FSM Desarrollador COMPLETA v2*) incorporada. A diferencia de la v0.7 (ajuste sobre los flujos del GPV), esta reencuadra **el backoffice**: pasa a organizarse en Actividad/Acciones/Tiendas/Resultados (sección 6), y la planificación de rutas y la bandeja de justificaciones dejan de ser pantallas centrales. No toca la app de campo. Ver [ANEXO.md](ANEXO.md) ronda 7 y el roadmap en [ROADMAP.md](ROADMAP.md) fase 4.
 
 **Cambios respecto a v0.6 — especificación v2 del cliente.** El documento *Especificacion_MVP_GPV_Danone_v2.pdf* recoge nueve ajustes concretos sobre los flujos ya diseñados en v0.5/v0.6:
 
@@ -29,7 +29,7 @@ El registro completo con su justificación está en [ANEXO.md](ANEXO.md), ronda 
 | **Hueco en Dairy pasa de dos preguntas a una sola** — la v2 formula una pregunta combinada; el esquema actual tiene dos columnas separadas (`existe_hueco` + `cubierto_con_adyacente`) que hay que colapsar | §5.5.3 |
 | **Desajuste de documentación ya existente:** "Nevera" figuraba como tipo de extraespacio genérico en versiones previas de este documento, pero el código la trata como flujo propio — no es un cambio de la v2, es un error de esta documentación que se corrige de paso | §5.5.8 |
 | **Vocabulario de estados sin resolver:** la sección 11 del cliente pide distinguir `pendiente`/`resuelta`/`no resuelta`/`corregida en visita`; ni `estado_accion` ni `desenlace_comprobacion` tienen un valor equivalente a los dos últimos. Queda como pendiente técnico, no como decisión de negocio | §7.1 |
-| **Vista por PDV en backoffice, a confirmar:** el endpoint ya existe; falta verificar que hay una pantalla de ficha de tienda y no solo un listado plano filtrable | §6.2 |
+| **Vista por PDV en backoffice, a confirmar:** el endpoint ya existe; falta verificar que hay una pantalla de ficha de tienda y no solo un listado plano filtrable — **confirmado y especificado por la ronda 7 (2026-09-03)**, ver §6.4 | §6.4 |
 | **Matriz de responsabilidades, tabla de evidencia y criterios de aceptación**, que el cliente presenta como secciones propias, no estaban reproducidas como referencia consolidada | §5.5.10, §5.5.11 |
 
 **Cambios respecto a v0.5 — se cierra el reencuadre.** Doce decisiones, dos de ellas delegadas por el cliente:
@@ -105,8 +105,8 @@ La aplicación no debe limitarse a almacenar lo detectado; debe gestionar el pro
 - Flujos de detección: incidencias, oportunidades y extraespacios, con la evidencia (foto o vídeo) que cada uno requiera.
 - **Seguimiento entre visitas**: lo detectado permanece abierto hasta que hay resultado y reaparece en la siguiente visita a esa tienda.
 - Panel del FSM con las acciones pendientes y su priorización.
-- Backoffice web para gestión de tiendas, usuarios, rutas y catálogos, y consulta/exportación de informes.
-- Dashboard de resultados, no solo de actividad (sección 6.4).
+- Backoffice web organizado en Actividad, Acciones, Tiendas y Resultados (sección 6), más la gestión maestra de tiendas/usuarios/catálogos y consulta/exportación de informes.
+- Dashboard de resultados, no solo de actividad (sección 6.5).
 - Sincronización offline.
 - **Multi-idioma**, tanto de interfaz como de contenido configurable.
 - Justificación de visitas planificadas no realizadas.
@@ -667,7 +667,7 @@ Si al final de la jornada una visita planificada sigue en estado `Pendiente`, **
 
 - El comercial puede justificarla en cualquier momento del día con el botón "No he podido visitarla", o al cierre de jornada mediante un aviso.
 - La justificación consta de: **motivo** (de un catálogo cerrado y configurable — ej. tienda cerrada, falta de tiempo, incidencia de transporte, cita cancelada por el encargado, otro) y **comentario libre** obligatorio cuando el motivo es "otro".
-- La visita `No realizada` es visible para el supervisor en su bandeja (sección 6.2) y computa en los informes de cobertura como planificada-no-cubierta.
+- La visita `No realizada` sigue registrándose y quedando disponible para auditoría, pero **desde la ronda 7 (2026-09-03) la bandeja de justificaciones deja de ser una pantalla central del backoffice** — ver la nota de reencuadre al inicio de la sección 6 y ANEXO ronda 7. Ya no computa en un informe de cobertura destacado.
 - Una visita `No realizada` es inmutable igual que una finalizada: la justificación no se puede editar a posteriori.
 
 **Ventana de justificación — el mismo día.** La justificación se hace **cada día, antes de terminar la jornada**. No se puede justificar el viernes una visita del martes. Consecuencias:
@@ -683,6 +683,8 @@ Si al final de la jornada una visita planificada sigue en estado `Pendiente`, **
 
 Aplicación web para supervisores y administradores.
 
+> **⚠️ Reencuadre (2026-09-03, ver ANEXO ronda 7).** El cliente entrega una especificación funcional propia del FSM que reorganiza el backoffice en **cuatro secciones de navegación principal: Actividad (6.2) · Acciones (6.3) · Tiendas (6.4) · Resultados (6.5)**. La planificación de rutas y la bandeja de justificaciones dejan de ser pantallas centrales del producto — no se borra nada del modelo de datos ni de la app de campo, pero la navegación principal del FSM ya no gira en torno a "visitas completadas vs. planificadas". La **gestión maestra** (6.1: alta de tiendas, usuarios, catálogos) sigue existiendo como capa de administración, separada de las cuatro secciones de uso diario.
+
 ### 6.1 Gestión maestra
 
 - **Tiendas:** alta/baja/edición, número de referencia, dirección, geolocalización, zona/región, tipo de tienda (para checklist específico). En v1 la gestión es **manual**; el modelo incluye ya los campos necesarios para una futura sincronización con ERP (`id_externo`, `origen`, `sincronizado_en`) y el backoffice debe marcar visualmente el origen de cada ficha. Se incluye **importación por CSV** como paso intermedio antes de la integración real.
@@ -690,17 +692,28 @@ Aplicación web para supervisores y administradores.
 - **Configuración de flujos (antes «checklists»):** qué flujos aparecen en cada categoría, en qué orden, con qué opciones y para qué tipo de tienda o canal. Reutiliza la maquinaria de plantillas traducibles ya construida. Incluye además la **sección opcional de checklist**, desactivada por defecto y **con aviso al superar unos pocos ítems** — el guardarraíl que evita que vuelva a crecer hasta ser un cuestionario.
 - **Marcas / segmentos:** catálogo para los flujos de facings y visibilidad. **Las marcas no se traducen**: son nombres propios, y es la primera entrada de contenido configurable sin `textoI18n`.
 - **Referencias de producto:** catálogo del que el GPV elige las referencias Top Pico ausentes. Con importación CSV, como el de tiendas *(origen y mantenimiento abiertos, P32)*.
-- **Acciones:** el FSM gestiona el estado de las acciones abiertas desde su panel (sección 6.2), no desde la gestión maestra.
+- **Acciones:** el FSM gestiona el estado de las acciones abiertas desde su panel (sección 6.3), no desde la gestión maestra.
 - **Categorías de incidencia/oportunidad:** catálogo configurable (no fijo en código), con tipo asociado (incidencia u oportunidad), prioridad por defecto y textos traducibles. El catálogo definitivo está pendiente de cerrar con el cliente, por lo que la pantalla de gestión es un requisito, no un lujo.
 - **Motivos de no realización:** catálogo configurable de motivos para justificar visitas no realizadas.
-- **Rutas/planificación:** asignar qué tiendas debe visitar cada comercial cada día (manual en v1; posible optimización automática en fases futuras). Sin franjas horarias.
+- **Rutas/planificación:** asignar qué tiendas debe visitar cada comercial cada día (manual en v1; posible optimización automática en fases futuras). Sin franjas horarias. *(2026-09-03: deja de ser pantalla central del FSM — ver nota de reencuadre arriba. El mecanismo sigue existiendo si se necesita para logística interna, pero no es parte de las cuatro secciones que el cliente describe)*
 - **Traducciones:** editor para mantener las versiones idiomáticas del contenido configurable, con indicación visible de qué traducciones faltan.
 
-### 6.2 Supervisión en tiempo real
+### 6.2 Actividad
 
-**El FSM necesita una herramienta distinta a la del GPV.** El GPV necesita rapidez en tienda; el FSM necesita **detectar problemas, priorizar acciones, hacer seguimiento, medir resultados y gestionar a su equipo**. Son dos productos con la misma base de datos, y confundirlos produce un panel que no sirve para ninguno de los dos.
+*(Nueva en la ronda 7, 2026-09-03 — sustituye al antiguo dashboard "completadas vs. planificadas".)*
 
-**🔥 Acciones pendientes** — la pantalla principal del FSM. Listado de todo lo abierto que espera actuación, agrupado y priorizable:
+Objetivo: que el FSM sepa rápidamente qué ha ocurrido en los PDV durante un periodo. No es un histórico completo — para eso está Tiendas (6.4).
+
+- **Filtros:** GPV (todos / uno concreto) y periodo (hoy / esta semana / este mes / personalizado con fecha inicial y final). Solo se muestran PDV con actividad dentro del periodo.
+- **Qué entra:** oportunidades registradas, incidencias registradas y acciones solucionadas dentro del periodo. Nada más — no es el histórico.
+- **Agrupación por tienda:** nombre de tienda y GPV responsable como elementos principales de identificación, con un resumen de lo ocurrido.
+- **Detalle:** desde una entrada de actividad se abre el detalle del registro (tipo, tienda, GPV, fecha, estado, datos específicos, evidencia). No se gestiona nada desde aquí — eso es Acciones.
+
+### 6.3 Acciones
+
+**El FSM necesita una herramienta distinta a la del GPV.** El GPV necesita rapidez en tienda; el FSM necesita **detectar problemas, priorizar acciones, hacer seguimiento y medir resultados**. Son dos productos con la misma base de datos, y confundirlos produce un panel que no sirve para ninguno de los dos.
+
+Concentra todo lo pendiente de gestión — **solo acciones abiertas**.
 
 ```
 Waters — Carrefour X     🔴 Falta de stock comunicada al responsable
@@ -712,31 +725,50 @@ Dairy  — Tienda B        📐 Oportunidad de ganar facings
 
 Cada línea debe permitir distinguir de un vistazo **categoría, tienda, tipo de situación y antigüedad**. La antigüedad no es decorativa: una de las preguntas que el cliente quiere responder es *qué acciones llevan demasiado tiempo abiertas*.
 
-- Dashboard con estado del día: visitas completadas vs. planificadas, GPVs activos, acciones abiertas, **visitas no realizadas pendientes de justificar**.
-- Vista de detalle de cualquier visita: lo detectado por categoría, evidencias, responsable de tienda y horarios.
-- **Ficha de tienda con histórico completo de acciones** — el endpoint `GET /tiendas/:id/acciones` ya existe (ROADMAP fase 2), pero conviene verificar que el backoffice lo expone como una **pantalla propia por PDV** (qué se detectó, quién debe solucionarlo, si se solucionó), y no solo como filtro sobre el listado plano de "Acciones pendientes". El cliente lo pide explícitamente por tienda: *«que todas las oportunidades e incidencias queden guardadas automáticamente por PDV […] para ver qué se detectó, quién tiene que solucionarlo y si finalmente se solucionó o no»* — el dato ya está, falta confirmar que la pantalla lo presenta así.
+- **Filtros:** GPV (todos / uno concreto) y orden (más antiguas primero / más recientes primero). **Sin filtro de periodo** — lo que importa aquí es qué sigue abierto, no cuándo se detectó.
+- **Botones: solo dos — SOLUCIONADA y NO SOLUCIONADA.** No existe un tercer botón "Mantener abierta": si el FSM no pulsa ninguno, la acción sigue abierta por defecto. Esto es una regla explícita del cliente (§5 del documento de la ronda 7) — no añadir ese tercer botón en el panel.
+- **Detalle de una acción:** contexto completo — tienda, GPV responsable, qué se detectó, cuándo, estado, evidencia si existe.
+- Acciones debe estar limpia: al cerrarse una acción, desaparece de la lista de abiertas inmediatamente.
 
-> ⚠️ **La duración de la visita no se muestra.** Se registra técnicamente inicio y fin, pero el cliente ha decidido **no exponer el tiempo de permanencia** como métrica ni usarlo como mecanismo de control mientras no se complete la revisión legal. Esto es un cambio respecto a la v0.4, que la incluía explícitamente en el detalle de visita y en los informes.
-- **Bandeja de justificaciones:** listado de visitas `No realizada`, separando visualmente las **justificadas** (con su motivo) de las **no justificadas** (el comercial dejó pasar la ventana diaria). Permite marcar la justificación como aceptada o cuestionada.
-- Gestión de incidencias: poder marcarlas como revisadas/resueltas, asignarlas a alguien, y notificar automáticamente cuando se reporta una incidencia crítica.
+### 6.4 Tiendas
 
-### 6.3 Informes y reportes
+*(La "ficha con histórico" ya estaba señalada como pregunta abierta en ROADMAP; la ronda 7 la confirma y la especifica.)*
 
-- Filtros por fecha, comercial, zona, tienda, tipo de incidencia, planificada/no planificada.
-- Métricas clave: nº de visitas realizadas vs. planificadas, **tasa de no realización y desglose por motivo**, acciones por tipo/categoría/tienda/periodo, ranking de cobertura por zona.
-- Métricas de **resultado**, que son las que dan sentido al sistema: facings ganados, Top Picos incorporados, acciones resueltas y tiempo hasta la resolución (sección 6.4).
+Punto único para investigar un PDV.
 
-> La **duración media de visita** desaparece de los informes por la razón explicada en 6.2, y no hay acción pendiente al respecto: el dato se registra, no se muestra, y solo volvería a plantearse si el cliente pidiera exponerlo. La tasa de cumplimiento de checklist deja de ser una métrica principal: el checklist ya no es el núcleo de la visita.
+- **Listado:** buscador por nombre. Muestra únicamente nombre de tienda, código de tienda y GPV responsable — **sin ubicación ni ficha general de características del PDV**. Esto es distinto de la gestión maestra de tiendas (6.1), que sí necesita dirección y ubicación para el alta y la logística; aquí es una pantalla de consulta para el FSM, no de administración.
+- **Ficha de tienda:** cabecera con nombre + código + GPV responsable, y debajo dos zonas diferenciadas:
+  - **Acciones abiertas:** todo lo pendiente en ese PDV.
+  - **Histórico:** todos los registros relevantes, con filtro por tipo (todas / oportunidades / incidencias) y por resultado (todas / solucionadas / no solucionadas), orden más reciente primero. Sin filtro de fechas en esta fase.
+- **Detalle del histórico:** se adapta al tipo de registro (bloque de marca indica Waters/PBB, nueva implantación indica qué se implantó, hueco conserva la solución, nevera muestra la acción si existe, evidencia cuando exista). El GPV responsable ya se ve en la cabecera — no hace falta repetirlo en cada registro.
+- Los rankings de Resultados (6.5) no abren tiendas directamente: para investigar un PDV concreto, siempre se pasa por aquí.
+
+### 6.5 Resultados
+
+Mide lo conseguido, la gestión de oportunidades/incidencias y la evolución entre periodos. El cliente es explícito en que el objetivo **no** es saber cuántas visitas ha hecho cada GPV — eso es actividad, y la actividad sin resultado es justo lo que la aplicación quiere dejar atrás.
+
+- **Filtros generales:** GPV (todos / uno) y periodo (hoy / esta semana / este mes / personalizado).
+- **Resultados conseguidos**, con desglose Global → GPV → PDV: facings ganados, SKU incorporadas, bloques de marca (con detalle Waters/PBB), nuevas implantaciones (con detalle de qué se implantó), huecos solucionados (se miden, no se monetizan).
+- **SKU incorporadas ≠ oportunidades de SKU.** Solo cuenta cuando se consigue de verdad — ej. 25 detectadas, 7 conseguidas → conversión 28%.
+- **Gestión (conversión y resolución):** siempre numérica absoluta **y** porcentaje al lado, nunca solo el porcentaje — un % alto con poco volumen no es comparable a un % algo menor con mucho volumen. Conversión de oportunidades (solucionadas/totales) y resolución de incidencias (solucionadas/totales), con el mismo desglose Global → GPV → PDV.
+- **Análisis — PDV con más:** selector Oportunidades/Incidencias, respeta filtros de GPV y periodo, ordena de mayor a menor. **El PDV no es clicable desde aquí** — para investigarlo se usa Tiendas (6.4).
+- **Comparar periodos** *(nuevo en la ronda 7):* subapartado de Resultados. El usuario elige libremente dos periodos, no necesariamente consecutivos ni meses completos. Compara como mínimo: facings ganados, SKU incorporadas, bloques de marca, nuevas implantaciones, huecos solucionados, oportunidades, conversión, incidencias, resolución. Presenta las dos numéricas y el cambio; para porcentajes, el cambio en puntos porcentuales (pp).
+
+### 6.6 Informes y reportes
+
+- Filtros por fecha, comercial, zona, tienda, tipo de incidencia. *(2026-09-03: se retira el filtro planificada/no planificada — deja de tener sentido sin el módulo de rutas como pantalla central; el dato de `Visita` sigue existiendo en base de datos por si se necesitara reconstruir algo puntualmente)*
+- Métricas clave: acciones por tipo/categoría/tienda/periodo.
+- Métricas de **resultado**, que son las que dan sentido al sistema: facings ganados, Top Picos incorporados, acciones resueltas y tiempo hasta la resolución (sección 6.5/6.7).
+
+> La **duración media de visita** desaparece de los informes: el dato se registra, no se muestra, y solo volvería a plantearse si el cliente pidiera exponerlo. La tasa de cumplimiento de checklist tampoco es una métrica principal: el checklist no es el núcleo de la visita. *(2026-09-03: por la misma razón, la tasa de no realización y el ranking de cobertura por zona dejan de ser informes centrales — ver ANEXO ronda 7)*
 
 Los informes pueden **segmentarse por canal** (Modern / Proximity) desde el primer día, aunque los flujos sean idénticos en ambos.
 - Exportación a PDF/Excel, respetando el idioma seleccionado.
 - Informes automáticos periódicos por email a supervisores (ej. resumen semanal), en el idioma preferido del destinatario.
 
-### 6.4 Dashboard de resultados
+### 6.7 Detalle: las preguntas que debe responder Resultados
 
-El cliente es explícito en que el objetivo **no** es saber cuántas visitas ha hecho cada GPV. Ese dato es de actividad, y la actividad sin resultado es exactamente lo que la aplicación quiere dejar atrás.
-
-Las preguntas que el dashboard debe responder:
+El cliente es explícito en que el objetivo **no** es saber cuántas visitas ha hecho cada GPV. Ese dato es de actividad, y la actividad sin resultado es exactamente lo que la aplicación quiere dejar atrás. Estas once preguntas son el detalle funcional que hay detrás de 6.5:
 
 | # | Pregunta | Naturaleza |
 |---|---|---|

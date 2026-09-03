@@ -625,6 +625,46 @@ No es motivo para descartar el vídeo, y no bloquea diseñar el flujo. Sí convi
 
 **Nota sobre la retención de fotos (P7):** posponerla es razonable, pero tiene un coste que conviene tener presente. Mientras no haya política, el sistema conserva indefinidamente, así que cuando se decida habrá que ejecutar un **borrado retroactivo** sobre fotos ya acumuladas — y si para entonces hay un año de operación, eso es mucho volumen y una conversación con legal. Lo barato es implementar el mecanismo de retención (un campo de fecha de expiración y un proceso de purga) aunque el plazo se configure más tarde. El mecanismo es el trabajo; el número es un parámetro.
 
+### Especificación funcional FSM v2.0 del cliente — ronda 7 *(2026-09-03)*
+
+Documento nuevo, `Especificaciones_Funcionales_App_FSM_Desarrollador_COMPLETA_v2.docx`. A diferencia de la ronda 6 (ajustes sobre los flujos del GPV), este documento está enteramente centrado en **la app FSM**, es decir, el backoffice — no toca la app de campo. Define la app en 4 secciones: **Actividad** (¿qué ha ocurrido?), **Acciones** (¿qué queda pendiente?), **Tiendas** (¿qué ha ocurrido en este PDV?) y **Resultados** (¿qué hemos conseguido?).
+
+### 2026-09-03 — El backoffice se reencuadra: de gestión de visitas a gestión de acciones por PDV
+
+El documento es explícito en su sección 14 ("Qué NO desarrollar en esta versión"): módulo de visitas realizadas/no realizadas, rutas o control de cumplimiento de rutas, ubicación dentro de la ficha de tienda, ficha general de características del PDV, KPI de neveras, botón "Mantener abierta" en el FSM, PDV clicables desde el ranking de Análisis, puntuación diferenciada de bloques de marca.
+
+**Decisión (2026-09-03):** se interpreta como un reencuadre real del backoffice, no como una sección añadida al lado de lo que ya existía. El panel de **Rutas** (planificación) y la bandeja de **Justificaciones** (visitas no realizadas) dejan de ser pantallas centrales del producto FSM, igual que el Dashboard deja de organizarse en torno a "completadas vs. planificadas". Esto **no afecta a la app de campo**: el GPV sigue entrando por código o nombre (SPECS §5.3) y ese check-in interno de `Visita` sigue existiendo como mecanismo de registro — es fontanería del sistema, no algo que el FSM necesite gestionar o ver. Lo que cambia es exclusivamente qué le enseña el backoffice al FSM y en qué se organiza su navegación principal.
+
+**Impacto sobre lo ya construido en el backoffice:**
+
+| Pieza | Qué pasa |
+|---|---|
+| `Acciones.tsx` (panel de acciones pendientes) | Sobrevive casi intacto — ya es solo abiertas, ya tiene ordenación y ya tiene botones de cierre. Revisar que no exista un tercer botón "mantener abierta" (§5, el documento lo prohíbe expresamente) |
+| `Resultados.tsx` (dashboard) | Sobrevive con ampliación: las métricas de conversión/resolución y el ranking con selector ya existen; **falta la comparación libre de dos periodos** (§10.8), que es nueva |
+| `Tiendas.tsx` actual | Es la **gestión maestra** (CRUD: alta/baja, dirección, ubicación, tipo) — sigue haciendo falta para dar de alta tiendas, y no es lo que el documento describe en su sección 8 |
+| Ficha de tienda con histórico (§8) | **Es la tarea ya señalada como abierta en ROADMAP** ("confirmar si hace falta construir una ficha de tienda con histórico") — el documento la confirma y la especifica: cabecera nombre+código+GPV, dos zonas (acciones abiertas / histórico), sin ubicación ni características |
+| `Rutas.tsx` (planificación) | Queda **desautorizado como pantalla central del FSM** — el documento no prevé gestión de rutas en absoluto |
+| `Justificaciones.tsx` (bandeja no-realizada) | Queda **desautorizado como pantalla central del FSM** — sin módulo de visitas, no hay nada que justificar desde este panel |
+| `Dashboard.tsx` actual | Se sustituye por una pantalla **Actividad**: filtros GPV+periodo, agrupada por tienda, mostrando oportunidades/incidencias/acciones-solucionadas del periodo — no completadas-vs-planificadas |
+
+**Es enteramente nuevo:** la sección Actividad completa, la ficha de tienda con histórico (§8), la comparación libre de dos periodos en Resultados (§10.8).
+
+**Lo que NO cambia:** nada en `apps/field`, nada en el modelo de `Visita`/`JustificacionNoRealizada` en base de datos (se quedan, aunque el backoffice deje de tener una pantalla dedicada a leerlos como su producto principal), nada en la autenticación, i18n, cola offline o almacenamiento.
+
+### 2026-09-03 — Diagnóstico de "la página de gestión está caída"
+
+No era un fallo de servidor: contenedor arriba, `curl` a `/gestion/` devolvía 200 con las cabeceras correctas, los assets JS/CSS respondían, y los logs (backoffice y API) no mostraban errores en 24h — incluida una sesión Android real navegando `/gestion/acciones` sin problema.
+
+**Causa real: un service worker viejo del PWA de campo, todavía activo en el navegador de quien lo reportó.** El SW de `apps/field` tiene ámbito `/` (necesario para que la PWA se instale desde la raíz) y controla toda navegación bajo el dominio salvo lo que excluya `navigateFallbackDenylist`. Ese denylist para `/gestion/` se añadió el 26 de agosto (`vite.config.ts`), pero como `registerType` es `"prompt"` (decisión deliberada, ver más abajo), un dispositivo que no ha aceptado el banner de actualización desde antes de esa fecha sigue ejecutando el SW antiguo, sin el denylist, y ese SW intercepta la navegación a `/gestion/` sirviendo el `index.html` cacheado de la app de campo.
+
+No requiere cambio de código: el arreglo ya estaba desplegado. Requiere que ese dispositivo concreto acepte la actualización pendiente (o borre datos del sitio / desregistre el service worker manualmente).
+
+### 2026-09-03 — Implementada la reorganización del backoffice (ronda 7)
+
+Todo lo especificado arriba está construido: `GET /actividad`, `GET /tiendas/:id` (ficha), `GET /tiendas/:id/historico` y `GET /resultados/comparar` en la API; `Actividad.tsx`, `ConsultaTiendas.tsx` y `FichaTienda.tsx` nuevos en el backoffice; `Dashboard.tsx` borrado; Rutas y Justificaciones fuera de `Marco.tsx` pero con sus rutas de React Router intactas. Verificado que Acciones y el ranking de Resultados ya cumplían las reglas del documento sin cambios. Detalle en ROADMAP fase 4.
+
+**Una simplificación consciente:** el listado de `ConsultaTiendas.tsx` solo muestra nombre y código, no el GPV responsable — calcularlo por fila (última visita) para un listado de cientos de tiendas sería una consulta N+1 innecesaria. El GPV responsable sí aparece, prominente, en la cabecera de la ficha (`FichaTienda.tsx`), que es donde el documento lo pide con más énfasis (§8.3). Si el listado necesita esa columna más adelante, hace falta una consulta agregada, no una por fila.
+
 ### Preguntas cerradas
 
 P1 (encargado), P2 (catálogo de tiendas), P3 (franja horaria), P4 (visita no realizada), P5 (multi-idioma), P6 (categorías → reconvertida en P10), P8 (contraseñas), P9 (set de idiomas), P12 (ventana de justificación), P13 (solo idioma de interfaz), P14 (`en-GB`), P15 (traducción inicial → deja abierta P16).

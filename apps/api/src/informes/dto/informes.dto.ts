@@ -67,6 +67,35 @@ export const dashboardSchema = z.object({
 });
 export type DashboardDto = z.infer<typeof dashboardSchema>;
 
+/**
+ * Comparar periodos (SPECS §6.5 / documento FSM §10.8).
+ *
+ * Dos periodos elegidos libremente, no necesariamente consecutivos. Se
+ * declaran como dos pares desde/hasta en lugar de reutilizar `filtrosBase`
+ * dos veces porque aquí las fechas son siempre obligatorias — no tiene
+ * sentido "comparar" con un periodo por defecto que el usuario no eligió.
+ */
+export const compararPeriodosSchema = z
+  .object({
+    desdeA: fecha,
+    hastaA: fecha,
+    desdeB: fecha,
+    hastaB: fecha,
+    zonaId: z.string().uuid().optional(),
+    usuarioId: z.string().uuid().optional(),
+    tiendaId: z.string().uuid().optional(),
+    canal: z.enum(["modern", "proximity"]).optional(),
+  })
+  .refine((f) => f.desdeA <= f.hastaA, {
+    message: "El periodo A tiene la fecha inicial posterior a la final",
+    path: ["desdeA"],
+  })
+  .refine((f) => f.desdeB <= f.hastaB, {
+    message: "El periodo B tiene la fecha inicial posterior a la final",
+    path: ["desdeB"],
+  });
+export type CompararPeriodosDto = z.infer<typeof compararPeriodosSchema>;
+
 export const bandejaJustificacionesSchema = filtrosBase
   .extend({ soloPendientes: z.coerce.boolean().default(true) })
   .transform(rellenarFechas);

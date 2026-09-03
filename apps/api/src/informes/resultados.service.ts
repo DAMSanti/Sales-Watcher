@@ -12,11 +12,12 @@ import {
   usuarios,
   visitas,
 } from "@sw/db";
-import { UMBRAL_ESTANCADA_DIAS } from "@sw/shared";
+import { UMBRAL_ESTANCADA_DIAS, type TipoSituacion } from "@sw/shared";
 import { SERVICIO_DB, type ClienteDb } from "../db/db.module";
 import type { Configuracion } from "../config/configuracion";
 import type { PayloadToken } from "../auth/auth.service";
 import type { Filtros } from "./informes.service";
+import type { CompararPeriodosDto } from "./dto/informes.dto";
 
 /**
  * Dashboard de resultados (SPECS §6.4).
@@ -486,6 +487,87 @@ export class ResultadosService {
         detectadas: facingsPerdidos?.oportunidades ?? 0,
         noConseguidas: facingsPerdidos?.noConseguidas ?? 0,
       },
+    };
+  }
+
+  /**
+   * Cuántas acciones de un tipo (o grupo de tipos) se detectaron en el
+   * periodo y cuántas de esas ya están resueltas.
+   *
+   * Misma base temporal que `embudo`: cohorte por fecha de detección. Es lo
+   * que permite componer bloques/implantaciones/huecos/incidencias con la
+   * misma lectura que el resto del panel — "de lo detectado en el periodo,
+   * cuánto se resolvió", no "cuántas se resolvieron el mes pasado aunque se
+   * detectaran antes".
+   */
+  private async contarPorTipos(usuario: PayloadToken, filtros: Filtros, tipos: TipoSituacion[]) {
+    const [fila] = await this.db
+      .select({
+        detectadas: sql<number>`count(*)::int`,
+        resueltas: sql<number>`count(*) filter (where ${acciones.estado} = 'resuelta')::int`,
+      })
+      .from(acciones)
+      .innerJoin(visitas, eq(visitas.id, acciones.visitaOrigenId))
+      .innerJoin(usuarios, eq(usuarios.id, visitas.usuarioId))
+      .where(and(...this.ambito(usuario, filtros), inArray(acciones.tipoSituacion, tipos)));
+
+    return { detectadas: fila?.detectadas ?? 0, resueltas: fila?.resueltas ?? 0 };
+  }
+
+  /** Las métricas mínimas de "Comparar periodos" (documento FSM §10.8) para un único periodo. */
+  private async metricasPeriodo(usuario: PayloadToken, filtros: Filtros) {
+    const [embudo, facings, topPicos, bloques, implantaciones, huecos, incidencias] =
+      await Promise.all([
+        this.embudo(usuario, filtros),
+        this.facings(usuario, filtros, "gpv"),
+        this.topPicosIncorporados(usuario, filtros),
+        this.contarPorTipos(usuario, filtros, ["bloque_marca"]),
+        this.contarPorTipos(usuario, filtros, ["reorganizacion"]),
+        this.contarPorTipos(usuario, filtros, ["hueco"]),
+        this.contarPorTipos(usuario, filtros, [...INCIDENCIAS]),
+      ]);
+
+    return {
+      facingsGanados: facings.total,
+      skuIncorporadas: topPicos.incorporados,
+      bloquesMarca: bloques.resueltas,
+      nuevasImplantaciones: implantaciones.resueltas,
+      huecosSolucionados: huecos.resueltas,
+      oportunidades: {
+        total: embudo.detectadas,
+        solucionadas: embudo.solucionadas,
+        conversion: embudo.tasaConversion,
+      },
+      incidencias: {
+        total: incidencias.detectadas,
+        solucionadas: incidencias.resueltas,
+        resolucion:
+          incidencias.detectadas === 0
+            ? null
+            : Math.round((incidencias.resueltas / incidencias.detectadas) * 100),
+      },
+    };
+  }
+
+  /**
+   * Comparar periodos (documento FSM §10.8): dos periodos elegidos
+   * libremente, no necesariamente consecutivos. El cambio en puntos
+   * porcentuales de conversión/resolución lo calcula el cliente a partir de
+   * las dos cifras — aquí solo se devuelven las métricas de cada periodo.
+   */
+  async compararPeriodos(usuario: PayloadToken, dto: CompararPeriodosDto) {
+    const base = { zonaId: dto.zonaId, usuarioId: dto.usuarioId, tiendaId: dto.tiendaId, canal: dto.canal };
+    const periodoA = { ...base, desde: dto.desdeA, hasta: dto.hastaA };
+    const periodoB = { ...base, desde: dto.desdeB, hasta: dto.hastaB };
+
+    const [metricasA, metricasB] = await Promise.all([
+      this.metricasPeriodo(usuario, periodoA),
+      this.metricasPeriodo(usuario, periodoB),
+    ]);
+
+    return {
+      periodoA: { desde: periodoA.desde, hasta: periodoA.hasta, metricas: metricasA },
+      periodoB: { desde: periodoB.desde, hasta: periodoB.hasta, metricas: metricasB },
     };
   }
 

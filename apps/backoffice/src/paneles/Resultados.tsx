@@ -96,6 +96,21 @@ type Facings = {
   filas: Array<{ etiqueta: string | null; facings: number; operaciones: number }>;
 };
 
+type MetricasPeriodo = {
+  facingsGanados: number;
+  skuIncorporadas: number;
+  bloquesMarca: number;
+  nuevasImplantaciones: number;
+  huecosSolucionados: number;
+  oportunidades: { total: number; solucionadas: number; conversion: number | null };
+  incidencias: { total: number; solucionadas: number; resolucion: number | null };
+};
+
+type Comparacion = {
+  periodoA: { desde: string; hasta: string; metricas: MetricasPeriodo };
+  periodoB: { desde: string; hasta: string; metricas: MetricasPeriodo };
+};
+
 const DIMENSIONES = ["gpv", "tienda", "categoria", "marca", "mes"] as const;
 
 /** Por defecto, los últimos 90 días: un trimestre es el periodo en que el FSM piensa. */
@@ -116,6 +131,17 @@ export function Resultados() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verTabla, setVerTabla] = useState(false);
+
+  // ── Comparar periodos (documento FSM §10.8) — independiente de los
+  // filtros de arriba: aquí los dos periodos se eligen libremente. Por
+  // defecto, este mes contra el anterior, que es la comparación más pedida.
+  const [desdeA, setDesdeA] = useState(hace(60));
+  const [hastaA, setHastaA] = useState(hace(31));
+  const [desdeB, setDesdeB] = useState(hace(30));
+  const [hastaB, setHastaB] = useState(new Date().toISOString().slice(0, 10));
+  const [comparacion, setComparacion] = useState<Comparacion | null>(null);
+  const [comparando, setComparando] = useState(false);
+  const [errorComparar, setErrorComparar] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -144,6 +170,25 @@ export function Resultados() {
   useEffect(() => {
     void cargar();
   }, [cargar]);
+
+  async function comparar() {
+    setComparando(true);
+    setErrorComparar(null);
+    try {
+      const p = `desdeA=${desdeA}&hastaA=${hastaA}&desdeB=${desdeB}&hastaB=${hastaB}`;
+      setComparacion(await pedir<Comparacion>(`/resultados/comparar?${p}`, { idioma }));
+    } catch (e) {
+      setErrorComparar(
+        e instanceof ErrorApi && e.esFalloDeRed
+          ? t("comun.sinConexion")
+          : e instanceof Error
+            ? e.message
+            : String(e),
+      );
+    } finally {
+      setComparando(false);
+    }
+  }
 
   const e = panel?.embudo;
   /** Lo trabajado que aún no ha dado resultado: el escalón intermedio. */
@@ -519,6 +564,169 @@ export function Resultados() {
           </section>
         </>
       )}
+
+      {/* ── Comparar periodos (documento FSM §10.8) ──────────────────── */}
+      <section className="tarjeta">
+        <h2 className="tarjeta__titulo">{t("resultados.comparar")}</h2>
+        <p className="tarjeta__nota">{t("resultados.compararNota")}</p>
+
+        <div className="filtros">
+          <fieldset className="campo">
+            <legend className="campo__etiqueta">{t("resultados.periodoA")}</legend>
+            <div style={{ display: "flex", gap: "var(--e2)" }}>
+              <input
+                className="campo__control"
+                type="date"
+                value={desdeA}
+                onChange={(ev) => setDesdeA(ev.target.value)}
+              />
+              <input
+                className="campo__control"
+                type="date"
+                value={hastaA}
+                onChange={(ev) => setHastaA(ev.target.value)}
+              />
+            </div>
+          </fieldset>
+          <fieldset className="campo">
+            <legend className="campo__etiqueta">{t("resultados.periodoB")}</legend>
+            <div style={{ display: "flex", gap: "var(--e2)" }}>
+              <input
+                className="campo__control"
+                type="date"
+                value={desdeB}
+                onChange={(ev) => setDesdeB(ev.target.value)}
+              />
+              <input
+                className="campo__control"
+                type="date"
+                value={hastaB}
+                onChange={(ev) => setHastaB(ev.target.value)}
+              />
+            </div>
+          </fieldset>
+          <button
+            className="boton boton--principal"
+            onClick={() => void comparar()}
+            disabled={comparando}
+          >
+            {comparando ? t("comun.cargando") : t("resultados.compararBoton")}
+          </button>
+        </div>
+
+        {errorComparar && (
+          <div className="aviso aviso--error" role="alert">
+            {errorComparar}
+          </div>
+        )}
+
+        {comparacion && (
+          <div className="tabla-marco">
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th>{t("resultados.metrica")}</th>
+                  <th>{t("resultados.periodoA")}</th>
+                  <th>{t("resultados.periodoB")}</th>
+                  <th>{t("resultados.cambio")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <FilaComparacion
+                  etiqueta={t("resultados.facings")}
+                  a={comparacion.periodoA.metricas.facingsGanados}
+                  b={comparacion.periodoB.metricas.facingsGanados}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.skuIncorporadas")}
+                  a={comparacion.periodoA.metricas.skuIncorporadas}
+                  b={comparacion.periodoB.metricas.skuIncorporadas}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.bloquesMarca")}
+                  a={comparacion.periodoA.metricas.bloquesMarca}
+                  b={comparacion.periodoB.metricas.bloquesMarca}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.nuevasImplantaciones")}
+                  a={comparacion.periodoA.metricas.nuevasImplantaciones}
+                  b={comparacion.periodoB.metricas.nuevasImplantaciones}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.huecosSolucionados")}
+                  a={comparacion.periodoA.metricas.huecosSolucionados}
+                  b={comparacion.periodoB.metricas.huecosSolucionados}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.oportunidades")}
+                  a={comparacion.periodoA.metricas.oportunidades.total}
+                  b={comparacion.periodoB.metricas.oportunidades.total}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.conversionOportunidades")}
+                  a={comparacion.periodoA.metricas.oportunidades.conversion ?? 0}
+                  b={comparacion.periodoB.metricas.oportunidades.conversion ?? 0}
+                  sufijo="%"
+                  esPuntos
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.incidencias")}
+                  a={comparacion.periodoA.metricas.incidencias.total}
+                  b={comparacion.periodoB.metricas.incidencias.total}
+                />
+                <FilaComparacion
+                  etiqueta={t("resultados.resolucionIncidencias")}
+                  a={comparacion.periodoA.metricas.incidencias.resolucion ?? 0}
+                  b={comparacion.periodoB.metricas.incidencias.resolucion ?? 0}
+                  sufijo="%"
+                  esPuntos
+                />
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </>
+  );
+}
+
+/**
+ * Una fila de la tabla de comparación.
+ *
+ * `esPuntos` cambia la unidad del cambio a puntos porcentuales (pp), como pide
+ * el documento FSM §10.8 para los porcentajes: restar dos "%" da "pp", no "%".
+ */
+function FilaComparacion({
+  etiqueta,
+  a,
+  b,
+  sufijo = "",
+  esPuntos = false,
+}: {
+  etiqueta: string;
+  a: number;
+  b: number;
+  sufijo?: string;
+  esPuntos?: boolean;
+}) {
+  const delta = b - a;
+  const signo = delta > 0 ? "+" : "";
+  return (
+    <tr>
+      <td>{etiqueta}</td>
+      <td className="tabla__num">
+        {a}
+        {sufijo}
+      </td>
+      <td className="tabla__num">
+        {b}
+        {sufijo}
+      </td>
+      <td className="tabla__num">
+        {signo}
+        {delta}
+        {esPuntos ? "pp" : sufijo}
+      </td>
+    </tr>
   );
 }
